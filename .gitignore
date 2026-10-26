@@ -1,0 +1,6 @@
+﻿# llama.cpp binaries (re-created by scripts/setup.ps1)
+llama-cpp/
+# model weights (re-created by scripts/download-models.ps1)
+models/
+*.gguf
+*.zip
