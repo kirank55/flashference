@@ -138,6 +138,7 @@ def configs(session):
         S("control", "server bf16: -ngl 99 -fa on -np 1 -kvu -c 4096, -t/-b/-ub default (CONTROL)")
         B("bench-default", "llama-bench bf16 -ngl 99 -fa on -p 0 -n 256 (-t/-b/-ub default)")
         B("bench-prev-style", "llama-bench as in earlier baseline: -ngl 99 -fa 1 -p 512 -n 128", args=["-ngl", "99", "-fa", "on", "-p", "512", "-n", "128"])
+        B("bench-prev-nowarmup", "llama-bench as in the earlier baseline AND --no-warmup (cold first rep counted)", args=["-ngl", "99", "-fa", "on", "-p", "512", "-n", "128", "--no-warmup"])
         S("server-np-auto", "server without -np/-kvu (default auto slots, non-unified KV)", args=["-ngl", "99", "-fa", "on", "-c", "4096"])
         S("server-np1-nokvu", "server -np 1 without -kvu (S2-session flags)", args=["-ngl", "99", "-fa", "on", "-np", "1", "-c", "4096"])
         S("env-disable-graphs", "GGML_CUDA_DISABLE_GRAPHS=1", env={"GGML_CUDA_DISABLE_GRAPHS": "1"})

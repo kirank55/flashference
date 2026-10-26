@@ -65,4 +65,16 @@ def main(s):
             t = rec["tests"][-1]; ex = "bench threads=%s pp=%d tg=%d" % (t["n_threads"], t["n_prompt"], t["n_gen"])
         print("| %s | %s | %.2f +/- %.2f | %.3fx +/- %.3f | %s | %s | %s | %s |" % (k, rec["desc"], m, sd, r, rsd, rt, same(rec, C), loops(rec) if rec["kind"] == "server" else "-", ex))
 
-if __name__ == "__main__": main(sys.argv[1])
+
+def second(D):
+    a, b = D.get("control-r2a"), D.get("control-r2b")
+    if not a or not b: return
+    am, as_, _ = stats(a); bm, bs, _ = stats(b); rm = (am + bm) / 2; rs = math.sqrt(as_ ** 2 + bs ** 2) / 2
+    print("\nRe-run block (later in the day; controls bracket it): control start %.2f +/- %.2f, end %.2f +/- %.2f; drift %.1f%%; bracket mean %.2f\n" % (am, as_, bm, bs, 100 * (bm - am) / am, rm))
+    print("| config | tok/s mean +/- SD | speedup vs bracket control | greedy output = first control |\n|---|---|---|---|")
+    for k in ("control-r2a", "f16-weights-r2", "gen512-r2", "threads8-r2", "backend-sampling-r2", "control-r2b", "bench-default-r2"):
+        if k in D and "error" not in D[k]:
+            m, sd, _ = stats(D[k]); r, rsd = ratio(m, sd, rm, rs)
+            print("| %s | %.2f +/- %.2f | %.3fx +/- %.3f | %s |" % (k, m, sd, r, rsd, same(D[k], D["control"])))
+if __name__ == "__main__":
+    main(sys.argv[1]); second(load(sys.argv[1])["configs"])
