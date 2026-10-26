@@ -13,6 +13,10 @@ Experiments to maximize token generation speed for a small language model (Qwen3
 ```
 Binaries and models are git-ignored.
 
+## Docs
+- [docs/FINDINGS.md](docs/FINDINGS.md) - everything learned so far (measured vs estimated), research sources, caveats, open questions.
+- [docs/PLAN-single-reply.md](docs/PLAN-single-reply.md) - prioritized experiment plan for speeding up one continuous reply.
+
 ## Results
 See `results/`. Baseline (2026-10-26, full GPU offload, flash attention on):
 
@@ -41,3 +45,4 @@ Details: `results/2026-10-26-parallel-subtasks.md`; scripts: `scripts/parallel_s
 Parallel slots gave about 2.3x aggregate throughput at best; mean never exceeded 300 tok/s (only single runs did) and np=8/16/32 plateau around 270-300. Skeleton-of-thought was only about 1.2x faster per word than a sequential reply and read noticeably worse (repetitive, no transitions). Peak VRAM 0.7 GiB (np=1) to 1.4 GiB (np=16), 2.1 GiB at np=32.
 ## Planned experiments
 Batch size, CPU threads, KV-cache quantization, speculative decoding (`--spec-type draft-mtp`), CPU-only comparison, power mode.
+See [docs/PLAN-single-reply.md](docs/PLAN-single-reply.md) for the detailed, prioritized plan.
