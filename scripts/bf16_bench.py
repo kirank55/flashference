@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 r"""bf16 free-text experiments (B1/B2/B3) on Qwen3.5-0.8B via llama-server / llama-bench (stdlib only).
 Per server config: fresh server, GPU-idle check, one discarded warm-up pass over the 6 free-text prompts, 5 timed passes,
 greedy (temperature 0, seed 1), cache_prompt=false. Per pass tok/s = sum(n)/sum(predicted_ms) over the 6 prompts.
@@ -24,7 +24,7 @@ RAW = {"B1": "2026-10-26-bf16-B1-overhead.raw.json", "B2": "2026-10-26-bf16-B2-b
 RANK = os.path.join(ROOT, "results", "2026-10-26-bf16-b4-token-rank.txt")
 PROMPTS = [p for p in json.load(open(os.path.join(ROOT, "prompts", "prompts.json")))["free"]]
 BASE_ARGS = ["-ngl", "99", "-fa", "on", "-np", "1", "-kvu", "-c", "4096"]
-ENVS = ["GGML_CUDA_DISABLE_GRAPHS", "GGML_CUDA_GRAPH_OPT", "GGML_CUDA_DISABLE_FUSION", "LLAMA_GRAPH_REUSE_DISABLE", "GGML_CUDA_GRAPH_DEBUG", "LLAMA_MTP_TRIM_FILE", "LLAMA_MTP_TRIM_K"]
+ENVS = ["GGML_CUDA_DISABLE_GRAPHS", "GGML_CUDA_GRAPH_OPT", "GGML_CUDA_DISABLE_FUSION", "LLAMA_GRAPH_REUSE_DISABLE", "GGML_CUDA_GRAPH_DEBUG", "LLAMA_MTP_TRIM_FILE", "LLAMA_MTP_TRIM_K", "LLAMA_MTP_TRIM_FIXED", "LLAMA_MTP_DYN", "LLAMA_MTP_ADAPT", "LLAMA_MTP_ADAPT_LO", "LLAMA_MTP_ADAPT_INIT"]
 
 def chatml(u): return "<|im_start|>user\n" + u + "<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
 

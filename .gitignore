@@ -11,3 +11,4 @@ __pycache__/
 # llama.cpp source + custom builds (B4)
 llama-src/
 llama-cpp-b4/
+llama-cpp-e/
