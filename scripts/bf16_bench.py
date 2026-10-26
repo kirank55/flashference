@@ -168,6 +168,7 @@ def configs(session):
         for k in (1, 2, 3):
             for p in (None, 0.5, 0.75):
                 S("mtp-n%d-p%s" % (k, "def" if p is None else p), "bf16 target + native MTP (draft-mtp) n-max=%d p-min=%s" % (k, "default(0)" if p is None else p), args=BASE_ARGS + mt(k, p))
+        S("mtp-n1-bs", "B5 combo: bf16 + draft-mtp n-max=1 + -bs (backend sampling)", args=BASE_ARGS + mt(1) + ["-bs"])
         S("q4mtp-control", "DIFFERENT TARGET: unsloth MTP Q4_K_M plain", model=Q4MTP)
         for k in (1, 2, 3):
             S("q4mtp-n%d-pdef" % k, "DIFFERENT TARGET: unsloth MTP Q4_K_M + draft-mtp n-max=%d" % k, model=Q4MTP, args=BASE_ARGS + mt(k))

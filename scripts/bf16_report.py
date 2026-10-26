@@ -76,5 +76,17 @@ def second(D):
         if k in D and "error" not in D[k]:
             m, sd, _ = stats(D[k]); r, rsd = ratio(m, sd, rm, rs)
             print("| %s | %.2f +/- %.2f | %.3fx +/- %.3f | %s |" % (k, m, sd, r, rsd, same(D[k], D["control"])))
+
+def combo(D):
+    a, b = D.get("control-c1"), D.get("control-c3")
+    if not a or not b: return
+    am, as_, _ = stats(a); bm, bs, _ = stats(b); rm = (am + bm) / 2; rs = math.sqrt(as_ ** 2 + bs ** 2) / 2
+    print("\nCombination block (MTP n-max=1 with/without -bs; controls bracket it): control start %.2f +/- %.2f, end %.2f +/- %.2f; drift %.1f%%; bracket mean %.2f\n" % (am, as_, bm, bs, 100 * (bm - am) / am, rm))
+    print("| config | tok/s mean +/- SD | speedup vs bracket control | accept / tok per cycle / cycle ms | greedy output = first control |\n|---|---|---|---|---|")
+    for k in ("control-c1", "mtp-n1-bs", "mtp-n1-pdef-c2", "control-c3"):
+        if k in D and "error" not in D[k]:
+            m, sd, _ = stats(D[k]); r, rsd = ratio(m, sd, rm, rs); x = mtpstats(D[k])
+            ex = "%.1f%% / %.2f / %.2f" % (100 * x["acc"], x["tok_per_cycle"], x["cycle_ms"]) if x else "-"
+            print("| %s | %.2f +/- %.2f | %.3fx +/- %.3f | %s | %s |" % (k, m, sd, r, rsd, ex, same(D[k], D["control"])))
 if __name__ == "__main__":
-    main(sys.argv[1]); second(load(sys.argv[1])["configs"])
+    main(sys.argv[1]); second(load(sys.argv[1])["configs"]); combo(load(sys.argv[1])["configs"])
