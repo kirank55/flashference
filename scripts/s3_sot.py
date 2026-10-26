@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 r"""S3: improved skeleton-of-thought (SoT) for ONE reply, Qwen3.5-0.8B Q4_K_M, llama-server (stdlib only).
 Variants: naive | distinct | distinct_ctx | distinct_ctx_ic | distinct_ctx_ic_prefix (see VARIANTS).
 Greedy (temperature 0, seed 1) except outline re-rolls (temperature 0.8, seeds 11/12). Fresh server per -np.
@@ -24,7 +24,7 @@ TOPICS = [
  ("T5", "how internet packets are routed", ["packet", "router", "ip address", "header", "hop", "protocol", "tcp", "table"]),
  ("T6", "how binary search works in code", ["sorted", "middle", "half", "log", "index", "low", "high", "compare"]),
 ]
-VARIANTS = ["naive", "distinct", "distinct_ctx", "distinct_ctx_ic", "distinct_ctx_ic_prefix"]
+VARIANTS = ["naive", "distinct_ctx_ic"]  # (a) naive outline, (b) distinct outline + context + intro + conclusion; "..._prefix" = (b) with cache_prompt prefix reuse
 LEN_PHRASE = {50: ("2 sentences (about 30 words)", 70), 100: ("3 to 4 sentences (about 60 words)", 140),
               200: ("two short paragraphs (about 120 words)", 280), 400: ("three paragraphs (about 250 words)", 560)}
 STOP = set("a an the of to and or in on for with by is are was were be as at it its this that these those from into than then can how what which who their they them his her use uses used using also".split())
@@ -202,7 +202,7 @@ def idle():
 def start_server(np_):
     os.makedirs(os.path.join(ROOT, "logs"), exist_ok=True)
     log = open(os.path.join(ROOT, "logs", "s3-np%d.log" % np_), "w")
-    cmd = [SERVER, "-m", MODEL, "-ngl", "99", "-fa", "on", "-np", str(np_), "-c", str(4096 * np_), "--no-webui", "--host", "127.0.0.1", "--port", str(PORT)]
+    cmd = [SERVER, "-m", MODEL, "-ngl", "99", "-fa", "on", "-np", str(np_), "-c", str(2048 * np_), "--no-webui", "--host", "127.0.0.1", "--port", str(PORT)]
     p = subprocess.Popen(cmd, stdout=log, stderr=log)
     for _ in range(120):
         time.sleep(1)
@@ -213,6 +213,8 @@ def start_server(np_):
     p.kill(); raise RuntimeError("server start timeout")
 
 # ---------- driver ----------
+PREFIX_CFG = (6, 100); PREFIX_TOPICS = 6
+
 def plain_control(reps):
     runs = []
     for _ in range(reps):
@@ -225,13 +227,15 @@ def plan(phase, topics):
     allt = [t[0] for t in topics]; t3 = allt[:3]
     if phase == "main":
         for v in VARIANTS: cfgs.append((v, 6, 100, allt))
-    elif phase == "sweeps":
-        for n in (2, 4, 8, 12): cfgs.append(("distinct_ctx_ic", n, 100, t3))
-        for L in (50, 200, 400): cfgs.append(("distinct_ctx_ic", 6, L, t3))
+    elif phase == "sweeps":  # rest of the {4,6,8} x {50,100,200} grid on T1-T3 (N=6 L=100 comes from main)
+        for n in (4, 8): cfgs.append(("distinct_ctx_ic", n, 100, t3))
+        for L in (50, 200):
+            for n in (4, 6, 8): cfgs.append(("distinct_ctx_ic", n, L, t3))
     elif phase == "np":
-        cfgs.append(("distinct_ctx_ic", 8, 100, t3))
-    elif phase == "end":
-        cfgs.append(("distinct_ctx_ic", 6, 100, t3))
+        for n in (6, 8): cfgs.append(("distinct_ctx_ic", n, 100, t3))
+    elif phase == "prefix":
+        n, L = PREFIX_CFG
+        for v in ("distinct_ctx_ic", "distinct_ctx_ic_prefix"): cfgs.append((v, n, L, allt[:PREFIX_TOPICS]))
     return cfgs
 
 def run_server_phase(np_, phases, reps, data, samples, tag=""):
@@ -242,7 +246,7 @@ def run_server_phase(np_, phases, reps, data, samples, tag=""):
     try:
         # warm-up (discarded): one SoT + one sequential
         t = TOPICS[0]; sot(t[1], t[2], 4, 100, "distinct_ctx_ic", np_); seq_reply(t[1], 200); complete("Hello", 8)
-        rec["control_start"] = plain_control(reps)
+        rec["control_start"] = plain_control(5)
         seqcache = {}
         for ph in phases:
             for (variant, n, L, tids) in plan(ph, TOPICS):
@@ -254,7 +258,7 @@ def run_server_phase(np_, phases, reps, data, samples, tag=""):
                         if rep == 0:
                             q = quality(reply, tp[2]); q["rubric_auto"] = rubric_auto(q); entry["quality_sot"] = q
                             target = max(25, int(round(s["reply_words"] / 25.0)) * 25); entry["seq_target_words"] = target
-                            if tid in ("T1", "T2") and np_ == 4 and ph in ("main",):
+                            if tid in ("T1", "T2") and np_ == 4 and ph in ("main", "prefix"):
                                 samples.setdefault(tid, {})[variant] = {"outline": s["outline"], "reply": reply}
                         entry["sot"].append(s)
                         sk = (tid, target)
@@ -269,7 +273,7 @@ def run_server_phase(np_, phases, reps, data, samples, tag=""):
                           entry["sot"][0]["reply_words"], st.mean(x["wall"] for x in entry["seq"]), entry["seq"][0]["words"]), flush=True)
                     data["servers"][key] = rec
                     json.dump(data, open(OUT, "w")); json.dump(samples, open(SAMPLES, "w"), indent=1)
-        rec["control_end"] = plain_control(reps)
+        rec["control_end"] = plain_control(5)
         u, m = smi(); rec["vram_end_mib"] = m
     finally:
         proc.terminate()
@@ -280,14 +284,19 @@ def run_server_phase(np_, phases, reps, data, samples, tag=""):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--plan", nargs="+", default=["np4:main,sweeps", "np1:np", "np2:np", "np8:np", "np16:np", "np4end:end"])
-    ap.add_argument("--reps", type=int, default=5)
+    ap.add_argument("--plan", nargs="+", default=["np4:main", "np4sw:sweeps", "np1:np", "np8:np", "np4pf:prefix"])
+    ap.add_argument("--prefix-cfg", default="6,100")
+    ap.add_argument("--prefix-topics", type=int, default=6)
+    ap.add_argument("--reps", type=int, default=3)
     a = ap.parse_args()
+    global PREFIX_CFG, PREFIX_TOPICS
+    PREFIX_CFG = tuple(int(x) for x in a.prefix_cfg.split(",")); PREFIX_TOPICS = a.prefix_topics
     data = json.load(open(OUT)) if os.path.exists(OUT) else {"servers": {}}
     samples = json.load(open(SAMPLES)) if os.path.exists(SAMPLES) else {}
     for item in a.plan:
         srv, phases = item.split(":")
         m = re.match(r"np(\d+)(.*)", srv)
+        if not m: raise SystemExit("bad plan item " + item)
         if srv in data["servers"] and data["servers"][srv].get("control_end"): print("skip", srv); continue
         run_server_phase(int(m.group(1)), phases.split(","), a.reps, data, samples, tag=m.group(2))
         time.sleep(3)
