@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 r"""E-series (2026-10-27) experiments on bf16 Qwen3.5-0.8B: reuses scripts/bf16_bench.py methodology
 (fresh server per config, GPU-idle check, 1 discarded warm-up pass + 5 timed passes, chat template, thinking off, cache_prompt=false, n_predict 256).
 Each config names a prompt SET: free (F1-F6), code (K1-K4), lang (L1-L4), rep (copy-heavy C1-C6 from prompts.json).
@@ -84,6 +84,8 @@ def main():
         except SystemExit: raise
         except Exception as e:
             data["configs"][key] = {"name": name, "error": str(e)}; print("ERROR", key, e, flush=True)
+        cur = json.load(open(OUT)) if os.path.exists(OUT) else {"configs": {}}   # re-read: other queues may have written meanwhile
+        cur["configs"][key] = data["configs"][key]; data = cur
         json.dump(data, open(OUT, "w")); time.sleep(3)
     print("DONE", flush=True)
 

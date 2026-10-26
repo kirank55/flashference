@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Markdown table for E-series raw data.
 python scripts\e_report.py --prefix e1- [--plain set=cfg,...] [--best set=cfg,...] [--ref cfg=refcfg,...] [--keys k1 k2 ...]
 plain/best/ref are config keys in results\2026-10-27-bf16-E.raw.json. ratios use the pass-mean tok/s of the named config.
@@ -23,6 +23,7 @@ def eq(a, b):
     return "%d/%d" % (ok, tot)
 def kv(s): return dict(x.split("=", 1) for x in s.split(",")) if s else {}
 
+OK = {k for k, v in D.items() if 'runs' in v}
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--prefix", default=""); ap.add_argument("--plain", default=""); ap.add_argument("--best", default=""); ap.add_argument("--ref", default=""); ap.add_argument("--keys", nargs="*")
@@ -35,10 +36,10 @@ def main():
         if "error" in r: print("| %s | ERROR %s |" % (k, r["error"])); continue
         p = passes(r); m, sd = st.mean(p), st.pstdev(p) if len(p) < 2 else st.stdev(p)
         s = r["set"]; pk, bk, rk = plain.get(s), best.get(s), ref.get(k)
-        vp = "%.3fx" % (m / st.mean(passes(D[pk]))) if pk in D else "-"
-        vb = "%.3fx" % (m / st.mean(passes(D[bk]))) if bk in D else "-"
+        vp = "%.3fx" % (m / st.mean(passes(D[pk]))) if pk in OK else "-"
+        vb = "%.3fx" % (m / st.mean(passes(D[bk]))) if bk in OK else "-"
         ac, nd = acc(r)
         ep = eq(r, D[pk]) if pk in D and pk != k else ("-" if pk != k else "self")
-        er = eq(r, D[rk]) if rk in D else "-"
+        er = eq(r, D[rk]) if rk in OK else "-"
         print("| %s | %s | %.2f +/- %.2f | %s | %s | %s | %s | %s | %s |" % (k, s, m, sd, vp, vb, "-" if ac is None else "%.1f%%" % ac, ep, er, r.get("desc", "")))
 if __name__ == "__main__": main()
