@@ -142,31 +142,37 @@ Copy-fraction check [measured, ngram-simple n=3 m=16]: acceptance rises with cop
 5. **Aggregate-vs-single curve:** from the same runs plot aggregate tok/s / sequential tok/s and per-stream tok/s / sequential per-stream tok/s vs np, to show the trade-off between aggregate throughput and the latency of one reply (we already measured aggregate plateau 270-300 and per-stream ~25 at np=16 for independent tasks).
 6. **Quality rubric (score each reply 0-2, blind to the method; ideally by the user or a stronger model):** coverage of main aspects, repetition across sections, factual errors, coherence/transitions; plus automatic distinct-4gram ratio, repeated-sentence count, word count. Baselines per topic: sequential single reply of equal length, and naive SoT.
 
-**Metrics:** words-normalised speed-up vs sequential, `ideal` bound and realised/ideal fraction, rubric scores and repetition metrics per topic. **Expected [estimate]:** with a distinct outline and context, 1.3-1.8x per word at N=4-6, np=3-4 on this machine; the realised/ideal fraction falls as np exceeds the batch knee; outline overlap explains most of the quality loss; adding an intro/conclusion costs ~10-20% of the speed-up. **Generalization claim supported if:** realised speed-up tracks `ideal` up to the knee for all 5+ topics and the quality-vs-outline-overlap relationship is consistent across topics. **Success criterion:** >= 1.4x words-normalised speed-up AND mean rubric within 10% of sequential on every topic AND no topic with a worse repetition score; otherwise report that SoT with this model does not pay and why. **Status:** planned.
+**Metrics:** words-normalised speed-up vs sequential, `ideal` bound and realised/ideal fraction, rubric scores and repetition metrics per topic. **Expected [estimate]:** with a distinct outline and context, 1.3-1.8x per word at N=4-6, np=3-4 on this machine; the realised/ideal fraction falls as np exceeds the batch knee; outline overlap explains most of the quality loss; adding an intro/conclusion costs ~10-20% of the speed-up. **Generalization claim supported if:** realised speed-up tracks `ideal` up to the knee for all 5+ topics and the quality-vs-outline-overlap relationship is consistent across topics. **Success criterion:** >= 1.4x words-normalised speed-up AND mean rubric within 10% of sequential on every topic AND no topic with a worse repetition score; otherwise report that SoT with this model does not pay and why. **Status:** **partial - run 2026-10-26 on the 0.8B Q4_K_M only (reduced grid, 3 reps, 6 topics main / 3 topics grid; results/2026-10-26-s3-sot-0.8b.md).** Result: speed criterion met (**1.49x per word**, 1.40-1.59 over 6 topics at N=6, L=100, np=4; best 1.72x at L=200), **quality criterion not met** (auto rubric 77% of sequential, a factual outline error in T1; repetition lower on average but worse than sequential in 3 of 6 topics) -> SoT with this model gives ~1.5x only at the cost of quality; plan success criterion not met. Expectation was 1.3-1.8x per word at N=4-6, np=3-4 [estimate]: speed matches, quality loss was larger than hoped. Not run: N in {2,3,12}, L=400, np in {2,3,6,16}, separate ablation rows (distinct without context / without intro-conclusion), 5 reps, blind/second-rater rubric, intro/conclusion cost isolated.
 
-Results to fill in:
+Results (mean over topics; speed-up = words/s of the stitched reply / words/s of a sequential reply of similar length from the same session; ideal = reply tokens / (outline tokens + critical path on np slots); the auto rubric is crude: coverage keywords + distinct-4gram + repeated sentences, 0-2):
 
-| Variant | N sections | section tokens | np | topic | total wall s | words | ideal speed-up (from tokens) | realised speed-up vs sequential | realised/ideal | outline overlap | coverage | repetition | factual | coherence | distinct-4gram | Notes |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| sequential | - | - | 1 | T1..T5 | | | 1.00 | 1.00x | | | | | | | | |
-| naive SoT | 6 | ~100 | 4 | T1..T5 | | | | | | | | | | | | |
-| distinct outline | 6 | ~100 | 4 | T1..T5 | | | | | | | | | | | | |
-| + context | 6 | ~100 | 4 | T1..T5 | | | | | | | | | | | | |
-| + intro/conclusion | 6 | ~100 | 4 | T1..T5 | | | | | | | | | | | | |
-| + prefix cache | 6 | ~100 | 4 | T1..T5 | | | | | | | | | | | | |
+| Variant | N | L (tok cap) | np | topics | wall s | words | ideal | realised speed-up/word | realised/ideal | outline overlap (max Jaccard) | distinct-4gram | rep. sentence rate | auto rubric | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| sequential | - | - | 1 | T1-T6 | 5.2 | 602 | 1.00 | 1.00x | - | - | 0.92 | 0.074 | 1.72 | control matched to (b); matched to naive: 374 words, 0.87, 0.117, 1.61 |
+| (a) naive SoT | 6 | 100 | 4 | T1-T6 | 2.2 | 320 | 2.00 | 1.25x (1.09-1.49) | 0.62 | 0.51 | 0.87 | 0.079 | 1.11 | no intro/conclusion, no neighbour context |
+| (b) distinct + ctx + intro/concl | 6 | 100 | 4 | T1-T6 | 3.2 | 548 | 2.77 | **1.49x (1.40-1.59)** | 0.55 | 0.17 | 0.91 | 0.017 | 1.33 | 20% of outlines re-rolled; T1 outline invented "engine/exhaust" |
+| (b) + prefix cache | 6 | 100 | 4 | T1-T3 | 3.6 | 541 | - | 1.29x (vs 1.45x without, same session) | - | - | 0.89 | 0.048 | - | priming adds a serial step; no gain |
 
-N and section-length sweeps:
+N and section-length grid ((b), np=4, T1-T3, speed-up per word / realised-over-ideal):
 
-| N | section tokens | np | ideal | realised | realised/ideal | rubric mean |
+| N | L=50 | L=100 | L=200 |
+|---|---|---|---|
+| 4 | 1.08x / 0.47 | 1.37x / 0.50 | 1.64x / 0.54 |
+| 6 | 1.09x / 0.47 | 1.50x / 0.52 | **1.72x** / 0.55 |
+| 8 | 1.00x / 0.51 | 1.41x / 0.53 | 1.63x / 0.54 |
+
+np sweep ((b), L=100, T1-T3; speed-up per word vs sequential on the same server):
+
+| N | np | ideal | realised | realised/ideal | aggregate tok/s / sequential | per-stream tok/s / sequential |
 |---|---|---|---|---|---|---|
-| 2, 3, 4, 6, 8, 12 | fixed | = N or 4 | | | | |
-| 6 | 50, 100, 200, 400 | 4 | | | | |
+| 6 | 1 | 0.93 | 0.84x | 0.90 | 0.90x | 1.00x |
+| 6 | 4 | 2.87 | 1.50x | 0.52 | 1.67x | 0.53x |
+| 6 | 8 | 3.80 | 1.59x | 0.42 | 1.76x | 0.35x |
+| 8 | 1 | 0.90 | 0.83x | 0.92 | 0.90x | 1.00x |
+| 8 | 4 | 2.64 | 1.41x | 0.53 | 1.69x | 0.53x |
+| 8 | 8 | 3.85 | 1.43x | 0.38 | 1.74x | 0.34x |
 
-np sweep (N = 8):
-
-| np | aggregate tok/s / sequential | per-stream tok/s / sequential | single-reply speed-up | Notes |
-|---|---|---|---|---|
-| 1, 2, 3, 4, 6, 8, 16 | | | | |
+Manual read (T1, T2; one non-blind reader): naive = repetitive restating of the same chain (T1) / same antibody sentence in every section (T2); (b) T2 = distinct, mostly accurate and deeper than the sequential reply but sections 1-2 repeat and the conclusion mislabels; (b) T1 = distinct-looking outline with factual nonsense (engine heat, exhaust gases in an EV) propagated into 2 sections + intro/conclusion. No section transitions in any variant.
 
 ---
 
@@ -198,7 +204,7 @@ np sweep (N = 8):
 | 1 | S1 size x bits scaling + KLD curve | Cheap (llama-bench and llama-perplexity only), gives the size axis that S2 needs, yields the most portable fit (`a + bytes/BW`) | Q4_K_M vs Q8_0 ~1.3-1.5x at 0.8B, larger at 4B; < 10% more below Q4 at 0.8B with several-fold KLD |
 | 2 | S2a/S2b n-gram and MTP sweeps (0.8B) | Biggest plausible algorithmic gain; acceptance/tokens-per-step are hardware-independent | n-gram 1.0x free text, 1.3-1.7x copy-heavy; MTP n-max 1: 0.95-1.2x |
 | 3 | S2c speculative vs model size | Turns S2 into a scaling law (needs S1 model files) | MTP gain rises from ~1.1x (0.8B) to ~1.2-1.4x (4B) |
-| 4 | S3 improved skeleton-of-thought | The only parallel idea that speeds one reply; needs prompt work and a rubric | 1.3-1.8x per word at N=4-6 if quality holds (naive measured: 1.14-1.25x) |
+| 4 | S3 improved skeleton-of-thought | The only parallel idea that speeds one reply; needs prompt work and a rubric | 1.3-1.8x per word at N=4-6 if quality holds (naive measured: 1.14-1.25x; S3 done: improved 1.49x per word at N=6, quality did NOT hold) |
 | 5 | S4a/S4b lookahead and small drafter | Possibly infeasible (no binary, vocab mismatch); do only if S2 shows headroom | 0.9-1.3x (lookahead); 0.8B->4B draft 1.3-1.8x if the pair is usable |
 | 6 | S4c best-of-n | Quality tool, not a speed-up | 0.5-0.8x speed |
 

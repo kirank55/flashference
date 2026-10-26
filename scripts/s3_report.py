@@ -76,16 +76,16 @@ def main_table():
 def grid_table():
     t3 = ["T1", "T2", "T3"]
     print("\n### Reduced grid: sections N x section length L (variant (b), np=4; topics T1-T3; 3 reps; N=6/L=100 from the main run restricted to T1-T3)\n")
-    print("| N requested | L (token cap per section) | points | words | total wall s | ideal (np=4) | ideal (infinite slots) | realised speed-up per word | realised/ideal | eff tok/s (reply tokens/wall) | sections truncated | distinct-4gram | rep. sentence rate | auto rubric |")
-    print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+    print("| N requested | L (token cap per section) | points | words | total wall s | ideal (np=4) | ideal (infinite slots) | realised speed-up per word | realised/ideal | eff tok/s (reply tokens/wall) | sections truncated | distinct-4gram | rep. sentence rate | auto rubric | sequential: words / distinct-4gram / rep. rate / auto rubric |")
+    print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     rows = []
     for L in (50, 100, 200):
         for n in (4, 6, 8):
             es = [e for e in D.get("np4", {}).get("cfgs", []) if e["variant"] == "distinct_ctx_ic" and e["N"] == n and e["L"] == L and e["topic"] in t3 and e["phase"] in ("main", "sweeps")]
-            if not es: print("| %d | %d | skipped | | | | | | | | | | | |" % (n, L)); continue
+            if not es: print("| %d | %d | skipped | | | | | | | | | | | | |" % (n, L)); continue
             S = [entry_stats(e) for e in es]
-            print("| %d | %d | %s | %s | %s | %s | %s | %sx (+/- %s) | %s | %s | %s | %s | %s | %s |" % (n, L, fmt(agg(es, "npts"), 1), fmt(agg(es, "words"), 0), fmt(agg(es, "wall")), fmt(agg(es, "ideal")), fmt(agg(es, "ideal_inf")), fmt(st.mean(s["speedup"] for s in S)), fmt(st.mean(s["sp_sd"] for s in S)),
-                  fmt(st.mean(s["speedup"] / s["ideal"] for s in S)), fmt(agg(es, "eff_tps"), 0), fmt(agg(es, "trunc"), 1), fmt(qagg(es, "qs", "distinct4")), fmt(qagg(es, "qs", "rep_sent_rate"), 3), fmt(qagg(es, "qs", "rubric_auto"))))
+            print("| %d | %d | %s | %s | %s | %s | %s | %sx (+/- %s) | %s | %s | %s | %s | %s | %s | %s / %s / %s / %s |" % (n, L, fmt(agg(es, "npts"), 1), fmt(agg(es, "words"), 0), fmt(agg(es, "wall")), fmt(agg(es, "ideal")), fmt(agg(es, "ideal_inf")), fmt(st.mean(s["speedup"] for s in S)), fmt(st.mean(s["sp_sd"] for s in S)),
+                  fmt(st.mean(s["speedup"] / s["ideal"] for s in S)), fmt(agg(es, "eff_tps"), 0), fmt(agg(es, "trunc"), 1), fmt(qagg(es, "qs", "distinct4")), fmt(qagg(es, "qs", "rep_sent_rate"), 3), fmt(qagg(es, "qs", "rubric_auto")), fmt(agg(es, "seq_words"), 0), fmt(qagg(es, "qq", "distinct4")), fmt(qagg(es, "qq", "rep_sent_rate"), 3), fmt(qagg(es, "qq", "rubric_auto"))))
 
 def np_table():
     t3 = ["T1", "T2", "T3"]
@@ -104,7 +104,7 @@ def np_table():
 def prefix_table():
     srv = "np4pf"
     if srv not in D: return
-    print("\n### Prefix reuse (cache_prompt=true, every slot primed with the shared instruction+outline prefix; same server session, alternating-by-topic runs; np=4)\n")
+    print("\n### Prefix reuse (cache_prompt=true, every slot primed with the shared instruction+outline prefix; same server session, the two variants run one after the other; np=4)\n")
     print("| variant | topics | total wall s | words | speed-up per word vs sequential | prompt tokens evaluated per reply | cached prompt tokens per reply | prime time s | distinct-4gram | rep. sentence rate |")
     print("|---|---|---|---|---|---|---|---|---|---|")
     for v in ("distinct_ctx_ic", "distinct_ctx_ic_prefix"):
