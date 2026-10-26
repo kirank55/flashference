@@ -76,7 +76,7 @@ def main():
                 med = sorted(ps)[len(ps) // 2]
                 rec["attempt"] = attempt + 1; rec["spread_pct"] = round(100 * (max(ps) - min(ps)) / med, 2)
                 rec["set"] = c["set"]; rec["req"] = c.get("req")
-                if rec["spread_pct"] <= 4.0 or a.reps < 3: break
+                if (rec["spread_pct"] <= 4.0 and min(ps) >= 55.0) or a.reps < 3: break   # <55 tok/s = slower than plain bf16 = external GPU contention (seen with a steady 16 tok/s)
                 print("NOISY (spread %.1f%%) -> retry" % rec["spread_pct"], flush=True)
                 rec["noisy_discarded"] = True
                 time.sleep(20)
