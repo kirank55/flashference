@@ -49,19 +49,24 @@ for q in (0.05, 0.1, 0.2, 0.5, 1.0): print("  gap < %.2f: %.1f%%" % (q, 100 * (g
 
 for bits in (8, 6, 5, 4):
     Q, en = quant_err(W, bits)
-    cert = np.zeros(N, bool); agree = np.zeros(N, bool); empirical_err = 0.0
+    cert = np.zeros(N, bool); agree = np.zeros(N, bool); candn = np.zeros(N, np.int64); inc = np.zeros(N, bool)
     for a in range(0, N, CH):
         S = H[a:a + CH] @ Q.T
         B = hn[a:a + CH, None] * en[None, :]
         lo, up = S - B, S + B
         j = lo.argmax(1); lj = lo[np.arange(len(j)), j]
+        cmask = up >= lj[:, None]
+        candn[a:a + CH] = cmask.sum(1); inc[a:a + CH] = cmask[np.arange(len(j)), top1[a:a + CH]]
         up[np.arange(len(j)), j] = -np.inf
         cert[a:a + CH] = lj > up.max(1)
         agree[a:a + CH] = (S.argmax(1) == top1[a:a + CH])
     bpw = bits + 16.0 / 32
     stats("quant-%d (%.1f bit/w)" % (bits, bpw), cert, " ; plain argmax of quantised head == exact argmax: %.2f%% ; mean |e|/|w| %.4f ; bytes vs bf16 %.3f" % (
         100 * agree.mean(), (en / np.linalg.norm(W, axis=1)).mean(), bpw / 16))
-    res["quant%d" % bits] = {"cert": float(cert.mean()), "argmax_agree": float(agree.mean()), "bytes_frac": bpw / 16}
+    assert inc.all(), "bound violated"
+    fr = lambda c: 100 * (candn <= c).mean()
+    print("   quant-%d candidate pruning: candidates mean %.1f median %.0f p90 %.0f p99 %.0f; <=1 %.1f%%  <=4 %.1f%%  <=16 %.1f%%  <=64 %.1f%%  <=256 %.1f%%  <=1024 %.1f%%" % (bits, candn.mean(), np.median(candn), np.quantile(candn, .9), np.quantile(candn, .99), fr(1), fr(4), fr(16), fr(64), fr(256), fr(1024)), flush=True)
+    res["quant%d" % bits] = {"cert": float(cert.mean()), "argmax_agree": float(agree.mean()), "bytes_frac": bpw / 16, "cand_mean": float(candn.mean()), "le16": fr(16) / 100, "le64": fr(64) / 100, "le256": fr(256) / 100, "le1024": fr(1024) / 100}
     del Q
 
 # low-rank candidate pruning
@@ -88,3 +93,4 @@ for r in (128, 256, 384, 512, 768):
         r, cand_n.mean(), np.median(cand_n), np.quantile(cand_n, .9), 100 * (cand_n <= 64).mean(), 100 * (cand_n <= 1024).mean(), r / 1024), flush=True)
     res["lowrank%d" % r] = {"cand_mean": float(cand_n.mean()), "cand_median": float(np.median(cand_n)), "le64": float((cand_n <= 64).mean()), "bytes_frac": r / 1024}
 json.dump(res, open(os.path.join(ROOT, "results", "2026-10-27-bf16-E5-analysis-%s.json" % tag), "w"), indent=1)
+
