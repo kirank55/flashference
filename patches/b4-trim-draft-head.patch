@@ -1,0 +1,185 @@
+﻿diff --git a/common/speculative.cpp b/common/speculative.cpp
+index 4305ac6..9f4fd5e 100644
+--- a/common/speculative.cpp
++++ b/common/speculative.cpp
+@@ -1840,7 +1840,11 @@ struct common_speculative_impl_draft_mtp : public common_speculative_impl {
+                 }
+ 
+                 // add drafted token for each sequence
+-                const llama_token id = dparams.at(seq_id).result_q ? id_sampled : cur_p->data[0].id;
++                // B4: with a trimmed MTP head the candidate ids are subset indices; map them back to token ids
++                int32_t n_trim = 0;
++                const int32_t * trim = llama_model_mtp_trim_map(llama_get_model(ctx_dft), &n_trim);
++                llama_token id = dparams.at(seq_id).result_q ? id_sampled : cur_p->data[0].id;
++                if (trim) { id = trim[id]; }
+ 
+                 // only collect very high-confidence draft tokens
+                 if (cur_p->data[0].p < params.p_min) {
+@@ -1859,6 +1863,7 @@ struct common_speculative_impl_draft_mtp : public common_speculative_impl {
+ 
+                 if (dp.result_q) {
+                     dp.result_q->emplace_back(cur_p->data, cur_p->data + cur_p->size);
++                    if (trim) { for (auto & cand : dp.result_q->back()) { cand.id = trim[cand.id]; } }
+                 }
+ 
+                 if (params.n_max <= (int) result.size()) {
+diff --git a/src/llama-ext.h b/src/llama-ext.h
+index 933cb80..b2de1ef 100644
+--- a/src/llama-ext.h
++++ b/src/llama-ext.h
+@@ -17,6 +17,9 @@ LLAMA_API struct ggml_cgraph * llama_graph_reserve(
+         uint32_t n_seqs,
+         uint32_t n_outputs);
+ 
++// B4: subset index -> token id map of the trimmed MTP draft head (nullptr if not trimmed)
++LLAMA_API const int32_t * llama_model_mtp_trim_map(const struct llama_model * model, int32_t * n);
++
+ // Get the default ggml_type for a given ftype.
+ LLAMA_API ggml_type llama_ftype_get_default_type(llama_ftype ftype);
+ 
+diff --git a/src/llama-model.cpp b/src/llama-model.cpp
+index 1de65c7..134ae18 100644
+--- a/src/llama-model.cpp
++++ b/src/llama-model.cpp
+@@ -30,6 +30,8 @@
+ #include <cfloat>
+ #include <cstdint>
+ #include <cstring>
++#include <cstdlib>
++#include <fstream>
+ #include <cmath>
+ #include <functional>
+ #include <map>
+@@ -2061,10 +2063,85 @@ bool llama_model_base::load_tensors(llama_model_loader & ml) {
+     }
+ 
+     load_tensors_hadamard();
++    load_tensors_mtp_trim();
+ 
+     return true;
+ }
+ 
++// B4: gather the K most frequent rows of the (tied) LM head into a small matrix used only by the MTP draft graph.
++// LLAMA_MTP_TRIM_FILE = text file, one token id per line, most frequent first; LLAMA_MTP_TRIM_K = rows to keep.
++// The target model's logits / verification are untouched; draft ids are mapped back with llama_model_mtp_trim_map().
++void llama_model_base::load_tensors_mtp_trim() {
++    const char * path = getenv("LLAMA_MTP_TRIM_FILE");
++    if (!path || hparams.n_layer_nextn == 0 || arch != LLM_ARCH_QWEN35) {
++        return;
++    }
++    const char * ks = getenv("LLAMA_MTP_TRIM_K");
++    const int64_t n_vocab = vocab.n_tokens();
++    const size_t  K_req   = ks ? (size_t) strtoull(ks, nullptr, 10) : 0;
++    const auto & layer = layers[hparams.n_layer()];
++    const ggml_tensor * head = layer.nextn.shared_head_head ? layer.nextn.shared_head_head : output;
++    if (!head || !head->buffer || head->ne[1] != n_vocab || K_req == 0 || (layer.nextn.shared_head_head ? layer.nextn.shared_head_head_s : output_s)) {
++        LLAMA_LOG_WARN("%s: MTP trim requested but not applicable\n", __func__);
++        return;
++    }
++
++    std::vector<int32_t> ids;
++    std::vector<char> seen(n_vocab, 0);
++    {
++        std::ifstream f(path);
++        long long v;
++        while (ids.size() < K_req && (f >> v)) {
++            if (v >= 0 && v < n_vocab && !seen[v]) { seen[v] = 1; ids.push_back((int32_t) v); }
++        }
++    }
++    const int64_t K = (int64_t) ids.size();
++    if (K < 16) {
++        LLAMA_LOG_WARN("%s: MTP trim file gave only %d ids, ignoring\n", __func__, (int) K);
++        return;
++    }
++
++    const size_t row_bytes = ggml_row_size(head->type, head->ne[0]);
++    std::vector<uint8_t> all(ggml_nbytes(head)), sub((size_t) K * row_bytes);
++    ggml_backend_tensor_get(head, all.data(), 0, all.size());
++    for (int64_t k = 0; k < K; ++k) {
++        memcpy(sub.data() + (size_t) k * row_bytes, all.data() + (size_t) ids[k] * row_bytes, row_bytes);
++    }
++    std::vector<float> mask(n_vocab, -INFINITY);
++    std::fill(mask.begin(), mask.begin() + K, 0.0f);
++
++    ggml_init_params ip = { 2*ggml_tensor_overhead(), nullptr, true };
++    ggml_context * ctx = ggml_init(ip);
++    ggml_tensor * t_sub  = ggml_new_tensor_2d(ctx, head->type, head->ne[0], K);
++    ggml_tensor * t_mask = ggml_new_tensor_1d(ctx, GGML_TYPE_F32, n_vocab);
++    ggml_set_name(t_sub,  "mtp_head_sub");
++    ggml_set_name(t_mask, "mtp_head_mask");
++    ggml_backend_buffer_t buf = ggml_backend_alloc_ctx_tensors_from_buft(ctx, ggml_backend_buffer_get_type(head->buffer));
++    if (!buf) {
++        ggml_free(ctx);
++        LLAMA_LOG_WARN("%s: MTP trim buffer allocation failed\n", __func__);
++        return;
++    }
++    ggml_backend_buffer_set_usage(buf, GGML_BACKEND_BUFFER_USAGE_WEIGHTS);
++    ggml_backend_tensor_set(t_sub,  sub.data(),  0, sub.size());
++    ggml_backend_tensor_set(t_mask, mask.data(), 0, mask.size()*sizeof(float));
++
++    std::vector<ggml_backend_buffer_ptr> bufs;
++    bufs.emplace_back(buf);
++    pimpl->ctxs_bufs.emplace_back(ggml_context_ptr(ctx), std::move(bufs));
++
++    mtp_head_sub  = t_sub;
++    mtp_head_mask = t_mask;
++    mtp_trim_map  = std::move(ids);
++    LLAMA_LOG_INFO("%s: MTP draft head trimmed to %d / %d tokens (%.1f MiB, buffer %s)\n", __func__, (int) K, (int) n_vocab,
++        sub.size() / 1024.0 / 1024.0, ggml_backend_buffer_name(buf));
++}
++
++const int32_t * llama_model_mtp_trim_map(const struct llama_model * model, int32_t * n) {
++    if (n) { *n = (int32_t) model->mtp_trim_map.size(); }
++    return model->mtp_trim_map.empty() ? nullptr : model->mtp_trim_map.data();
++}
++
+ // read and check the prism.hadamard metadata, and record the folded weights (load_tensors_hadamard makes the tensors)
+ void llama_model_base::load_hparams_hadamard(llama_model_loader & ml) {
+     uint32_t hadamard_version = 0;
+diff --git a/src/llama-model.h b/src/llama-model.h
+index 93164f4..813339e 100644
+--- a/src/llama-model.h
++++ b/src/llama-model.h
+@@ -723,6 +723,11 @@ struct llama_model {
+ 
+     llama_hadamard hdmd;
+ 
++    // B4: FR-Spec-style trimmed draft vocabulary for the MTP head (env LLAMA_MTP_TRIM_FILE / LLAMA_MTP_TRIM_K)
++    struct ggml_tensor * mtp_head_sub  = nullptr; // [n_embd, K] rows of the LM head gathered at load time
++    struct ggml_tensor * mtp_head_mask = nullptr; // [n_vocab] f32, 0 for i < K, -inf otherwise
++    std::vector<int32_t> mtp_trim_map;            // subset index -> token id
++
+     // see llama_model_set_attn_rot
+     bool attn_rot = true;
+ 
+@@ -971,6 +976,9 @@ struct llama_model_base : public llama_model {
+     // helper: make the prism.hadamard rotation and sign tensors for the folded weights
+     void load_tensors_hadamard();
+ 
++    // helper: B4 gather of the trimmed draft head (no-op unless LLAMA_MTP_TRIM_FILE is set)
++    void load_tensors_mtp_trim();
++
+     // helper: read the SWA pattern as one flag per layer, or as a period expanded by set_swa_pattern
+     void load_swa_pattern(llama_model_loader & ml, uint32_t n_pattern, bool dense_first = false);
+ 
+diff --git a/src/models/qwen35.cpp b/src/models/qwen35.cpp
+index 8a4e434..9ff1740 100644
+--- a/src/models/qwen35.cpp
++++ b/src/models/qwen35.cpp
+@@ -656,7 +656,15 @@ llama_model_qwen35::graph_mtp::graph_mtp(const llama_model & model, const llm_gr
+     ggml_tensor * head_w = layer.nextn.shared_head_head ? layer.nextn.shared_head_head : model.output;
+     ggml_tensor * head_s = layer.nextn.shared_head_head ? layer.nextn.shared_head_head_s : model.output_s;
+     GGML_ASSERT(head_w && "QWEN35 MTP: missing LM head (nextn.shared_head_head or model.output)");
+-    cur = build_lora_mm(head_w, cur, head_s);
++    if (model.mtp_head_sub) {
++        // B4: logits over the K-token subset only, padded with -inf to the full vocab row (the draft ids are mapped back on the host)
++        const int64_t K = model.mtp_head_sub->ne[1];
++        cur = build_lora_mm(model.mtp_head_sub, cur, nullptr);
++        cur = ggml_pad(ctx0, cur, (int) (model.mtp_head_mask->ne[0] - K), 0, 0, 0);
++        cur = ggml_add(ctx0, cur, model.mtp_head_mask);
++    } else {
++        cur = build_lora_mm(head_w, cur, head_s);
++    }
+     cb(cur, "result_output", -1);
+ 
+     res->t_logits = cur;
