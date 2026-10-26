@@ -5,3 +5,5 @@ models/
 *.gguf
 *.zip
 logs/
+data/
+__pycache__/

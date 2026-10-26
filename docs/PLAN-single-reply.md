@@ -49,18 +49,26 @@ The experiments aim at **scaling behaviour that can be shown to hold generally**
 - Quality: `llama-perplexity.exe` on a fixed text (~200 KB, e.g. wikitext-2 test), and KL divergence against the highest-precision model of the same size: `llama-perplexity -m ref.gguf -f text.txt --kl-divergence-base logits.bin`, then per quant `--kl-divergence-base logits.bin --kl-divergence`; report mean KLD and same-top-token %. Keep logits files out of git (`logs\` is ignored).
 - Analysis: plot tok/s vs file bytes per model and fit `t_token = a + b * bytes` per family; plot `a` vs layer count; plot KLD vs bits per weight per model size; plot speed-up vs the Q8_0 (or bf16) of the same model.
 
-**Metrics:** decode tok/s (and ratio to the same model's Q8_0), fitted `a` and effective bandwidth `1/b`, perplexity, mean KLD, same-top %. **Expected [estimate]:** Q4_K_M vs Q8_0 ~1.3-1.5x for 0.8B (measured noisy 1.52x), larger for 4B (closer to the byte ratio ~1.8x); going below Q4 adds <= 10% for 0.8B while KLD rises several-fold; smaller models show a larger `a`-to-total ratio. **Generalization claim supported if:** the affine fit has R^2 > 0.95 within each family and `a` scales with layer count across both families, and the KLD-vs-bits ordering by model size is the same in both families. **Success criterion:** at least 3 model sizes x 5 quants measured in one family with SD < 3%, and the fit parameters reported with confidence intervals. **Status:** planned.
+**Metrics:** decode tok/s (and ratio to the same model's Q8_0), fitted `a` and effective bandwidth `1/b`, perplexity, mean KLD, same-top %. **Expected [estimate]:** Q4_K_M vs Q8_0 ~1.3-1.5x for 0.8B (measured noisy 1.52x), larger for 4B (closer to the byte ratio ~1.8x); going below Q4 adds <= 10% for 0.8B while KLD rises several-fold; smaller models show a larger `a`-to-total ratio. **Generalization claim supported if:** the affine fit has R^2 > 0.95 within each family and `a` scales with layer count across both families, and the KLD-vs-bits ordering by model size is the same in both families. **Success criterion:** at least 3 model sizes x 5 quants measured in one family with SD < 3%, and the fit parameters reported with confidence intervals. **Status:** **partial - 0.8B done (2026-10-26, 14 quants, results/2026-10-26-scaling-0.8b.md); 2B / 4B and Qwen3 not run, so the cross-size claims (a vs layers, smaller models degrade faster) are untested.** Measured 0.8B: Q4_K_M vs Q8_0 = 1.28x (expected 1.3-1.5x), Q2_K vs Q4_K_M = +14% (expected <= 10%) with KLD 0.416 vs 0.030.
 
-Results to fill in (one table per model; speed-up is vs that model's Q8_0):
+Results (0.8B filled in from llama-bench -p 512 -n 256 -r 5 pooled over two passes, SD = larger of the two passes; PPL = 20 x 512 tokens wikitext-2 test, so noise +/- 0.8; KLD and same-top vs bf16; one table per model; speed-up is vs that model's Q8_0):
 
 | Model | Quant | file MiB | bits/weight | tok/s mean +/- SD | vs Q8_0 | perplexity | mean KLD | same-top % | Notes |
 |---|---|---|---|---|---|---|---|---|---|
-| Qwen3.5-0.8B | Q8_0 | 786 | | | 1.00x | | | | |
-| Qwen3.5-0.8B | Q6_K | 649 | | | | | | | |
-| Qwen3.5-0.8B | Q5_K_M | 606 | | | | | | | |
-| Qwen3.5-0.8B | Q4_K_M | 542 | | | | | | | |
-| Qwen3.5-0.8B | Q4_0 | | | | | | | | |
-| Qwen3.5-0.8B | Q3_K_M | | | | | | | | |
+| Qwen3.5-0.8B | bf16 | 1475 | 16.01 | 71.5 +/- 0.1 | 0.59x | 19.08 | 0.0000 | 100.0 | |
+| Qwen3.5-0.8B | Q8_0 | 786 | 8.53 | 120.9 +/- 0.5 | 1.00x | 19.07 | 0.0013 | 97.9 | |
+| Qwen3.5-0.8B | Q6_K | 649 | 7.04 | 133.5 +/- 0.3 | 1.10x | 19.23 | 0.0038 | 96.3 | |
+| Qwen3.5-0.8B | Q5_K_M | 606 | 6.57 | 139.9 +/- 0.3 | 1.16x | 19.02 | 0.0101 | 94.2 | |
+| Qwen3.5-0.8B | Q5_K_S | 572 | 6.21 | 146.0 +/- 0.6 | 1.21x | 18.96 | 0.0138 | 93.3 | |
+| Qwen3.5-0.8B | Q4_K_M | 542 | 5.89 | 155.1 +/- 0.6 | 1.28x | 19.58 | 0.0303 | 90.2 | |
+| Qwen3.5-0.8B | Q4_1 | 530 | 5.75 | 165.4 +/- 0.7 | 1.37x | 19.80 | 0.0425 | 88.3 | |
+| Qwen3.5-0.8B | Q4_K_S | 516 | 5.61 | 161.6 +/- 0.9 | 1.34x | 19.72 | 0.0395 | 89.1 | |
+| Qwen3.5-0.8B | Q4_0 | 502 | 5.45 | 170.6 +/- 1.2 | 1.41x | 21.67 | 0.0736 | 85.4 | |
+| Qwen3.5-0.8B | IQ4_XS | 488 | 5.30 | 161.9 +/- 1.0 | 1.34x | 20.28 | 0.0500 | 87.8 | |
+| Qwen3.5-0.8B | Q3_K_M | 484 | 5.25 | 149.5 +/- 0.8 | 1.24x | 21.49 | 0.1222 | 81.9 | |
+| Qwen3.5-0.8B | IQ3_M | 474 | 5.14 | 164.1 +/- 1.2 | 1.36x | 20.14 | 0.1290 | 80.3 | |
+| Qwen3.5-0.8B | Q3_K_S | 470 | 5.10 | 152.0 +/- 0.4 | 1.26x | 22.65 | 0.1859 | 78.2 | |
+| Qwen3.5-0.8B | Q2_K | 432 | 4.69 | 176.9 +/- 1.2 | 1.46x | 29.04 | 0.4165 | 66.9 | |
 | Qwen3.5-2B | (same rows) | | | | | | | | |
 | Qwen3.5-4B | (same rows) | | | | | | | | |
 | Qwen3 0.6B / 1.7B / 4B | (same rows) | | | | | | | | |
@@ -69,7 +77,7 @@ Fit summary:
 
 | Family | a (ms/token) | effective BW (GB/s) | R^2 | layers | a vs layers note |
 |---|---|---|---|---|---|
-| Qwen3.5 | | | | | |
+| Qwen3.5 (0.8B only, 14 quants; single size so no a-vs-layers trend) | 2.33 +/- 0.46 (all 14 files, R^2 0.980); 2.75 +/- 1.15 without bf16 (R^2 0.834) | 134 (all) / 149 (no bf16) | 0.980 / 0.834 | 24 (+1 MTP) | not testable with one size; the file-size-only fit is poor between formats (Q3_K_M slower than Q4_0) |
 | Qwen3 | | | | | |
 
 ---

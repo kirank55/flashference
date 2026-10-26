@@ -208,3 +208,15 @@ The plan was refocused on **general scaling behaviour** (hardware-independent me
 5. Whether the single-reply >300 tok/s target is feasible on this machine: current evidence says no by tuning; speculation on copy-heavy output is the only plausible route, and the evidence on 0.8B is weak.
 
 Deliberately **out of scope** (hardware-specific, see the plan's last section): power/clock tuning (including the 114 vs 139 tok/s question, treated as measurement noise), CUDA graphs on/off, and runtime micro-settings (`-c`, `--no-warmup`, `--no-mmap`, `-ub`, threads, KV-quant, Vulkan). This GPU's exact memory bandwidth also remains unrecorded.
+## 9. Scaling experiments on Qwen3.5-0.8B (run 2026-10-26; 0.8B only, 2B/4B not yet run)
+
+Hardware, methodology, tables and raw data: `results/2026-10-26-scaling-0.8b.md` and the `*.raw.json` files next to it. Plan items filled in: [PLAN-single-reply.md](PLAN-single-reply.md) S1, S2a/S2b, S3. Tags: **[measured]** = run here in this session; **[estimate]** = reasoning; **[reported]** = other people's number. Every speed number here is for this laptop; ratios, acceptance and quality metrics are the parts that should transfer.
+
+### 9.1 S1: speed vs bits per weight (14 quants), quality vs bf16
+
+- **[measured]** llama-bench (-ngl 99 -fa 1, pp512/tg256, 5 reps, two passes within 0.6%): bf16 71.5, Q8_0 121, Q6_K 133, Q5_K_M 140, Q4_K_M 155, Q4_0 171, Q2_K 177 tok/s (SD < 1.2). **Q4_K_M = 1.28x Q8_0** and 2.17x bf16. Plan expectation was 1.3-1.5x for Q4_K_M vs Q8_0 [estimate]: slightly below, because the byte ratio (1.45x) is not fully converted into speed.
+- **[measured]** Below Q4_K_M the gain is small and the quality price large: Q4_0 +10% speed for 2.4x the KLD (0.074 vs 0.030); Q2_K +14% speed for 14x the KLD (0.416; same-top-token 66.9%, PPL 29 vs 19). The plan's "<= 10% below Q4 for 0.8B" [estimate] is about right for 4-bit-class files and slightly exceeded by Q2_K.
+- **[measured]** Speed is not a function of file size alone: Q3_K_M (484 MiB) is slower (149.5) than Q4_0 (502 MiB, 170.6) and IQ3_M (474 MiB, 164.1). Format-specific dequantisation cost matters; a `t = a + b*bytes` line fits all 14 files at R^2 0.98 only because bf16 anchors it (R^2 0.83 without bf16; intercept a ~2.3-3.1 ms/token, about 40-50% of a Q4_K_M token). Claim "per-token time is affine in model bytes" is therefore only partly supported at one model size; the layer-count part of the claim needs 2B/4B and is untested.
+- **[measured]** Prefill is flat (7.7-9.2k tok/s) across quants; bf16 6.9k.
+- **[measured]** KLD vs bf16 / same-top-token: Q8_0 0.0013 / 97.9%; Q6_K 0.0038 / 96.3%; Q5_K_M 0.0101 / 94.2%; Q4_K_M 0.0303 / 90.2%; IQ4_XS 0.050 / 87.8%; Q4_0 0.074 / 85.4%; Q3_K_M 0.122 / 81.9%; Q2_K 0.416 / 66.9%. Perplexity on ~10k tokens (se +/- 0.8) cannot separate the quants above Q4_K_M from bf16; KLD can.
+- Practical reading for one reply on this laptop [estimate from the above]: Q4_K_M is the sensible default (1.28x Q8_0 at KLD 0.03); Q5_K_M if quality matters more (1.16x Q8_0, KLD 0.010).
