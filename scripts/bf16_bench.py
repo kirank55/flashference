@@ -20,10 +20,11 @@ F16 = "Qwen3.5-0.8B-f16-from-bf16.gguf"
 Q4MTP = "Qwen3.5-0.8B-MTP-Q4_K_M.gguf"
 Q4 = "Qwen_Qwen3.5-0.8B-Q4_K_M.gguf"
 RAW = {"B1": "2026-10-26-bf16-B1-overhead.raw.json", "B2": "2026-10-26-bf16-B2-backend-sampling.raw.json",
-       "B3": "2026-10-26-bf16-B3-mtp.raw.json"}
+       "B3": "2026-10-26-bf16-B3-mtp.raw.json", "B4": "2026-10-26-bf16-b4-trim-draft.raw.json"}
+RANK = os.path.join(ROOT, "results", "2026-10-26-bf16-b4-token-rank.txt")
 PROMPTS = [p for p in json.load(open(os.path.join(ROOT, "prompts", "prompts.json")))["free"]]
 BASE_ARGS = ["-ngl", "99", "-fa", "on", "-np", "1", "-kvu", "-c", "4096"]
-ENVS = ["GGML_CUDA_DISABLE_GRAPHS", "GGML_CUDA_GRAPH_OPT", "GGML_CUDA_DISABLE_FUSION", "LLAMA_GRAPH_REUSE_DISABLE", "GGML_CUDA_GRAPH_DEBUG"]
+ENVS = ["GGML_CUDA_DISABLE_GRAPHS", "GGML_CUDA_GRAPH_OPT", "GGML_CUDA_DISABLE_FUSION", "LLAMA_GRAPH_REUSE_DISABLE", "GGML_CUDA_GRAPH_DEBUG", "LLAMA_MTP_TRIM_FILE", "LLAMA_MTP_TRIM_K"]
 
 def chatml(u): return "<|im_start|>user\n" + u + "<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
 
@@ -69,7 +70,8 @@ def env_for(env):
     e = {k: v for k, v in os.environ.items() if k not in ENVS}
     e.update(env or {}); return e
 
-def start_server(name, model, args, env, tag):
+def start_server(name, model, args, env, tag, lc=None):
+    SERVER = os.path.join(ROOT, lc or "llama-cpp", "llama-server.exe")
     os.makedirs(os.path.join(ROOT, "logs"), exist_ok=True)
     log = open(os.path.join(ROOT, "logs", "bf16-%s%s.log" % (name, tag)), "w")
     cmd = [SERVER, "-m", M(model)] + args + ["--no-webui", "--host", "127.0.0.1", "--port", str(PORT)]
@@ -93,7 +95,7 @@ def agg(run, key="n", ms="ms"):
 def run_server(name, c, reps, tag):
     idle = require_idle()
     n_pred = c.get("n_predict", 256)
-    proc, cmd = start_server(name, c["model"], c["args"], c.get("env"), tag)
+    proc, cmd = start_server(name, c["model"], c["args"], c.get("env"), tag, c.get("lc"))
     rec = {"name": name, "kind": "server", "desc": c["desc"], "model": c["model"], "env": c.get("env", {}), "cmd": cmd, "n_predict": n_pred,
            "idle_before": idle, "runs": [], "t_start": time.strftime("%Y-%m-%d %H:%M:%S")}
     try:
@@ -174,6 +176,20 @@ def configs(session):
             S("q4mtp-n%d-pdef" % k, "DIFFERENT TARGET: unsloth MTP Q4_K_M + draft-mtp n-max=%d" % k, model=Q4MTP, args=BASE_ARGS + mt(k))
         for k in (2,):
             S("q4draft-n%d" % k, "bf16 target + Q4_K_M(unsloth MTP file) as -md draft-simple n-max=%d p-min=0.6" % k, args=BASE_ARGS + ["--spec-type", "draft-simple", "-md", M(Q4), "--spec-draft-n-max", str(k), "--spec-draft-p-min", "0.6", "-ngld", "99"])
+    elif session == "B4":
+        mt = lambda k: ["--spec-type", "draft-mtp", "--spec-draft-n-max", str(k), "-bs"]
+        S("control", "server bf16 plain, release build (CONTROL)")
+        S("mtp-n1-bs", "release build: bf16 + draft-mtp n-max=1 + -bs (previous best)", args=BASE_ARGS + mt(1))
+        S("mtp-n2-bs", "release build: bf16 + draft-mtp n-max=2 + -bs (untrimmed)", args=BASE_ARGS + mt(2))
+        S("own-n1-bs", "OWN build (patched source, MSVC, release CUDA DLL), NO trim: draft-mtp n-max=1 + -bs", args=BASE_ARGS + mt(1), lc="llama-cpp-b4")
+        S("own-n2-bs", "OWN build, NO trim: draft-mtp n-max=2 + -bs", args=BASE_ARGS + mt(2), lc="llama-cpp-b4")
+        S("own-control", "OWN build, plain bf16 (no MTP)", lc="llama-cpp-b4")
+        for K in (8192, 16384, 32768):
+            for k in (1, 2):
+                S("trim%dk-n%d-bs" % (K // 1024, k), "OWN build, draft head trimmed to top-%d tokens: draft-mtp n-max=%d + -bs" % (K, k),
+                  args=BASE_ARGS + mt(k), lc="llama-cpp-b4", env={"LLAMA_MTP_TRIM_FILE": RANK, "LLAMA_MTP_TRIM_K": str(K)})
+        S("trim16k-n1-nobs", "OWN build, trim 16k, n-max=1 WITHOUT -bs (CPU sampling)", args=BASE_ARGS + ["--spec-type", "draft-mtp", "--spec-draft-n-max", "1"], lc="llama-cpp-b4",
+          env={"LLAMA_MTP_TRIM_FILE": RANK, "LLAMA_MTP_TRIM_K": "16384"})
     for n, c in C.items(): c["name"] = n
     return C
 
