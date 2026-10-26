@@ -1,0 +1,14 @@
+﻿{
+ "code": [
+  {"id": "K1", "user": "Write a Python function that merges overlapping intervals, with a docstring and three unit tests using pytest."},
+  {"id": "K2", "user": "Implement an LRU cache class in Python using a dictionary and a doubly linked list. Include type hints and comments."},
+  {"id": "K3", "user": "Write a JavaScript function debounce(fn, wait), then show an example of using it for a search box and explain how it works."},
+  {"id": "K4", "user": "Write a SQL schema for a simple library system (books, members, loans) and a query that lists members with overdue loans."}
+ ],
+ "lang": [
+  {"id": "L1-es", "user": "Escribe una explicación de unas 300 palabras sobre cómo funcionan las vacunas, en lenguaje sencillo."},
+  {"id": "L2-de", "user": "Schreibe eine kurze Geschichte über einen Leuchtturmwärter, der eine Flaschenpost findet."},
+  {"id": "L3-zh", "user": "请用通俗易懂的语言解释一下电动汽车是如何工作的，大约300字。"},
+  {"id": "L4-hi", "user": "दूरस्थ कार्य (रिमोट वर्क) के फायदे और नुकसान पर एक छोटा निबंध लिखिए।"}
+ ]
+}

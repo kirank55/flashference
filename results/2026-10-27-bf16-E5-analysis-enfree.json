@@ -1,0 +1,61 @@
+{
+ "positions": 2560,
+ "gap_quantiles": [
+  0.019737958908081055,
+  0.10491352081298828,
+  0.6928534507751465,
+  1.8644676208496094,
+  5.228348731994629
+ ],
+ "argmax_eq_generated": 0.998046875,
+ "quant8": {
+  "cert": 0.680078125,
+  "argmax_agree": 0.996875,
+  "bytes_frac": 0.53125
+ },
+ "quant6": {
+  "cert": 0.303125,
+  "argmax_agree": 0.98359375,
+  "bytes_frac": 0.40625
+ },
+ "quant5": {
+  "cert": 0.124609375,
+  "argmax_agree": 0.965625,
+  "bytes_frac": 0.34375
+ },
+ "quant4": {
+  "cert": 0.0,
+  "argmax_agree": 0.9390625,
+  "bytes_frac": 0.28125
+ },
+ "lowrank128": {
+  "cand_mean": 248320.0,
+  "cand_median": 248320.0,
+  "le64": 0.0,
+  "bytes_frac": 0.125
+ },
+ "lowrank256": {
+  "cand_mean": 248320.0,
+  "cand_median": 248320.0,
+  "le64": 0.0,
+  "bytes_frac": 0.25
+ },
+ "lowrank384": {
+  "cand_mean": 248320.0,
+  "cand_median": 248320.0,
+  "le64": 0.0,
+  "bytes_frac": 0.375
+ },
+ "lowrank512": {
+  "cand_mean": 248318.063671875,
+  "cand_median": 248320.0,
+  "le64": 0.0,
+  "bytes_frac": 0.5
+ },
+ "lowrank768": {
+  "cand_mean": 212750.16953125,
+  "cand_median": 246079.5,
+  "le64": 0.0,
+  "bytes_frac": 0.75
+ }
+}
