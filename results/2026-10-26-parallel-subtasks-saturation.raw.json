@@ -1,0 +1,100 @@
+{
+ "model": "Q4_K_M",
+ "reps": 3,
+ "tasks": 48,
+ "configs": [
+  {
+   "np": 8,
+   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 8 -c 16384 --no-webui --host 127.0.0.1 --port 8089",
+   "runs": [
+    {
+     "wall": 14.02706119999948,
+     "tokens": 3916,
+     "agg_tps": 279.1746570550462,
+     "per_stream_tps": 41.786469501659624
+    },
+    {
+     "wall": 14.09093750000011,
+     "tokens": 3888,
+     "agg_tps": 275.92202435075524,
+     "per_stream_tps": 43.32837430023183
+    },
+    {
+     "wall": 14.5726367999996,
+     "tokens": 3892,
+     "agg_tps": 267.07589391098435,
+     "per_stream_tps": 41.98420439665488
+    }
+   ],
+   "gpu": {
+    "peak_mem_mib": 1029.0,
+    "max_temp_c": 67.0,
+    "mean_power_w_busy": 36.9,
+    "mean_sm_mhz_busy": 2490,
+    "mean_util_busy": 63
+   }
+  },
+  {
+   "np": 16,
+   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 16 -c 32768 --no-webui --host 127.0.0.1 --port 8089",
+   "runs": [
+    {
+     "wall": 13.594484199999897,
+     "tokens": 3898,
+     "agg_tps": 286.73393875436847,
+     "per_stream_tps": 23.898346091225207
+    },
+    {
+     "wall": 12.622531600000002,
+     "tokens": 3899,
+     "agg_tps": 308.8920767684986,
+     "per_stream_tps": 24.418483123536248
+    },
+    {
+     "wall": 13.616591300000437,
+     "tokens": 3941,
+     "agg_tps": 289.4263265432571,
+     "per_stream_tps": 25.388487270829096
+    }
+   ],
+   "gpu": {
+    "peak_mem_mib": 1387.0,
+    "max_temp_c": 66.0,
+    "mean_power_w_busy": 31.0,
+    "mean_sm_mhz_busy": 2489,
+    "mean_util_busy": 61
+   }
+  },
+  {
+   "np": 32,
+   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 32 -c 65536 --no-webui --host 127.0.0.1 --port 8089",
+   "runs": [
+    {
+     "wall": 14.464485100000275,
+     "tokens": 3909,
+     "agg_tps": 270.2481265648319,
+     "per_stream_tps": 14.236975079665822
+    },
+    {
+     "wall": 13.2659950999996,
+     "tokens": 3917,
+     "agg_tps": 295.2662028346534,
+     "per_stream_tps": 14.615850519735178
+    },
+    {
+     "wall": 13.963346599999568,
+     "tokens": 3894,
+     "agg_tps": 278.8729744773449,
+     "per_stream_tps": 14.514809502381635
+    }
+   ],
+   "gpu": {
+    "peak_mem_mib": 2115.0,
+    "max_temp_c": 67.0,
+    "mean_power_w_busy": 32.0,
+    "mean_sm_mhz_busy": 2489,
+    "mean_util_busy": 64
+   }
+  }
+ ]
+}

@@ -1,4 +1,4 @@
-﻿# slmspeed
+# slmspeed
 
 Experiments to maximize token generation speed for a small language model (Qwen3.5-0.8B) on a laptop.
 
@@ -26,5 +26,18 @@ See `results/`. Baseline (2026-10-26, full GPU offload, flash attention on):
 
 Run-to-run noise was about ±13 tok/s, so close comparisons need steadier power and thermal conditions.
 
+### Parallel sub-tasks (2026-10-26, Q4_K_M, llama-server continuous batching)
+Details: `results/2026-10-26-parallel-subtasks.md`; scripts: `scripts/parallel_subtasks.py`, `scripts/make_report.py`. Means of 5 timed runs after warm-up, laptop on AC, Balanced plan.
+
+| Setup | Aggregate tok/s | Per-stream tok/s | Wall time |
+|---|---|---|---|
+| Baseline A: one ~400-word reply, single stream | 139 | 142 | 3.42 s (476 tok) |
+| Exp 1, 16 tasks, sequential (np=1) | 127 | 140 | 10.3 s |
+| Exp 1, 16 tasks, np=2 / 4 / 8 | 196 / 237 / 250 | 110 / 71 / 45 | 6.6 / 5.6 / 5.3 s |
+| Exp 1, 16 tasks, np=16 | 288 | 27 | 4.5 s |
+| Exp 1, 48 tasks, np=16 (saturation) | 295 (max run 309) | 25 | 13.3 s |
+| Exp 2 skeleton-of-thought, best (np=4, long sections, 6 points) | 170 effective | 75 | 3.6 s (533 words) |
+
+Parallel slots gave about 2.3x aggregate throughput at best; mean never exceeded 300 tok/s (only single runs did) and np=8/16/32 plateau around 270-300. Skeleton-of-thought was only about 1.2x faster per word than a sequential reply and read noticeably worse (repetitive, no transitions). Peak VRAM 0.7 GiB (np=1) to 1.4 GiB (np=16), 2.1 GiB at np=32.
 ## Planned experiments
 Batch size, CPU threads, KV-cache quantization, speculative decoding (`--spec-type draft-mtp`), CPU-only comparison, power mode.

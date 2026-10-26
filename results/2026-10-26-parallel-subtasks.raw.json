@@ -1,0 +1,1748 @@
+{
+ "model": "Q4_K_M",
+ "reps": 5,
+ "configs": [
+  {
+   "np": 1,
+   "drift_check": false,
+   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 1 -c 2048 --no-webui --host 127.0.0.1 --port 8089",
+   "idle_before": [
+    0.0,
+    0.0,
+    47.0,
+    7.76,
+    1935.0
+   ],
+   "vram_after_warmup_mib": 703.0,
+   "baseline": [
+    {
+     "wall": 3.4802927999999156,
+     "tokens": 476,
+     "pps": 139.82045287697505,
+     "tps_wall": 136.77010164202608,
+     "words": 404,
+     "text": "Electric cars operate by converting electrical energy directly into motion through a specialized system called an electric motor. Unlike traditional internal combustion engines, which burn fuel to generate power, electric motors use an electric current to create torque, allowing the vehicle to accelerate and turn without needing a fuel source. This process relies on the principle of electromagnetic induction, where a current-carrying coil of wire interacts with a magnetic field to produce motion.\n\nThe core components of an electric vehicle include the battery, which stores energy in the form of chemical bonds, and the electric motor, which converts that stored energy into mechanical rotation. The battery is typically a lithium-ion cell, which can hold a significant amount of energy, often ranging from 100 to 400 kilowatt-hours (kWh) depending on the model. This energy is then transferred to the motor via a high-voltage DC (Direct Current) busbar, which connects the battery to the motor and the vehicle's electrical system.\n\nOnce the motor receives power, it spins at high speeds, driving the wheels. The wheels then push against the road, creating friction that converts the kinetic energy of the spinning motor into the kinetic energy of the vehicle's motion. This frictional force is what provides the necessary traction to move the car forward. The electric motor is designed to be highly efficient, converting a large portion of the electrical energy into useful mechanical work while minimizing energy loss as heat.\n\nThe efficiency of an electric car is significantly higher than that of a traditional gasoline vehicle. Because there is no combustion process to generate heat, the motor operates at a much higher power-to-weight ratio. This means that for the same amount of energy, an electric car can achieve greater acceleration and higher top speeds compared to its gasoline counterpart. Additionally, electric vehicles often have a longer range, allowing them to travel longer distances on a single charge, which is particularly advantageous for urban driving where range anxiety is a concern.\n\nDespite these advantages, electric vehicles face challenges such as range anxiety, the need for frequent charging, and the environmental impact of battery production. However, advancements in battery technology and the integration of electric vehicles into public transportation networks are expected to mitigate these issues. As the cost of batteries decreases and the efficiency of the energy conversion process improves, electric vehicles are poised to become the dominant mode of transportation for the next generation of vehicles."
+    },
+    {
+     "wall": 3.396801299999879,
+     "tokens": 476,
+     "pps": 143.2020768220354,
+     "tps_wall": 140.1318352062621,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.4739869,
+     "tokens": 476,
+     "pps": 139.33749859562468,
+     "tps_wall": 137.0183635407491,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.3906953000000613,
+     "tokens": 476,
+     "pps": 142.97035818138093,
+     "tps_wall": 140.3841860989371,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.371154800000113,
+     "tokens": 476,
+     "pps": 142.94557565387066,
+     "tps_wall": 141.19790642660018,
+     "words": 404,
+     "text": null
+    }
+   ],
+   "exp1_8": [
+    {
+     "wall": 4.555278000000271,
+     "tokens": 544,
+     "agg_tps": 119.42191014466464,
+     "per_stream_tps": 136.7058613611183,
+     "mean_latency": 0.5694045624999831,
+     "max_latency": 0.8335587000001397
+    },
+    {
+     "wall": 4.260879599999953,
+     "tokens": 544,
+     "agg_tps": 127.67316870441634,
+     "per_stream_tps": 142.61718081162024,
+     "mean_latency": 0.5326052124999023,
+     "max_latency": 0.7562927999997555
+    },
+    {
+     "wall": 4.398695499999576,
+     "tokens": 544,
+     "agg_tps": 123.673029878984,
+     "per_stream_tps": 139.766374347249,
+     "mean_latency": 0.5498320250000006,
+     "max_latency": 0.8150912000000972
+    },
+    {
+     "wall": 4.264517699999942,
+     "tokens": 544,
+     "agg_tps": 127.56424952814884,
+     "per_stream_tps": 143.01091326676246,
+     "mean_latency": 0.5330597624999882,
+     "max_latency": 0.7598170000001119
+    },
+    {
+     "wall": 4.373853399999916,
+     "tokens": 544,
+     "agg_tps": 124.37545346170276,
+     "per_stream_tps": 141.25683165133668,
+     "mean_latency": 0.546726774999911,
+     "max_latency": 0.7789481999998316
+    }
+   ],
+   "exp1_16": [
+    {
+     "wall": 10.444704800000181,
+     "tokens": 1307,
+     "agg_tps": 125.13517854520668,
+     "per_stream_tps": 138.9894125258762,
+     "mean_latency": 0.6527887562500041,
+     "max_latency": 0.8227256999998644
+    },
+    {
+     "wall": 10.221142699999746,
+     "tokens": 1307,
+     "agg_tps": 127.87219965141789,
+     "per_stream_tps": 141.74069971845887,
+     "mean_latency": 0.6388166437500331,
+     "max_latency": 0.80445009999994
+    },
+    {
+     "wall": 10.58326659999966,
+     "tokens": 1307,
+     "agg_tps": 123.49684170292393,
+     "per_stream_tps": 137.71255494050354,
+     "mean_latency": 0.6614491624998777,
+     "max_latency": 0.8229790999998841
+    },
+    {
+     "wall": 9.991287399999692,
+     "tokens": 1307,
+     "agg_tps": 130.81397298210442,
+     "per_stream_tps": 143.14407956930256,
+     "mean_latency": 0.6244504874999848,
+     "max_latency": 0.7660241999997197
+    },
+    {
+     "wall": 10.282066199999917,
+     "tokens": 1307,
+     "agg_tps": 127.11452878994403,
+     "per_stream_tps": 140.1247063652487,
+     "mean_latency": 0.6426245437500029,
+     "max_latency": 0.8018974000001435
+    }
+   ],
+   "exp2_short": [
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5616697999998905,
+     "t_expand": 2.863199099999747,
+     "t_total": 3.4249211999999716,
+     "reply_tokens": 351,
+     "outline_tokens": 71,
+     "reply_words": 305,
+     "reply": "Electric motors convert electrical energy into motion, transforming the stored chemical energy from batteries into kinetic energy that propels the vehicle forward. This conversion occurs within the motor's internal components, where the electrical current drives the rotor to spin the wheels. The motor's operation relies on the principle of electromagnetic induction, which generates torque to overcome friction and air resistance, allowing the car to accelerate and maintain its speed.\n\nBatteries store chemical energy within the vehicle's internal components, which is then converted into electrical energy to power the electric motor. This stored energy is transferred to the motor, which drives the wheels to propel the car forward. The process relies on the battery pack supplying the necessary power to the motor, ensuring continuous operation during travel.\n\nThe battery pack acts as the central engine, storing chemical energy that is instantly converted into kinetic energy to propel the vehicle forward. This conversion is the critical link between the vehicle's power source and its movement, ensuring that the car can accelerate and maintain speed efficiently.\n\nThe electric motor acts as the engine that converts stored chemical energy from the battery into kinetic energy, pushing the wheels forward to propel the vehicle. This mechanical force is the direct result of the motor's operation, which is the critical step in the car's movement cycle.\n\nThe battery pack is charged by sunlight or electricity, storing chemical energy that powers the electric motor. This stored energy drives the wheels to move the car, completing the cycle of energy conversion.\n\nThe electric vehicle operates by converting stored chemical energy from its battery pack into kinetic energy through an electric motor. This motor drives the wheels, propelling the car forward or backward. The system relies on solar energy or electricity to charge the battery, which then powers the motor to move the vehicle.",
+     "eff_tps": 102.48410970740083,
+     "agg_tps_all": 123.21451366530812,
+     "per_stream_tps": 139.7216053731315
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.545804699999735,
+     "t_expand": 2.79121589999977,
+     "t_total": 3.3370700999998917,
+     "reply_tokens": 351,
+     "outline_tokens": 71,
+     "reply_words": 305,
+     "reply": null,
+     "eff_tps": 105.18208772420195,
+     "agg_tps_all": 126.4582365231146,
+     "per_stream_tps": 140.9407754455126
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5672424999997929,
+     "t_expand": 2.7305860999999823,
+     "t_total": 3.297870200000034,
+     "reply_tokens": 351,
+     "outline_tokens": 71,
+     "reply_words": 305,
+     "reply": null,
+     "eff_tps": 106.43232714252865,
+     "agg_tps_all": 127.96137337363844,
+     "per_stream_tps": 143.8380461162958
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5326239999999416,
+     "t_expand": 2.710294700000304,
+     "t_total": 3.2430614999998397,
+     "reply_tokens": 351,
+     "outline_tokens": 71,
+     "reply_words": 305,
+     "reply": null,
+     "eff_tps": 108.23106499831019,
+     "agg_tps_all": 130.12395848799687,
+     "per_stream_tps": 144.17460849714112
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5301089999998112,
+     "t_expand": 2.8245114999999714,
+     "t_total": 3.3546793999998954,
+     "reply_tokens": 351,
+     "outline_tokens": 71,
+     "reply_words": 305,
+     "reply": null,
+     "eff_tps": 104.62996851502739,
+     "agg_tps_all": 125.79443508074517,
+     "per_stream_tps": 140.72234549884524
+    }
+   ],
+   "exp2_long": [
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.567812799999956,
+     "t_expand": 4.481496000000334,
+     "t_total": 5.04935230000001,
+     "reply_tokens": 589,
+     "outline_tokens": 71,
+     "reply_words": 522,
+     "reply": "Electric motors convert electrical energy into motion, transforming the stored chemical energy from batteries into kinetic energy that propels the vehicle forward. This conversion process relies on powerful magnets and coils of wire to create a magnetic field that interacts with the current flowing through the motor's coils. The resulting force pushes the wheels, causing the car to accelerate and move across the road surface. While the battery pack powers the motor, the car itself does not directly use the battery; rather, the motor acts as the engine that utilizes the stored energy to drive the wheels. This mechanism allows electric vehicles to operate without an internal combustion engine, making them highly efficient and environmentally friendly.\n\nBatteries store chemical energy for the vehicle, which is then converted into electrical energy to power the electric motor. This stored energy is transferred to the motor, which drives the wheels to propel the car forward. The process relies on the battery pack supplying the necessary power to the motor, ensuring continuous motion. While the motor converts electrical energy into motion, the battery remains the critical source of stored energy throughout the journey.\n\nThe battery pack acts as the central engine that directly powers the electric motor, converting stored chemical energy into the mechanical force required to drive the wheels. This direct connection ensures that the vehicle's propulsion system is fully dependent on the battery's output, making the car's movement entirely electric rather than relying on traditional gasoline or internal combustion engines.\n\nThe electric motor acts as the central engine of the vehicle, converting stored electrical energy into kinetic motion. This mechanical force is transferred directly to the wheels, causing the car to accelerate forward or reverse. The motor's rotation creates friction with the tires, which converts the energy into heat and sound as the car moves. This process is the fundamental mechanism that allows the vehicle to travel without an external power source.\n\nThe core mechanism of solar charging involves solar panels converting sunlight directly into electricity, which is then routed through a charge controller to the battery pack. This process transforms radiant energy into usable electrical power, ensuring the vehicle's electrical system remains fully charged before it begins its journey. Once the battery is fully charged, it can power the electric motor to drive the wheels, allowing the car to travel efficiently without external energy sources. This cycle of charging and powering is essential for the vehicle's operation, as the stored chemical energy is released to propel the car forward.\n\nThe electric vehicle operates by converting stored chemical energy from its battery pack into kinetic energy through an electric motor. This motor drives the wheels, which then propel the car forward or backward, effectively turning the battery's stored energy into motion. While the motor converts electrical energy into motion, the battery serves as the primary source of that energy, storing it chemically for later use. The entire system relies on the battery pack to power the motor, which in turn drives the wheels to move the car. This cycle of charging and driving demonstrates how the car utilizes the stored energy to travel efficiently.",
+     "eff_tps": 116.64862441862076,
+     "agg_tps_all": 130.70983381373463,
+     "per_stream_tps": 141.3246779942544
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5675007999998343,
+     "t_expand": 4.5981017999997675,
+     "t_total": 5.165644100000009,
+     "reply_tokens": 589,
+     "outline_tokens": 71,
+     "reply_words": 522,
+     "reply": null,
+     "eff_tps": 114.02256690506398,
+     "agg_tps_all": 127.7672226780004,
+     "per_stream_tps": 138.82353912501299
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5324028999998518,
+     "t_expand": 4.4888425000003735,
+     "t_total": 5.021289999999681,
+     "reply_tokens": 589,
+     "outline_tokens": 71,
+     "reply_words": 522,
+     "reply": null,
+     "eff_tps": 117.30053432485226,
+     "agg_tps_all": 131.4403270872708,
+     "per_stream_tps": 142.44940517572252
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.538863499999934,
+     "t_expand": 4.465900799999872,
+     "t_total": 5.004805300000044,
+     "reply_tokens": 589,
+     "outline_tokens": 71,
+     "reply_words": 522,
+     "reply": null,
+     "eff_tps": 117.68689583189078,
+     "agg_tps_all": 131.87326188293363,
+     "per_stream_tps": 142.49737370217414
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5558786000001419,
+     "t_expand": 4.586597199999687,
+     "t_total": 5.1425232999999935,
+     "reply_tokens": 589,
+     "outline_tokens": 71,
+     "reply_words": 522,
+     "reply": null,
+     "eff_tps": 114.53521270384924,
+     "agg_tps_all": 128.34166448988202,
+     "per_stream_tps": 139.2396226486399
+    }
+   ],
+   "gpu": {
+    "peak_mem_mib": 703.0,
+    "max_temp_c": 69.0,
+    "mean_power_w_busy": 39.9,
+    "mean_sm_mhz_busy": 2488,
+    "mean_util_busy": 82
+   }
+  },
+  {
+   "np": 2,
+   "drift_check": false,
+   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 2 -c 4096 --no-webui --host 127.0.0.1 --port 8089",
+   "idle_before": [
+    0.0,
+    0.0,
+    60.0,
+    8.54,
+    1935.0
+   ],
+   "vram_after_warmup_mib": 743.0,
+   "baseline": [
+    {
+     "wall": 3.4077296999998907,
+     "tokens": 476,
+     "pps": 142.80131076571567,
+     "tps_wall": 139.68244018884926,
+     "words": 404,
+     "text": "Electric cars operate by converting electrical energy directly into motion through a specialized system called an electric motor. Unlike traditional internal combustion engines, which burn fuel to generate power, electric motors use an electric current to create torque, allowing the vehicle to accelerate and turn without needing a fuel source. This process relies on the principle of electromagnetic induction, where a current-carrying coil of wire interacts with a magnetic field to produce motion.\n\nThe core components of an electric vehicle include the battery, which stores energy in the form of chemical bonds, and the electric motor, which converts that stored energy into mechanical rotation. The battery is typically a lithium-ion cell, which can hold a significant amount of energy, often ranging from 100 to 400 kilowatt-hours (kWh) depending on the model. This energy is then transferred to the motor via a high-voltage DC (Direct Current) busbar, which connects the battery to the motor and the vehicle's electrical system.\n\nOnce the motor receives power, it spins at high speeds, driving the wheels. The wheels then push against the road, creating friction that converts the kinetic energy of the spinning motor into the kinetic energy of the vehicle's motion. This frictional force is what provides the necessary traction to move the car forward. The electric motor is designed to be highly efficient, converting a large portion of the electrical energy into useful mechanical work while minimizing energy loss as heat.\n\nThe efficiency of an electric car is significantly higher than that of a traditional gasoline vehicle. Because there is no combustion process to generate heat, the motor operates at a much higher power-to-weight ratio. This means that for the same amount of energy, an electric car can achieve greater acceleration and higher top speeds compared to its gasoline counterpart. Additionally, electric vehicles often have a longer range, allowing them to travel longer distances on a single charge, which is particularly advantageous for urban driving where range anxiety is a concern.\n\nDespite these advantages, electric vehicles face challenges such as range anxiety, the need for frequent charging, and the environmental impact of battery production. However, advancements in battery technology and the integration of electric vehicles into public transportation networks are expected to mitigate these issues. As the cost of batteries decreases and the efficiency of the energy conversion process improves, electric vehicles are poised to become the dominant mode of transportation for the next generation of vehicles."
+    },
+    {
+     "wall": 3.409826100000373,
+     "tokens": 476,
+     "pps": 142.74629445645516,
+     "tps_wall": 139.59656183051328,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.4889516000002914,
+     "tokens": 476,
+     "pps": 140.00417359810137,
+     "tps_wall": 136.43066874300013,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.5033211999998457,
+     "tokens": 476,
+     "pps": 139.1547069299337,
+     "tps_wall": 135.87107000066706,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.4445325000001503,
+     "tokens": 476,
+     "pps": 140.36033304699825,
+     "tps_wall": 138.19001562620738,
+     "words": 404,
+     "text": null
+    }
+   ],
+   "exp1_8": [
+    {
+     "wall": 2.918635699999868,
+     "tokens": 543,
+     "agg_tps": 186.04582956345823,
+     "per_stream_tps": 111.713100576417,
+     "mean_latency": 1.598326687500105,
+     "max_latency": 2.9159764000000905
+    },
+    {
+     "wall": 2.8627458999999362,
+     "tokens": 543,
+     "agg_tps": 189.67802905595363,
+     "per_stream_tps": 114.61264833726302,
+     "mean_latency": 1.4892130625000277,
+     "max_latency": 2.8609332000000904
+    },
+    {
+     "wall": 2.996394699999655,
+     "tokens": 544,
+     "agg_tps": 181.55151589343774,
+     "per_stream_tps": 107.963721938172,
+     "mean_latency": 1.6339576749999765,
+     "max_latency": 2.9945614000002934
+    },
+    {
+     "wall": 3.0268457999995917,
+     "tokens": 543,
+     "agg_tps": 179.39466886620826,
+     "per_stream_tps": 108.00057573448777,
+     "mean_latency": 1.571633062500041,
+     "max_latency": 3.024492200000168
+    },
+    {
+     "wall": 2.978290300000026,
+     "tokens": 544,
+     "agg_tps": 182.65512935390993,
+     "per_stream_tps": 111.81958682140957,
+     "mean_latency": 1.685631699999874,
+     "max_latency": 2.977611899999829
+    }
+   ],
+   "exp1_16": [
+    {
+     "wall": 6.372769900000094,
+     "tokens": 1279,
+     "agg_tps": 200.6976589567405,
+     "per_stream_tps": 109.83805629304855,
+     "mean_latency": 3.3064685937498837,
+     "max_latency": 6.368398699999943
+    },
+    {
+     "wall": 6.509973600000194,
+     "tokens": 1304,
+     "agg_tps": 200.30803197112215,
+     "per_stream_tps": 111.74039065439584,
+     "mean_latency": 3.3270558937499857,
+     "max_latency": 6.5067785000001095
+    },
+    {
+     "wall": 6.7182950999999775,
+     "tokens": 1303,
+     "agg_tps": 193.9480151742671,
+     "per_stream_tps": 107.5274034018391,
+     "mean_latency": 3.469387481249953,
+     "max_latency": 6.713909999999942
+    },
+    {
+     "wall": 6.711024200000338,
+     "tokens": 1281,
+     "agg_tps": 190.87995540232674,
+     "per_stream_tps": 112.62399897043218,
+     "mean_latency": 3.3488649187499675,
+     "max_latency": 6.705672900000081
+    },
+    {
+     "wall": 6.693097000000307,
+     "tokens": 1303,
+     "agg_tps": 194.67818858742675,
+     "per_stream_tps": 108.62685673536164,
+     "mean_latency": 3.417280112500009,
+     "max_latency": 6.688153600000078
+    }
+   ],
+   "exp2_short": [
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5803636999999071,
+     "t_expand": 2.183686200000011,
+     "t_total": 2.7641419000001406,
+     "reply_tokens": 431,
+     "outline_tokens": 71,
+     "reply_words": 376,
+     "reply": "Electric motors convert electrical energy into motion, transforming the stored chemical energy from batteries into kinetic energy that propels the vehicle forward. This conversion occurs within the motor's internal components, where the electrical current drives the rotor to spin the wheels. The motor's operation relies on the principle of electromagnetic induction, which generates torque to overcome friction and air resistance, allowing the car to accelerate and maintain its speed.\n\nBatteries store chemical energy within the vehicle's internal components, which is then converted into electrical energy to power the electric motor. This stored energy is transferred to the motor, which drives the wheels to propel the car forward. The process relies on the battery pack supplying the necessary power to the motor, ensuring continuous motion without external fuel.\n\nThe battery pack acts as the central engine that directly powers the electric motor, converting stored chemical energy into the mechanical force required to drive the wheels. This direct connection ensures that the vehicle's propulsion system is fully dependent on the battery's output, making it the critical link between the vehicle's energy source and its movement.\n\nThe electric motor acts as the engine that converts stored chemical energy from the battery into kinetic energy, pushing the wheels forward to propel the vehicle. This mechanical force is what allows the car to move across the road, overcoming friction and air resistance. The system relies on the motor's torque to overcome inertia and resistive forces, ensuring the car maintains its forward momentum.\n\nThe battery pack acts as the central engine, storing chemical energy that powers the electric motor. This stored energy is then converted into motion by the motor, which drives the wheels to propel the car forward. While the motor converts electrical energy into motion, the battery itself is the source of that energy, charging via sunlight or electricity. This process ensures the vehicle can travel without an external power source, making it a sustainable mode of transport.\n\nThe electric vehicle operates by converting stored chemical energy from its battery pack into kinetic energy through an electric motor. This motor drives the wheels, propelling the car forward or backward. The system relies on solar energy or electricity to charge the battery, which then powers the motor to move the vehicle.",
+     "eff_tps": 155.9254248126618,
+     "agg_tps_all": 181.6115156750724,
+     "per_stream_tps": 113.95206065179157
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5777697999997145,
+     "t_expand": 2.1609230000003663,
+     "t_total": 2.7387488999997913,
+     "reply_tokens": 418,
+     "outline_tokens": 71,
+     "reply_words": 370,
+     "reply": null,
+     "eff_tps": 152.62443373323924,
+     "agg_tps_all": 178.54867965443538,
+     "per_stream_tps": 115.03403852764015
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5809989999997924,
+     "t_expand": 2.347657500000423,
+     "t_total": 2.9287429999999404,
+     "reply_tokens": 441,
+     "outline_tokens": 71,
+     "reply_words": 385,
+     "reply": null,
+     "eff_tps": 150.57654427172648,
+     "agg_tps_all": 174.81902645606337,
+     "per_stream_tps": 109.41172227268332
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6044615000000704,
+     "t_expand": 2.1368944999999258,
+     "t_total": 2.741419699999824,
+     "reply_tokens": 413,
+     "outline_tokens": 71,
+     "reply_words": 359,
+     "reply": null,
+     "eff_tps": 150.65186844612904,
+     "agg_tps_all": 176.5508579368679,
+     "per_stream_tps": 110.27176385920868
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5885207999999693,
+     "t_expand": 2.197906100000182,
+     "t_total": 2.786487599999873,
+     "reply_tokens": 438,
+     "outline_tokens": 71,
+     "reply_words": 385,
+     "reply": null,
+     "eff_tps": 157.18713408235513,
+     "agg_tps_all": 182.66724029205196,
+     "per_stream_tps": 112.714920222155
+    }
+   ],
+   "exp2_long": [
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5809636999997565,
+     "t_expand": 2.9954031999996005,
+     "t_total": 3.5764424999997573,
+     "reply_tokens": 587,
+     "outline_tokens": 71,
+     "reply_words": 521,
+     "reply": "Electric motors convert electrical energy into motion, transforming the stored chemical energy from batteries into kinetic energy that propels the vehicle forward. This conversion process relies on powerful magnets and coils of wire to create a magnetic field that interacts with the current flowing through the motor's coils. The resulting force pushes the wheels, causing the car to accelerate and move across the road. While the battery pack powers the motor, the car itself does not directly use the stored energy; instead, it utilizes the mechanical energy generated by the motor to overcome friction and air resistance. This cycle repeats continuously, allowing the electric vehicle to travel long distances without needing a continuous power source.\n\nBatteries store chemical energy for the vehicle, which is then converted into electrical energy to power the electric motor. This stored energy is transferred to the motor, which drives the wheels to propel the car forward. The process relies on the battery pack supplying the necessary power to the motor, ensuring continuous motion. While the motor converts electrical energy into motion, the battery remains the critical source of stored energy throughout the journey.\n\nThe battery pack serves as the central engine that directly powers the electric motor, converting stored chemical energy into the mechanical force required to drive the wheels. This direct connection ensures that the vehicle's propulsion system operates without external power sources, allowing the car to travel efficiently on its own. By utilizing the battery pack, the electric motor functions as the primary driver, transforming the stored energy into kinetic energy that propels the car forward. This mechanism is fundamental to the entire system, as it is the specific component responsible for initiating motion once the battery is fully charged.\n\nThe electric motor acts as the central engine of the vehicle, converting stored chemical energy from the battery into kinetic energy to propel the car forward. This mechanical force pushes against the wheels, overcoming friction and air resistance to generate the necessary traction for the vehicle to move. By utilizing the stored energy from the battery pack, the motor ensures continuous power delivery without needing external fuel sources. This process allows the car to travel efficiently, demonstrating how the conversion of energy is the fundamental mechanism behind electric mobility.\n\nThe core mechanism of solar charging involves solar panels converting sunlight directly into electricity, which then powers the battery pack. This stored energy is subsequently transferred to the electric motor, allowing the vehicle to drive. The motor converts this stored electrical energy into motion, while the battery remains the source of that power.\n\nThe electric vehicle operates by converting stored chemical energy from its battery pack into kinetic energy through an electric motor. This motor drives the wheels, which then propel the car forward or backward, effectively turning the battery's stored energy into motion. While the motor converts electrical energy into motion, the battery serves as the primary source of that energy, storing it chemically for later use. The entire system relies on the battery to power the motor, which in turn drives the wheels to move the car, completing the cycle of energy conversion.",
+     "eff_tps": 164.12957848477637,
+     "agg_tps_all": 183.98170808003894,
+     "per_stream_tps": 113.8481860092866
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5691553000001477,
+     "t_expand": 2.5372177999997803,
+     "t_total": 3.106449899999916,
+     "reply_tokens": 486,
+     "outline_tokens": 71,
+     "reply_words": 429,
+     "reply": null,
+     "eff_tps": 156.44868439694235,
+     "agg_tps_all": 179.3043563973187,
+     "per_stream_tps": 111.51465808410757
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5785590000000411,
+     "t_expand": 3.0201108000001113,
+     "t_total": 3.5987334999999803,
+     "reply_tokens": 579,
+     "outline_tokens": 71,
+     "reply_words": 518,
+     "reply": null,
+     "eff_tps": 160.88993530640798,
+     "agg_tps_all": 180.61909835779826,
+     "per_stream_tps": 110.84992306946026
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5848283000000265,
+     "t_expand": 2.903176700000131,
+     "t_total": 3.488073799999711,
+     "reply_tokens": 539,
+     "outline_tokens": 71,
+     "reply_words": 477,
+     "reply": null,
+     "eff_tps": 154.52654700139792,
+     "agg_tps_all": 174.88162091067298,
+     "per_stream_tps": 111.39615790632638
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5945946000001641,
+     "t_expand": 2.9220313000000715,
+     "t_total": 3.5166973000000326,
+     "reply_tokens": 570,
+     "outline_tokens": 71,
+     "reply_words": 506,
+     "reply": null,
+     "eff_tps": 162.08389616018266,
+     "agg_tps_all": 182.27329375206506,
+     "per_stream_tps": 111.70008388784123
+    }
+   ],
+   "gpu": {
+    "peak_mem_mib": 749.0,
+    "max_temp_c": 70.0,
+    "mean_power_w_busy": 41.1,
+    "mean_sm_mhz_busy": 2487,
+    "mean_util_busy": 78
+   }
+  },
+  {
+   "np": 4,
+   "drift_check": false,
+   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 4 -c 8192 --no-webui --host 127.0.0.1 --port 8089",
+   "idle_before": [
+    0.0,
+    0.0,
+    60.0,
+    8.65,
+    1935.0
+   ],
+   "vram_after_warmup_mib": 841.0,
+   "baseline": [
+    {
+     "wall": 3.516991699999835,
+     "tokens": 476,
+     "pps": 140.59676964862055,
+     "tps_wall": 135.3429409571886,
+     "words": 404,
+     "text": "Electric cars operate by converting electrical energy directly into motion through a specialized system called an electric motor. Unlike traditional internal combustion engines, which burn fuel to generate power, electric motors use an electric current to create torque, allowing the vehicle to accelerate and turn without needing a fuel source. This process relies on the principle of electromagnetic induction, where a current-carrying coil of wire interacts with a magnetic field to produce motion.\n\nThe core components of an electric vehicle include the battery, which stores energy in the form of chemical bonds, and the electric motor, which converts that stored energy into mechanical rotation. The battery is typically a lithium-ion cell, which can hold a significant amount of energy, often ranging from 100 to 400 kilowatt-hours (kWh) depending on the model. This energy is then transferred to the motor via a high-voltage DC (Direct Current) busbar, which connects the battery to the motor and the vehicle's electrical system.\n\nOnce the motor receives power, it spins at high speeds, driving the wheels. The wheels then push against the road, creating friction that converts the kinetic energy of the spinning motor into the kinetic energy of the vehicle's motion. This frictional force is what provides the necessary traction to move the car forward. The electric motor is designed to be highly efficient, converting a large portion of the electrical energy into useful mechanical work while minimizing energy loss as heat.\n\nThe efficiency of an electric car is significantly higher than that of a traditional gasoline vehicle. Because there is no combustion process to generate heat, the motor operates at a much higher power-to-weight ratio. This means that for the same amount of energy, an electric car can achieve greater acceleration and higher top speeds compared to its gasoline counterpart. Additionally, electric vehicles often have a longer range, allowing them to travel longer distances on a single charge, which is particularly advantageous for urban driving where range anxiety is a concern.\n\nDespite these advantages, electric vehicles face challenges such as range anxiety, the need for frequent charging, and the environmental impact of battery production. However, advancements in battery technology and the integration of electric vehicles into public transportation networks are expected to mitigate these issues. As the cost of batteries decreases and the efficiency of the energy conversion process improves, electric vehicles are poised to become the dominant mode of transportation for the next generation of vehicles."
+    },
+    {
+     "wall": 3.4318312000000333,
+     "tokens": 476,
+     "pps": 142.97083154243555,
+     "tps_wall": 138.70146060796796,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.41447560000006,
+     "tokens": 476,
+     "pps": 142.95955779448616,
+     "tps_wall": 139.4064728416837,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.468924700000116,
+     "tokens": 476,
+     "pps": 140.0596978661684,
+     "tps_wall": 137.21831436698065,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.455783099999735,
+     "tokens": 476,
+     "pps": 141.2430638504881,
+     "tps_wall": 137.74012610919837,
+     "words": 404,
+     "text": null
+    }
+   ],
+   "exp1_8": [
+    {
+     "wall": 2.0928702000001067,
+     "tokens": 545,
+     "agg_tps": 260.40793165289097,
+     "per_stream_tps": 79.18877426163027,
+     "mean_latency": 1.3718789624999772,
+     "max_latency": 2.090573399999812
+    },
+    {
+     "wall": 2.17353009999988,
+     "tokens": 545,
+     "agg_tps": 250.74416958846354,
+     "per_stream_tps": 78.98698960233256,
+     "mean_latency": 1.4800628250000045,
+     "max_latency": 2.171415700000125
+    },
+    {
+     "wall": 2.1049307000002955,
+     "tokens": 545,
+     "agg_tps": 258.9158873496042,
+     "per_stream_tps": 79.48402352306388,
+     "mean_latency": 1.3825071625000191,
+     "max_latency": 2.1028685000001133
+    },
+    {
+     "wall": 2.179920399999901,
+     "tokens": 545,
+     "agg_tps": 250.00912877370422,
+     "per_stream_tps": 76.12512883233266,
+     "mean_latency": 1.4291641874999073,
+     "max_latency": 2.1769773000000896
+    },
+    {
+     "wall": 2.6913816999999653,
+     "tokens": 547,
+     "agg_tps": 203.24133139495117,
+     "per_stream_tps": 65.46461214750991,
+     "mean_latency": 1.7538149999999746,
+     "max_latency": 2.6907638000002407
+    }
+   ],
+   "exp1_16": [
+    {
+     "wall": 5.742426499999965,
+     "tokens": 1340,
+     "agg_tps": 233.35083174334198,
+     "per_stream_tps": 70.5795375756303,
+     "mean_latency": 3.0809761812499517,
+     "max_latency": 5.740382299999965
+    },
+    {
+     "wall": 5.729051400000117,
+     "tokens": 1290,
+     "agg_tps": 225.16816658338476,
+     "per_stream_tps": 69.77229149288104,
+     "mean_latency": 2.984676725000014,
+     "max_latency": 5.7265965999999935
+    },
+    {
+     "wall": 5.691538400000354,
+     "tokens": 1330,
+     "agg_tps": 233.68022958431015,
+     "per_stream_tps": 69.76894100217028,
+     "mean_latency": 2.984197606249978,
+     "max_latency": 5.686627800000224
+    },
+    {
+     "wall": 5.497459600000184,
+     "tokens": 1286,
+     "agg_tps": 233.92623021730927,
+     "per_stream_tps": 69.47691417129663,
+     "mean_latency": 3.0654181874998585,
+     "max_latency": 5.4925459999999475
+    },
+    {
+     "wall": 5.072922299999846,
+     "tokens": 1313,
+     "agg_tps": 258.82517459414663,
+     "per_stream_tps": 74.67797633251048,
+     "mean_latency": 2.8772795437500065,
+     "max_latency": 5.070384799999829
+    }
+   ],
+   "exp2_short": [
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5970141999996486,
+     "t_expand": 2.2806875000001128,
+     "t_total": 2.8777547999998205,
+     "reply_tokens": 425,
+     "outline_tokens": 71,
+     "reply_words": 372,
+     "reply": "Electric motors convert electrical energy into motion, generating the torque necessary to propel the vehicle forward. This mechanical energy is then transferred to the wheels, causing the car to move across the road. The process relies on the motor's internal coils interacting with magnetic fields to produce rotational force. While the battery stores chemical energy for the vehicle, the motor is the critical component that transforms this stored energy into kinetic energy.\n\nBatteries store chemical energy for the vehicle, converting stored energy into motion. This stored energy is then transferred to the electric motor, which drives the wheels to propel the car forward. The process relies on the battery pack powering the motor, ensuring continuous movement without external energy input.\n\nThe battery pack acts as the central engine that directly powers the electric motor, converting stored chemical energy into the mechanical force required to drive the wheels. This direct connection ensures that the vehicle's propulsion system is fully dependent on the battery's output, making it the critical link between the vehicle's power source and its movement.\n\nThe electric motor acts as the engine that converts stored chemical energy from the battery into kinetic energy, spinning the wheels to propel the vehicle forward. This mechanical force pushes against the road, overcoming friction and air resistance to maintain the car's motion. As the wheels turn, the motor's rotation transfers energy directly to the wheels, allowing the car to travel efficiently without an external power source.\n\nThe battery pack acts as the central engine, storing chemical energy that powers the electric motor. This stored energy is then converted into motion by the motor, which drives the wheels to propel the car forward. While the motor converts electrical energy into motion, the battery itself is the source of that energy, charging via sunlight or electricity. This process ensures the vehicle can travel without an external power source, making it a sustainable mode of transport.\n\nThe electric vehicle operates by converting stored chemical energy from its battery pack into kinetic energy through an electric motor. This motor drives the wheels, propelling the car forward or backward. The system relies on solar energy or electricity to charge the battery, which then powers the motor to move the vehicle.",
+     "eff_tps": 147.68457687917905,
+     "agg_tps_all": 172.35658854605364,
+     "per_stream_tps": 69.2672982597003
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6110214999998789,
+     "t_expand": 1.602377400000023,
+     "t_total": 2.213479600000028,
+     "reply_tokens": 381,
+     "outline_tokens": 71,
+     "reply_words": 331,
+     "reply": null,
+     "eff_tps": 172.12717930628102,
+     "agg_tps_all": 204.20337282529928,
+     "per_stream_tps": 82.95432546070545
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5933869000000414,
+     "t_expand": 1.8315959000001385,
+     "t_total": 2.4250342000000273,
+     "reply_tokens": 408,
+     "outline_tokens": 71,
+     "reply_words": 357,
+     "reply": null,
+     "eff_tps": 168.2450499048613,
+     "agg_tps_all": 197.5229875108543,
+     "per_stream_tps": 80.89338596131931
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6555434000001696,
+     "t_expand": 1.804214299999785,
+     "t_total": 2.459824800000206,
+     "reply_tokens": 413,
+     "outline_tokens": 71,
+     "reply_words": 361,
+     "reply": null,
+     "eff_tps": 167.89813648515351,
+     "agg_tps_all": 196.76198077194746,
+     "per_stream_tps": 79.75746030934725
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6172316000001956,
+     "t_expand": 1.7636842000001707,
+     "t_total": 2.380983500000184,
+     "reply_tokens": 420,
+     "outline_tokens": 71,
+     "reply_words": 368,
+     "reply": null,
+     "eff_tps": 176.39769448211948,
+     "agg_tps_all": 206.2173047398111,
+     "per_stream_tps": 85.60503581528035
+    }
+   ],
+   "exp2_long": [
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6084789999999884,
+     "t_expand": 2.5080119999997805,
+     "t_total": 3.1165601000002425,
+     "reply_tokens": 620,
+     "outline_tokens": 71,
+     "reply_words": 541,
+     "reply": "Electric motors convert electrical energy into motion, transforming the stored power from batteries into kinetic energy that propels the vehicle forward. This conversion process relies on specialized coils and magnets that interact with an electric current to generate torque, allowing the car to accelerate and maintain its speed. The motor's operation is distinct from the battery's function, as the motor is designed to handle high currents efficiently, whereas the battery manages the flow of electrons to power the motor. Together, these components form a closed loop where the motor drives the wheels, and the wheels drive the motor, creating a continuous cycle of energy transfer that enables the car to move.\n\nBatteries store chemical energy within the vehicle's internal components, such as lead-acid or lithium-ion cells, which is then converted into electrical energy to power the electric motor. This stored energy is transferred directly to the motor, allowing it to generate the thrust needed to propel the car forward. The motor converts this electrical energy into kinetic energy, which is then transferred to the wheels, causing the car to move. While the battery pack is the central hub that powers the entire system, the motor is the specific component responsible for converting that stored energy into motion.\n\nThe battery pack serves as the central engine that directly powers the electric motor, converting stored chemical energy into the mechanical force required to drive the wheels. This direct connection ensures that the vehicle's propulsion system operates without external power sources, allowing the car to travel efficiently on its own. By utilizing the battery pack, the system maintains a stable power output that matches the vehicle's weight and speed, enabling smooth acceleration and cruising. This fundamental mechanism is essential for the car's operation, as it provides the necessary torque to overcome friction and resistive forces during movement.\n\nThe electric motor acts as the engine of the vehicle, converting stored electrical energy into kinetic motion. This mechanical force pushes against the wheels, causing the car to accelerate forward or reverse. The motor's rotation is directly linked to the wheels, which convert that motion into the forward or backward movement of the vehicle.\n\nThe core mechanism of solar charging involves solar panels converting sunlight into direct current (DC) electricity, which is then routed through a charge controller to the battery pack. This process transforms the kinetic energy of the sun into stored chemical energy within the cells, effectively charging the battery without direct contact with the vehicle. Once fully charged, the battery pack powers the electric motor, which converts that stored energy into mechanical motion to propel the car forward. This cycle repeats daily, allowing the vehicle to travel long distances without an external power source, demonstrating how renewable energy powers transportation.\n\nThe electric vehicle operates by utilizing the stored chemical energy within its battery pack, which is then converted into electrical energy by the motor. This electrical power drives the wheels, propelling the car forward through frictionless tires. The system relies on solar panels or grid electricity to recharge the battery, ensuring a continuous power source for the journey. Once the battery is fully charged, the stored energy is instantly converted back into motion, allowing the vehicle to travel efficiently without an external power grid.",
+     "eff_tps": 198.93728344913092,
+     "agg_tps_all": 221.71881106991847,
+     "per_stream_tps": 85.59407336939401
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6106307000000015,
+     "t_expand": 3.1491823999999724,
+     "t_total": 3.759871999999632,
+     "reply_tokens": 549,
+     "outline_tokens": 71,
+     "reply_words": 484,
+     "reply": null,
+     "eff_tps": 146.01560904202424,
+     "agg_tps_all": 164.8992306121221,
+     "per_stream_tps": 67.12905717284619
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6064522000001489,
+     "t_expand": 3.4531568000002153,
+     "t_total": 4.059673499999917,
+     "reply_tokens": 609,
+     "outline_tokens": 71,
+     "reply_words": 537,
+     "reply": null,
+     "eff_tps": 150.01206377803842,
+     "agg_tps_all": 167.50115495741562,
+     "per_stream_tps": 67.02296398311813
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6148020000000542,
+     "t_expand": 2.43446589999985,
+     "t_total": 3.0493270000001758,
+     "reply_tokens": 606,
+     "outline_tokens": 71,
+     "reply_words": 537,
+     "reply": null,
+     "eff_tps": 198.73237602919104,
+     "agg_tps_all": 222.01620226363423,
+     "per_stream_tps": 84.1772263517837
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5941729999999552,
+     "t_expand": 3.513178799999878,
+     "t_total": 4.107443999999759,
+     "reply_tokens": 645,
+     "outline_tokens": 71,
+     "reply_words": 567,
+     "reply": null,
+     "eff_tps": 157.0319644041496,
+     "agg_tps_all": 174.31765350910248,
+     "per_stream_tps": 69.93865036234824
+    }
+   ],
+   "gpu": {
+    "peak_mem_mib": 843.0,
+    "max_temp_c": 70.0,
+    "mean_power_w_busy": 39.7,
+    "mean_sm_mhz_busy": 2487,
+    "mean_util_busy": 74
+   }
+  },
+  {
+   "np": 8,
+   "drift_check": false,
+   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 8 -c 16384 --no-webui --host 127.0.0.1 --port 8089",
+   "idle_before": [
+    0.0,
+    0.0,
+    59.0,
+    8.6,
+    1935.0
+   ],
+   "vram_after_warmup_mib": 1027.0,
+   "baseline": [
+    {
+     "wall": 3.535579599999892,
+     "tokens": 476,
+     "pps": 140.15106809866634,
+     "tps_wall": 134.6313911303297,
+     "words": 404,
+     "text": "Electric cars operate by converting electrical energy directly into motion through a specialized system called an electric motor. Unlike traditional internal combustion engines, which burn fuel to generate power, electric motors use an electric current to create torque, allowing the vehicle to accelerate and turn without needing a fuel source. This process relies on the principle of electromagnetic induction, where a current-carrying coil of wire interacts with a magnetic field to produce motion.\n\nThe core components of an electric vehicle include the battery, which stores energy in the form of chemical bonds, and the electric motor, which converts that stored energy into mechanical rotation. The battery is typically a lithium-ion cell, which can hold a significant amount of energy, often ranging from 100 to 400 kilowatt-hours (kWh) depending on the model. This energy is then transferred to the motor via a high-voltage DC (Direct Current) busbar, which connects the battery to the motor and the vehicle's electrical system.\n\nOnce the motor receives power, it spins at high speeds, driving the wheels. The wheels then push against the road, creating friction that converts the kinetic energy of the spinning motor into the kinetic energy of the vehicle's motion. This frictional force is what provides the necessary traction to move the car forward. The electric motor is designed to be highly efficient, converting a large portion of the electrical energy into useful mechanical work while minimizing energy loss as heat.\n\nThe efficiency of an electric car is significantly higher than that of a traditional gasoline vehicle. Because there is no combustion process to generate heat, the motor operates at a much higher power-to-weight ratio. This means that for the same amount of energy, an electric car can achieve greater acceleration and higher top speeds compared to its gasoline counterpart. Additionally, electric vehicles often have a longer range, allowing them to travel longer distances on a single charge, which is particularly advantageous for urban driving where range anxiety is a concern.\n\nDespite these advantages, electric vehicles face challenges such as range anxiety, the need for frequent charging, and the environmental impact of battery production. However, advancements in battery technology and the integration of electric vehicles into public transportation networks are expected to mitigate these issues. As the cost of batteries decreases and the efficiency of the energy conversion process improves, electric vehicles are poised to become the dominant mode of transportation for the next generation of vehicles."
+    },
+    {
+     "wall": 3.5685458000002654,
+     "tokens": 476,
+     "pps": 139.92610134361462,
+     "tps_wall": 133.3876673237498,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.5095086999999694,
+     "tokens": 476,
+     "pps": 142.03063137250328,
+     "tps_wall": 135.6315201612135,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.4462570999999116,
+     "tokens": 476,
+     "pps": 142.6974933307698,
+     "tps_wall": 138.1208616153485,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.557332999999744,
+     "tokens": 476,
+     "pps": 138.56569049325594,
+     "tps_wall": 133.80810849027466,
+     "words": 404,
+     "text": null
+    }
+   ],
+   "exp1_8": [
+    {
+     "wall": 2.6077275000002373,
+     "tokens": 544,
+     "agg_tps": 208.6107539993924,
+     "per_stream_tps": 47.70084645249264,
+     "mean_latency": 1.7529879999999025,
+     "max_latency": 2.6053438999997525
+    },
+    {
+     "wall": 2.5025445999999647,
+     "tokens": 544,
+     "agg_tps": 217.37874322000403,
+     "per_stream_tps": 49.81743150279729,
+     "mean_latency": 1.6844261374999405,
+     "max_latency": 2.5004030999998577
+    },
+    {
+     "wall": 2.9051813999999467,
+     "tokens": 544,
+     "agg_tps": 187.2516463171663,
+     "per_stream_tps": 46.134676756535605,
+     "mean_latency": 1.8537148750000938,
+     "max_latency": 2.903260600000067
+    },
+    {
+     "wall": 2.3517778000000362,
+     "tokens": 545,
+     "agg_tps": 231.7395801593125,
+     "per_stream_tps": 51.26581267558256,
+     "mean_latency": 1.6141150250001033,
+     "max_latency": 2.3498105000003306
+    },
+    {
+     "wall": 2.454044199999771,
+     "tokens": 545,
+     "agg_tps": 222.08238955111355,
+     "per_stream_tps": 49.591484068350326,
+     "mean_latency": 1.6776489750000678,
+     "max_latency": 2.452139800000168
+    }
+   ],
+   "exp1_16": [
+    {
+     "wall": 5.289984300000015,
+     "tokens": 1316,
+     "agg_tps": 248.77200486209313,
+     "per_stream_tps": 43.51684349898041,
+     "mean_latency": 3.0977172312499306,
+     "max_latency": 5.286979199999678
+    },
+    {
+     "wall": 4.877493200000117,
+     "tokens": 1302,
+     "agg_tps": 266.94040291024265,
+     "per_stream_tps": 47.01082201289024,
+     "mean_latency": 2.8472339312500026,
+     "max_latency": 4.872707799999716
+    },
+    {
+     "wall": 6.157086199999867,
+     "tokens": 1291,
+     "agg_tps": 209.67710343246907,
+     "per_stream_tps": 41.36294951290158,
+     "mean_latency": 3.2869007625000393,
+     "max_latency": 6.154179999999997
+    },
+    {
+     "wall": 5.144921300000078,
+     "tokens": 1307,
+     "agg_tps": 254.03692763968618,
+     "per_stream_tps": 46.68015798146615,
+     "mean_latency": 2.9410901000000536,
+     "max_latency": 5.141220399999838
+    },
+    {
+     "wall": 4.859196699999757,
+     "tokens": 1312,
+     "agg_tps": 270.00347608897283,
+     "per_stream_tps": 47.26169599319179,
+     "mean_latency": 2.8028055687499602,
+     "max_latency": 4.855331600000227
+    }
+   ],
+   "exp2_short": [
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6919469999998,
+     "t_expand": 2.0870255999998335,
+     "t_total": 2.7790429000001495,
+     "reply_tokens": 381,
+     "outline_tokens": 71,
+     "reply_words": 333,
+     "reply": "Electric motors convert electrical energy into motion, transforming the stored chemical energy from batteries into kinetic energy that propels the vehicle forward. This conversion occurs within the motor's internal components, where the electrical current drives the rotor to spin the wheels. The motor's operation relies on the principle of electromagnetic induction, which generates torque to overcome friction and air resistance, allowing the car to accelerate and maintain its speed.\n\nBatteries store chemical energy for the vehicle, which is then converted into electrical energy to power the electric motor. This stored energy drives the wheels to move the car, completing the cycle of energy conversion.\n\nThe battery pack acts as the central engine, storing chemical energy that is instantly converted into electrical power to drive the electric motor. This conversion is the fundamental mechanism that allows the vehicle to move without an external power source, utilizing the stored energy to propel the car forward.\n\nThe electric motor acts as the engine that converts stored chemical energy from the battery into kinetic energy, pushing the wheels forward to propel the vehicle. This mechanical force is the direct result of the motor's operation, which is the critical step in the car's movement cycle.\n\nThe battery pack acts as the central engine, storing chemical energy that powers the electric motor. This stored energy is then converted into motion by the motor, which drives the wheels to propel the car forward. While the motor converts electrical energy into motion, the battery itself is the source of that energy, charging via sunlight or electricity. This process ensures the vehicle can continue traveling without needing a constant power source.\n\nThe electric vehicle operates by converting stored chemical energy from its battery pack into kinetic energy through an electric motor. This motor drives the wheels, propelling the car forward or backward. The system is powered by either sunlight or electricity, which are stored in the battery. Once the battery is fully charged, the car can travel indefinitely without external energy input.",
+     "eff_tps": 137.09755973899485,
+     "agg_tps_all": 162.64592388983115,
+     "per_stream_tps": 39.21497336096015
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6554658000000018,
+     "t_expand": 2.3196796000001996,
+     "t_total": 2.9752012999997532,
+     "reply_tokens": 341,
+     "outline_tokens": 71,
+     "reply_words": 298,
+     "reply": null,
+     "eff_tps": 114.61409350689256,
+     "agg_tps_all": 138.47802499953,
+     "per_stream_tps": 31.418432349765787
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.670635499999662,
+     "t_expand": 2.808028800000102,
+     "t_total": 3.478732499999751,
+     "reply_tokens": 399,
+     "outline_tokens": 71,
+     "reply_words": 351,
+     "reply": null,
+     "eff_tps": 114.69694781074101,
+     "agg_tps_all": 135.1066803785671,
+     "per_stream_tps": 28.400502960120352
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6192730999996456,
+     "t_expand": 2.312989000000016,
+     "t_total": 2.9324180999997225,
+     "reply_tokens": 369,
+     "outline_tokens": 71,
+     "reply_words": 325,
+     "reply": null,
+     "eff_tps": 125.83471640692537,
+     "agg_tps_all": 150.04681631178093,
+     "per_stream_tps": 36.20144406486797
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6545808000000761,
+     "t_expand": 2.0526926000002277,
+     "t_total": 2.7073378999998567,
+     "reply_tokens": 392,
+     "outline_tokens": 71,
+     "reply_words": 343,
+     "reply": null,
+     "eff_tps": 144.79167894041623,
+     "agg_tps_all": 171.01670242197122,
+     "per_stream_tps": 39.94679773355016
+    }
+   ],
+   "exp2_long": [
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6291877000003296,
+     "t_expand": 3.8479167000000416,
+     "t_total": 4.477158800000325,
+     "reply_tokens": 671,
+     "outline_tokens": 71,
+     "reply_words": 589,
+     "reply": "Electric motors convert electrical energy into motion, transforming the stored power from batteries into kinetic energy that propels the vehicle forward. This conversion process relies on specialized coils and magnets that interact with an electric current to generate torque, allowing the car to accelerate and maintain its speed. The motor's operation is distinct from the battery's function, as it does not store energy itself but rather utilizes the chemical energy within the battery pack to power the mechanical output. Once the motor is running, it drives the wheels, converting the rotational energy into linear motion that carries the car through the road. This cycle repeats continuously, utilizing the stored energy from the battery to sustain the journey, while the sun or grid electricity charges the battery to replenish the chemical energy needed for future trips.\n\nBatteries store chemical energy within the vehicle's internal components, such as lead-acid or lithium-ion cells, which is then converted into electrical energy to power the electric motor. This stored energy is transferred directly to the motor, allowing it to generate the thrust needed to propel the car forward. The motor converts this electrical energy into kinetic energy, which is then transferred to the wheels, causing the car to move. While the battery pack is the central hub that powers the entire system, the specific function of storing chemical energy is the foundation that enables the electric motor to operate without an external power source.\n\nThe battery pack serves as the central engine that directly powers the electric motor, converting stored chemical energy into the mechanical force required to drive the wheels. This direct connection ensures that the vehicle's propulsion system operates without external power sources, allowing the car to travel efficiently on its own. By utilizing the battery pack, the system maintains a stable power output that matches the vehicle's weight and speed, enabling smooth acceleration and cruising. This fundamental mechanism is essential for the car's operation, as it provides the necessary torque to overcome friction and resistive forces during movement.\n\nThe electric motor acts as the engine of the vehicle, converting stored electrical energy into kinetic motion. This mechanical force pushes against the wheels, causing the car to accelerate forward or reverse. The motor's rotation transfers energy directly to the wheels, which then drive the car through the road surface. This process is the fundamental mechanism that allows the electric vehicle to move without an internal combustion engine.\n\nThe core mechanism of solar charging involves solar panels converting sunlight into direct current (DC) electricity, which is then routed through a charge controller to the battery pack. This process transforms the kinetic energy of the sun into stored chemical energy within the cells, effectively charging the battery without direct contact with the vehicle. Once fully charged, the battery pack powers the electric motor, which converts that stored energy into mechanical motion to propel the car forward. This cycle repeats daily, allowing the vehicle to travel long distances without an external power source, demonstrating how renewable energy powers the electric vehicle's operation.\n\nThe electric vehicle operates by converting stored chemical energy from its battery pack into kinetic energy through an electric motor. This motor drives the wheels, which then propel the car forward or backward, effectively turning the battery's stored energy into motion. While the motor converts electrical energy into motion, the battery serves as the power source that charges up using solar energy or electricity. The car utilizes this stored energy to travel, completing the cycle of energy conversion that powers the vehicle's operation.",
+     "eff_tps": 149.8718338960752,
+     "agg_tps_all": 165.73010544096542,
+     "per_stream_tps": 35.714403204345345
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6208066000003782,
+     "t_expand": 3.5084913999999117,
+     "t_total": 4.129349000000275,
+     "reply_tokens": 567,
+     "outline_tokens": 71,
+     "reply_words": 502,
+     "reply": null,
+     "eff_tps": 137.30977933808992,
+     "agg_tps_all": 154.50377287072553,
+     "per_stream_tps": 31.022090449334733
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.7008999999998196,
+     "t_expand": 4.406550499999867,
+     "t_total": 5.107512399999905,
+     "reply_tokens": 625,
+     "outline_tokens": 71,
+     "reply_words": 556,
+     "reply": null,
+     "eff_tps": 122.3687680131744,
+     "agg_tps_all": 136.269860059471,
+     "per_stream_tps": 28.45330665426113
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6210025000000314,
+     "t_expand": 3.5716887000003226,
+     "t_total": 4.1927528000001075,
+     "reply_tokens": 560,
+     "outline_tokens": 71,
+     "reply_words": 494,
+     "reply": null,
+     "eff_tps": 133.56380085179018,
+     "agg_tps_all": 150.49778274549928,
+     "per_stream_tps": 34.813588983828595
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6202514999999948,
+     "t_expand": 3.6280409000000873,
+     "t_total": 4.248362300000281,
+     "reply_tokens": 600,
+     "outline_tokens": 71,
+     "reply_words": 530,
+     "reply": null,
+     "eff_tps": 141.2308926665601,
+     "agg_tps_all": 157.94321496543637,
+     "per_stream_tps": 34.907842371661836
+    }
+   ],
+   "gpu": {
+    "peak_mem_mib": 1029.0,
+    "max_temp_c": 70.0,
+    "mean_power_w_busy": 37.0,
+    "mean_sm_mhz_busy": 2487,
+    "mean_util_busy": 68
+   }
+  },
+  {
+   "np": 16,
+   "drift_check": false,
+   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 16 -c 32768 --no-webui --host 127.0.0.1 --port 8089",
+   "idle_before": [
+    0.0,
+    0.0,
+    59.0,
+    8.53,
+    1935.0
+   ],
+   "vram_after_warmup_mib": 1385.0,
+   "baseline": [
+    {
+     "wall": 3.436591099999987,
+     "tokens": 476,
+     "pps": 142.93310159113128,
+     "tps_wall": 138.50935015224877,
+     "words": 404,
+     "text": "Electric cars operate by converting electrical energy directly into motion through a specialized system called an electric motor. Unlike traditional internal combustion engines, which burn fuel to generate power, electric motors use an electric current to create torque, allowing the vehicle to accelerate and turn without needing a fuel source. This process relies on the principle of electromagnetic induction, where a current-carrying coil of wire interacts with a magnetic field to produce motion.\n\nThe core components of an electric vehicle include the battery, which stores energy in the form of chemical bonds, and the electric motor, which converts that stored energy into mechanical rotation. The battery is typically a lithium-ion cell, which can hold a significant amount of energy, often ranging from 100 to 400 kilowatt-hours (kWh) depending on the model. This energy is then transferred to the motor via a high-voltage DC (Direct Current) busbar, which connects the battery to the motor and the vehicle's electrical system.\n\nOnce the motor receives power, it spins at high speeds, driving the wheels. The wheels then push against the road, creating friction that converts the kinetic energy of the spinning motor into the kinetic energy of the vehicle's motion. This frictional force is what provides the necessary traction to move the car forward. The electric motor is designed to be highly efficient, converting a large portion of the electrical energy into useful mechanical work while minimizing energy loss as heat.\n\nThe efficiency of an electric car is significantly higher than that of a traditional gasoline vehicle. Because there is no combustion process to generate heat, the motor operates at a much higher power-to-weight ratio. This means that for the same amount of energy, an electric car can achieve greater acceleration and higher top speeds compared to its gasoline counterpart. Additionally, electric vehicles often have a longer range, allowing them to travel longer distances on a single charge, which is particularly advantageous for urban driving where range anxiety is a concern.\n\nDespite these advantages, electric vehicles face challenges such as range anxiety, the need for frequent charging, and the environmental impact of battery production. However, advancements in battery technology and the integration of electric vehicles into public transportation networks are expected to mitigate these issues. As the cost of batteries decreases and the efficiency of the energy conversion process improves, electric vehicles are poised to become the dominant mode of transportation for the next generation of vehicles."
+    },
+    {
+     "wall": 3.5115445999999793,
+     "tokens": 476,
+     "pps": 140.74778855593067,
+     "tps_wall": 135.55288461949274,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.4548752999999124,
+     "tokens": 476,
+     "pps": 143.05815570028022,
+     "tps_wall": 137.7763185837741,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.4495554999998603,
+     "tokens": 476,
+     "pps": 142.86208395177576,
+     "tps_wall": 137.98879304884912,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.535280899999634,
+     "tokens": 476,
+     "pps": 139.75944310422494,
+     "tps_wall": 134.64276629335149,
+     "words": 404,
+     "text": null
+    }
+   ],
+   "exp1_8": [
+    {
+     "wall": 3.00064330000032,
+     "tokens": 544,
+     "agg_tps": 181.294457758422,
+     "per_stream_tps": 33.32497464470842,
+     "mean_latency": 2.245682387499869,
+     "max_latency": 2.998412299999927
+    },
+    {
+     "wall": 2.9664880999998786,
+     "tokens": 544,
+     "agg_tps": 183.38182445431764,
+     "per_stream_tps": 28.879599986292117,
+     "mean_latency": 2.5779418625000403,
+     "max_latency": 2.9640755000000354
+    },
+    {
+     "wall": 3.220276600000034,
+     "tokens": 544,
+     "agg_tps": 168.92958822232671,
+     "per_stream_tps": 29.222488897171147,
+     "mean_latency": 2.5016262875000734,
+     "max_latency": 3.2176116000000548
+    },
+    {
+     "wall": 3.917710199999874,
+     "tokens": 544,
+     "agg_tps": 138.85662089044195,
+     "per_stream_tps": 22.578957564414374,
+     "mean_latency": 3.150994262500035,
+     "max_latency": 3.9153783000001567
+    },
+    {
+     "wall": 2.9981189999998605,
+     "tokens": 543,
+     "agg_tps": 181.11355820100044,
+     "per_stream_tps": 33.72958701030756,
+     "mean_latency": 2.209757762499919,
+     "max_latency": 2.995961499999794
+    }
+   ],
+   "exp1_16": [
+    {
+     "wall": 4.46978050000007,
+     "tokens": 1320,
+     "agg_tps": 295.31651498322555,
+     "per_stream_tps": 27.492775057811187,
+     "mean_latency": 3.6629969000000813,
+     "max_latency": 4.4659567000003335
+    },
+    {
+     "wall": 4.3123945000002095,
+     "tokens": 1250,
+     "agg_tps": 289.8621635845096,
+     "per_stream_tps": 27.827552763705917,
+     "mean_latency": 3.430062168750027,
+     "max_latency": 4.308729599999879
+    },
+    {
+     "wall": 4.812157999999727,
+     "tokens": 1291,
+     "agg_tps": 268.2788054756459,
+     "per_stream_tps": 26.05359305868413,
+     "mean_latency": 3.7842717375000063,
+     "max_latency": 4.809707300000355
+    },
+    {
+     "wall": 4.173702799999774,
+     "tokens": 1287,
+     "agg_tps": 308.35928231403295,
+     "per_stream_tps": 28.588849842555753,
+     "mean_latency": 3.3594806374999564,
+     "max_latency": 4.171181799999886
+    },
+    {
+     "wall": 4.693938600000365,
+     "tokens": 1296,
+     "agg_tps": 276.1007568356133,
+     "per_stream_tps": 26.24080848981577,
+     "mean_latency": 3.7377458124999805,
+     "max_latency": 4.691031800000019
+    }
+   ],
+   "exp2_short": [
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.75855939999974,
+     "t_expand": 3.4267135000000053,
+     "t_total": 4.185325699999794,
+     "reply_tokens": 431,
+     "outline_tokens": 71,
+     "reply_words": 378,
+     "reply": "Electric motors convert electrical energy into motion, transforming the stored chemical energy from batteries into kinetic energy that propels the vehicle forward. This conversion occurs within the motor's internal components, where the electrical current drives the rotor to spin the wheels. The motor's operation relies on the principle of electromagnetic induction, which generates torque to overcome friction and air resistance, allowing the car to move efficiently.\n\nBatteries store chemical energy for the vehicle, which is then converted into electrical energy to power the electric motor. This stored energy drives the wheels, allowing the car to move forward or backward. The system relies on the battery pack to supply the necessary power to the motor, ensuring continuous operation. While the motor converts electrical energy into motion, the battery remains the critical source of stored energy throughout the journey.\n\nThe battery pack acts as the central engine, storing chemical energy that is instantly converted into kinetic energy to propel the vehicle forward. This conversion is the critical link between the vehicle's power source and its movement, ensuring that the car can accelerate and maintain speed efficiently.\n\nThe electric motor acts as the engine that converts stored chemical energy from the battery into kinetic energy, pushing the wheels forward to propel the vehicle. This mechanical force is the direct result of the motor's operation, which is the critical step in the car's movement cycle.\n\nThe battery pack acts as the central energy source that powers the electric motor, which then drives the wheels to propel the vehicle forward. This process relies on the battery's ability to store chemical energy, allowing the car to travel without an external power source. While the motor converts electrical energy into motion, the battery is specifically charged by sunlight or electricity to replenish its stored energy. This solar charging mechanism ensures the car can operate in various environments, making it a sustainable mode of transport.\n\nThe electric car operates by converting stored chemical energy from its battery pack into kinetic energy to propel the vehicle forward. This process relies on the motor's ability to convert electrical energy into motion, which drives the wheels to move the car. The system utilizes the stored energy to travel efficiently, ensuring the car can move without an external power source.",
+     "eff_tps": 102.97884343864116,
+     "agg_tps_all": 119.94287565243124,
+     "per_stream_tps": 25.030827498184237
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.7122846000002028,
+     "t_expand": 1.8945515000000341,
+     "t_total": 2.6068912000000637,
+     "reply_tokens": 355,
+     "outline_tokens": 71,
+     "reply_words": 308,
+     "reply": null,
+     "eff_tps": 136.17752823746204,
+     "agg_tps_all": 163.41303388495447,
+     "per_stream_tps": 42.23800703971028
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6979767000002539,
+     "t_expand": 2.3337054999997235,
+     "t_total": 3.0317619000002196,
+     "reply_tokens": 409,
+     "outline_tokens": 71,
+     "reply_words": 356,
+     "reply": null,
+     "eff_tps": 134.9050530650083,
+     "agg_tps_all": 158.32377865820044,
+     "per_stream_tps": 36.5481432184761
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6887531000002127,
+     "t_expand": 2.576915900000131,
+     "t_total": 3.265721599999779,
+     "reply_tokens": 367,
+     "outline_tokens": 71,
+     "reply_words": 322,
+     "reply": null,
+     "eff_tps": 112.3794508386829,
+     "agg_tps_all": 134.1204345159213,
+     "per_stream_tps": 31.726870544040963
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.7774721000000682,
+     "t_expand": 3.1946302999999716,
+     "t_total": 3.972157799999877,
+     "reply_tokens": 357,
+     "outline_tokens": 71,
+     "reply_words": 310,
+     "reply": null,
+     "eff_tps": 89.87558349268275,
+     "agg_tps_all": 107.74999925733394,
+     "per_stream_tps": 22.664232600778362
+    }
+   ],
+   "exp2_long": [
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6151906000000054,
+     "t_expand": 4.991904900000009,
+     "t_total": 5.607166199999938,
+     "reply_tokens": 615,
+     "outline_tokens": 71,
+     "reply_words": 545,
+     "reply": "Electric motors convert electrical energy into motion, transforming the stored chemical energy from batteries into kinetic energy that propels the vehicle forward. This conversion process relies on powerful magnets and coils of wire to create a magnetic field that interacts with the current flowing through the motor's coils. The resulting force pushes the wheels, causing the car to accelerate and move across the road surface. While the battery pack powers the motor, the car itself does not directly use the battery; rather, the motor acts as the engine that utilizes the stored energy to drive the wheels. This mechanism allows electric vehicles to operate without an internal combustion engine, making them highly efficient and environmentally friendly.\n\nBatteries store chemical energy for the vehicle, which is then converted into electrical energy to power the electric motor. This stored energy is transferred to the motor, which drives the wheels to propel the car forward. The process relies on the battery pack supplying the necessary power to the motor, ensuring continuous motion. While the motor converts electrical energy into motion, the battery remains the critical source of stored energy throughout the journey.\n\nThe battery pack serves as the central engine that directly powers the electric motor, converting stored chemical energy into the mechanical force required to drive the wheels. This direct connection ensures that the vehicle's propulsion system operates without external power sources, allowing the car to travel efficiently on its own. By utilizing the battery pack, the electric motor functions as the primary driver, transforming the stored energy into kinetic energy that propels the car forward. This mechanism is fundamental to the entire system, as it is the specific component responsible for initiating motion once the vehicle is stationary.\n\nThe electric motor acts as the central engine of the vehicle, converting stored electrical energy into kinetic motion. This mechanical force is transferred directly to the wheels, causing the car to accelerate forward or reverse. The motor's rotation creates friction with the tires, which converts the energy into heat and sound as the car moves. This process is the fundamental mechanism that allows the vehicle to travel without an external power source.\n\nThe core mechanism of solar charging involves solar panels converting sunlight into direct current (DC) electricity, which is then routed through a charge controller to the battery pack. This process transforms the kinetic energy of the sun into stored chemical energy within the cells, effectively charging the battery without direct contact with the vehicle. Once fully charged, the battery pack powers the electric motor, which converts that stored energy into mechanical motion to propel the car forward. This cycle repeats daily, allowing the vehicle to travel long distances without an external power source, demonstrating how renewable energy powers the electric vehicle's operation.\n\nThe electric vehicle operates by converting stored chemical energy from its battery pack into kinetic energy through an electric motor. This motor drives the wheels, which then propel the car forward or backward, effectively turning the battery's stored energy into motion. While the motor converts electrical energy into motion, the battery serves as the power source that charges up using solar energy or electricity. The car utilizes this stored energy to travel, completing the cycle of energy conversion from chemical storage to mechanical movement.",
+     "eff_tps": 109.68107205383119,
+     "agg_tps_all": 122.34343972183446,
+     "per_stream_tps": 24.27569168174497
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.619101899999805,
+     "t_expand": 3.582984099999976,
+     "t_total": 4.202145499999915,
+     "reply_tokens": 618,
+     "outline_tokens": 71,
+     "reply_words": 545,
+     "reply": null,
+     "eff_tps": 147.06773004409592,
+     "agg_tps_all": 163.9638608420422,
+     "per_stream_tps": 37.29984188699022
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6402309999998579,
+     "t_expand": 3.555297800000062,
+     "t_total": 4.1956114999998135,
+     "reply_tokens": 615,
+     "outline_tokens": 71,
+     "reply_words": 541,
+     "reply": null,
+     "eff_tps": 146.58173188819492,
+     "agg_tps_all": 163.50417573219792,
+     "per_stream_tps": 36.782901475550545
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6236235999999735,
+     "t_expand": 4.383713100000023,
+     "t_total": 5.007413799999995,
+     "reply_tokens": 670,
+     "outline_tokens": 71,
+     "reply_words": 591,
+     "reply": null,
+     "eff_tps": 133.8016043331591,
+     "agg_tps_all": 147.9805803147327,
+     "per_stream_tps": 28.883869385864603
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.6288887000000614,
+     "t_expand": 5.4999972999999045,
+     "t_total": 6.128964900000028,
+     "reply_tokens": 608,
+     "outline_tokens": 71,
+     "reply_words": 537,
+     "reply": null,
+     "eff_tps": 99.20109021998107,
+     "agg_tps_all": 110.78542805816964,
+     "per_stream_tps": 22.479607217013694
+    }
+   ],
+   "gpu": {
+    "peak_mem_mib": 1387.0,
+    "max_temp_c": 68.0,
+    "mean_power_w_busy": 35.8,
+    "mean_sm_mhz_busy": 2487,
+    "mean_util_busy": 69
+   }
+  },
+  {
+   "np": 1,
+   "drift_check": true,
+   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 1 -c 2048 --no-webui --host 127.0.0.1 --port 8089",
+   "idle_before": [
+    0.0,
+    0.0,
+    59.0,
+    8.49,
+    1935.0
+   ],
+   "vram_after_warmup_mib": 703.0,
+   "baseline": [
+    {
+     "wall": 3.5078365999997914,
+     "tokens": 476,
+     "pps": 138.30030382393062,
+     "tps_wall": 135.69617239298668,
+     "words": 404,
+     "text": "Electric cars operate by converting electrical energy directly into motion through a specialized system called an electric motor. Unlike traditional internal combustion engines, which burn fuel to generate power, electric motors use an electric current to create torque, allowing the vehicle to accelerate and turn without needing a fuel source. This process relies on the principle of electromagnetic induction, where a current-carrying coil of wire interacts with a magnetic field to produce motion.\n\nThe core components of an electric vehicle include the battery, which stores energy in the form of chemical bonds, and the electric motor, which converts that stored energy into mechanical rotation. The battery is typically a lithium-ion cell, which can hold a significant amount of energy, often ranging from 100 to 400 kilowatt-hours (kWh) depending on the model. This energy is then transferred to the motor via a high-voltage DC (Direct Current) busbar, which connects the battery to the motor and the vehicle's electrical system.\n\nOnce the motor receives power, it spins at high speeds, driving the wheels. The wheels then push against the road, creating friction that converts the kinetic energy of the spinning motor into the kinetic energy of the vehicle's motion. This frictional force is what provides the necessary traction to move the car forward. The electric motor is designed to be highly efficient, converting a large portion of the electrical energy into useful mechanical work while minimizing energy loss as heat.\n\nThe efficiency of an electric car is significantly higher than that of a traditional gasoline vehicle. Because there is no combustion process to generate heat, the motor operates at a much higher power-to-weight ratio. This means that for the same amount of energy, an electric car can achieve greater acceleration and higher top speeds compared to its gasoline counterpart. Additionally, electric vehicles often have a longer range, allowing them to travel longer distances on a single charge, which is particularly advantageous for urban driving where range anxiety is a concern.\n\nDespite these advantages, electric vehicles face challenges such as range anxiety, the need for frequent charging, and the environmental impact of battery production. However, advancements in battery technology and the integration of electric vehicles into public transportation networks are expected to mitigate these issues. As the cost of batteries decreases and the efficiency of the energy conversion process improves, electric vehicles are poised to become the dominant mode of transportation for the next generation of vehicles."
+    },
+    {
+     "wall": 3.470896900000298,
+     "tokens": 476,
+     "pps": 139.54175662213768,
+     "tps_wall": 137.1403454824484,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.4326351999998224,
+     "tokens": 476,
+     "pps": 140.98909041259344,
+     "tps_wall": 138.66897362120642,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.4650294999992184,
+     "tokens": 476,
+     "pps": 139.9891132676966,
+     "tps_wall": 137.37256782376812,
+     "words": 404,
+     "text": null
+    },
+    {
+     "wall": 3.428879899999629,
+     "tokens": 476,
+     "pps": 141.13344717107663,
+     "tps_wall": 138.82084350637405,
+     "words": 404,
+     "text": null
+    }
+   ],
+   "exp1_8": [
+    {
+     "wall": 4.394456300000456,
+     "tokens": 544,
+     "agg_tps": 123.79233353622006,
+     "per_stream_tps": 138.96946562690533,
+     "mean_latency": 0.54930238750012,
+     "max_latency": 0.7891736000001401
+    },
+    {
+     "wall": 4.413078100000348,
+     "tokens": 544,
+     "agg_tps": 123.26996886820496,
+     "per_stream_tps": 137.68671254768617,
+     "mean_latency": 0.5516292124998472,
+     "max_latency": 0.7994644000000335
+    },
+    {
+     "wall": 4.4115812999998525,
+     "tokens": 544,
+     "agg_tps": 123.31179298452874,
+     "per_stream_tps": 138.21886402744008,
+     "mean_latency": 0.5514426874999572,
+     "max_latency": 0.7929121999995914
+    },
+    {
+     "wall": 4.444745900000271,
+     "tokens": 544,
+     "agg_tps": 122.39169847706408,
+     "per_stream_tps": 139.651731425266,
+     "mean_latency": 0.5555874749998111,
+     "max_latency": 0.7913412999996581
+    },
+    {
+     "wall": 4.452897899999698,
+     "tokens": 544,
+     "agg_tps": 122.16763380090904,
+     "per_stream_tps": 139.97826482325513,
+     "mean_latency": 0.5566071375000092,
+     "max_latency": 0.7984636999999566
+    }
+   ],
+   "exp1_16": [
+    {
+     "wall": 10.224826799999391,
+     "tokens": 1307,
+     "agg_tps": 127.8261261110142,
+     "per_stream_tps": 141.2260946351361,
+     "mean_latency": 0.6390470874999323,
+     "max_latency": 0.7800938999998834
+    },
+    {
+     "wall": 10.425550299999486,
+     "tokens": 1307,
+     "agg_tps": 125.36508504496538,
+     "per_stream_tps": 139.5022627816657,
+     "mean_latency": 0.6515915624999025,
+     "max_latency": 0.8072377999997116
+    },
+    {
+     "wall": 10.470095800000308,
+     "tokens": 1307,
+     "agg_tps": 124.83171357419303,
+     "per_stream_tps": 138.6289310871067,
+     "mean_latency": 0.6543761375000372,
+     "max_latency": 0.8143856999995478
+    },
+    {
+     "wall": 10.428156499999204,
+     "tokens": 1307,
+     "agg_tps": 125.33375386149025,
+     "per_stream_tps": 138.94836161755012,
+     "mean_latency": 0.6517539187498187,
+     "max_latency": 0.7945823999998538
+    },
+    {
+     "wall": 10.430991399999584,
+     "tokens": 1307,
+     "agg_tps": 125.29969107251416,
+     "per_stream_tps": 139.62399511520385,
+     "mean_latency": 0.6519319312500897,
+     "max_latency": 0.8130987000004097
+    }
+   ],
+   "exp2_short": [
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5425037999993947,
+     "t_expand": 2.77536180000061,
+     "t_total": 3.317904399999861,
+     "reply_tokens": 351,
+     "outline_tokens": 71,
+     "reply_words": 305,
+     "reply": "Electric motors convert electrical energy into motion, transforming the stored chemical energy from batteries into kinetic energy that propels the vehicle forward. This conversion occurs within the motor's internal components, where the electrical current drives the rotor to spin the wheels. The motor's operation relies on the principle of electromagnetic induction, which generates torque to overcome friction and air resistance, allowing the car to accelerate and maintain its speed.\n\nBatteries store chemical energy within the vehicle's internal components, which is then converted into electrical energy to power the electric motor. This stored energy is transferred to the motor, which drives the wheels to propel the car forward. The process relies on the battery pack supplying the necessary power to the motor, ensuring continuous operation during travel.\n\nThe battery pack acts as the central engine, storing chemical energy that is instantly converted into kinetic energy to propel the vehicle forward. This conversion is the critical link between the vehicle's power source and its movement, ensuring that the car can accelerate and maintain speed efficiently.\n\nThe electric motor acts as the engine that converts stored chemical energy from the battery into kinetic energy, pushing the wheels forward to propel the vehicle. This mechanical force is the direct result of the motor's operation, which is the critical step in the car's movement cycle.\n\nThe battery pack is charged by sunlight or electricity, storing chemical energy that powers the electric motor. This stored energy drives the wheels to move the car, completing the cycle of energy conversion.\n\nThe electric vehicle operates by converting stored chemical energy from its battery pack into kinetic energy through an electric motor. This motor drives the wheels, propelling the car forward or backward. The system relies on solar energy or electricity to charge the battery, which then powers the motor to move the vehicle.",
+     "eff_tps": 105.78966651360258,
+     "agg_tps_all": 127.18871586535695,
+     "per_stream_tps": 139.13159248533685
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5616527000001952,
+     "t_expand": 2.80600350000077,
+     "t_total": 3.36769699999968,
+     "reply_tokens": 351,
+     "outline_tokens": 71,
+     "reply_words": 305,
+     "reply": null,
+     "eff_tps": 104.22552860308791,
+     "agg_tps_all": 125.30818538604872,
+     "per_stream_tps": 140.00106554415626
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5361536000000342,
+     "t_expand": 2.835898199999974,
+     "t_total": 3.37208980000014,
+     "reply_tokens": 351,
+     "outline_tokens": 71,
+     "reply_words": 305,
+     "reply": null,
+     "eff_tps": 104.08975466785773,
+     "agg_tps_all": 125.14494720750987,
+     "per_stream_tps": 139.80869235570202
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5506987999997364,
+     "t_expand": 2.8425545999998576,
+     "t_total": 3.393293399999493,
+     "reply_tokens": 351,
+     "outline_tokens": 71,
+     "reply_words": 305,
+     "reply": null,
+     "eff_tps": 103.43933124086837,
+     "agg_tps_all": 124.36295664856539,
+     "per_stream_tps": 138.96950035570254
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5576782999996794,
+     "t_expand": 2.817621700000018,
+     "t_total": 3.3753538999999364,
+     "reply_tokens": 351,
+     "outline_tokens": 71,
+     "reply_words": 305,
+     "reply": null,
+     "eff_tps": 103.98909578044739,
+     "agg_tps_all": 125.02392712065183,
+     "per_stream_tps": 139.86261803433814
+    }
+   ],
+   "exp2_long": [
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5694430000003194,
+     "t_expand": 4.563810499999818,
+     "t_total": 5.133292700000311,
+     "reply_tokens": 589,
+     "outline_tokens": 71,
+     "reply_words": 522,
+     "reply": "Electric motors convert electrical energy into motion, transforming the stored chemical energy from batteries into kinetic energy that propels the vehicle forward. This conversion process relies on powerful magnets and coils of wire to create a magnetic field that interacts with the current flowing through the motor's coils. The resulting force pushes the wheels, causing the car to accelerate and move across the road surface. While the battery pack powers the motor, the car itself does not directly use the battery; rather, the motor acts as the engine that utilizes the stored energy to drive the wheels. This mechanism allows electric vehicles to operate without an internal combustion engine, making them highly efficient and environmentally friendly.\n\nBatteries store chemical energy for the vehicle, which is then converted into electrical energy to power the electric motor. This stored energy is transferred to the motor, which drives the wheels to propel the car forward. The process relies on the battery pack supplying the necessary power to the motor, ensuring continuous motion. While the motor converts electrical energy into motion, the battery remains the critical source of stored energy throughout the journey.\n\nThe battery pack acts as the central engine that directly powers the electric motor, converting stored chemical energy into the mechanical force required to drive the wheels. This direct connection ensures that the vehicle's propulsion system is fully dependent on the battery's output, making the car's movement entirely electric rather than relying on traditional gasoline or internal combustion engines.\n\nThe electric motor acts as the central engine of the vehicle, converting stored electrical energy into kinetic motion. This mechanical force is transferred directly to the wheels, causing the car to accelerate forward or reverse. The motor's rotation creates friction with the tires, which converts the energy into heat and sound as the car moves. This process is the fundamental mechanism that allows the vehicle to travel without an external power source.\n\nThe core mechanism of solar charging involves solar panels converting sunlight directly into electricity, which is then routed through a charge controller to the battery pack. This process transforms radiant energy into usable electrical power, ensuring the vehicle's electrical system remains fully charged before it begins its journey. Once the battery is fully charged, it can power the electric motor to drive the wheels, allowing the car to travel efficiently without external energy sources. This cycle of charging and powering is essential for the vehicle's operation, as the stored chemical energy is released to propel the car forward.\n\nThe electric vehicle operates by converting stored chemical energy from its battery pack into kinetic energy through an electric motor. This motor drives the wheels, which then propel the car forward or backward, effectively turning the battery's stored energy into motion. While the motor converts electrical energy into motion, the battery serves as the primary source of that energy, storing it chemically for later use. The entire system relies on the battery pack to power the motor, which in turn drives the wheels to move the car. This cycle of charging and driving demonstrates how the car utilizes the stored energy to travel efficiently.",
+     "eff_tps": 114.74116798365391,
+     "agg_tps_all": 128.57244629747296,
+     "per_stream_tps": 140.108105951835
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5789644999995289,
+     "t_expand": 4.566701900000226,
+     "t_total": 5.145715599999676,
+     "reply_tokens": 589,
+     "outline_tokens": 71,
+     "reply_words": 522,
+     "reply": null,
+     "eff_tps": 114.4641573273185,
+     "agg_tps_all": 128.26204386422785,
+     "per_stream_tps": 139.68786984547125
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5806001999999353,
+     "t_expand": 4.624015600000348,
+     "t_total": 5.204666599999655,
+     "reply_tokens": 589,
+     "outline_tokens": 71,
+     "reply_words": 522,
+     "reply": null,
+     "eff_tps": 113.16767148928214,
+     "agg_tps_all": 126.80927535301565,
+     "per_stream_tps": 139.164194020466
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5565888999999515,
+     "t_expand": 4.585859400000118,
+     "t_total": 5.142487500000243,
+     "reply_tokens": 589,
+     "outline_tokens": 71,
+     "reply_words": 522,
+     "reply": null,
+     "eff_tps": 114.53601005349496,
+     "agg_tps_all": 128.34255795468027,
+     "per_stream_tps": 139.1352568166045
+    },
+    {
+     "n_points": 6,
+     "outline": "1. Electric motors convert electrical energy into motion.\n2. Batteries store chemical energy for the vehicle.\n3. The battery pack powers the electric motor.\n4. The motor drives the wheels to move the car.\n5. The battery is charged by sunlight or electricity.\n6. The car uses the stored energy to travel.",
+     "t_outline": 0.5710996999996496,
+     "t_expand": 4.577778500000022,
+     "t_total": 5.148920499999804,
+     "reply_tokens": 589,
+     "outline_tokens": 71,
+     "reply_words": 522,
+     "reply": null,
+     "eff_tps": 114.39291012553456,
+     "agg_tps_all": 128.18220829007268,
+     "per_stream_tps": 139.78649732234652
+    }
+   ],
+   "gpu": {
+    "peak_mem_mib": 703.0,
+    "max_temp_c": 69.0,
+    "mean_power_w_busy": 40.4,
+    "mean_sm_mhz_busy": 2488,
+    "mean_util_busy": 83
+   }
+  }
+ ],
+ "started": "2026-10-26 11:01:03",
+ "finished": "2026-10-26 11:14:10"
+}

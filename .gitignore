@@ -4,3 +4,4 @@ llama-cpp/
 models/
 *.gguf
 *.zip
+logs/
