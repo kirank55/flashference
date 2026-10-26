@@ -94,28 +94,39 @@ Fit summary:
 - Record for every cell: acceptance rate, tokens per step, speed-up vs same-file plain, and the step-cost ratio `r = tokens_per_step / speedup` [derived].
 - Quality check: greedy output is not guaranteed byte-identical with speculation (reported); compare a few outputs and the rubric from S3 on a subset.
 
-**Metrics:** acceptance rate, tokens per step, speed-up ratio vs plain, `r`. **Expected [estimate]:** n-gram: ~1.0x (0.95-1.02x) on free text, 1.3-1.7x on copy-heavy at best settings, acceptance strongly tracking copy fraction; MTP n-max 1: 0.95-1.2x on 0.8B, rising with model size (2B ~1.1-1.2x, 4B ~1.2-1.4x), peak at n-max 1-2 and falling below 1.0x by n-max 4-6; acceptance higher on code/structured text than prose. **Generalization claim supported if:** acceptance and tokens/step curves are stable across prompts of the same type and ordered the same way across 3 model sizes, and speed-up is predicted by `tokens_per_step / r` to within ~5%. **Success criterion:** complete n/m and n-max sweeps on at least 2 task types with SD < 3% on speed-up; report which setting is best per task type and per size. **Status:** planned.
+**Metrics:** acceptance rate, tokens per step, speed-up ratio vs plain, `r`. **Expected [estimate]:** n-gram: ~1.0x (0.95-1.02x) on free text, 1.3-1.7x on copy-heavy at best settings, acceptance strongly tracking copy fraction; MTP n-max 1: 0.95-1.2x on 0.8B, rising with model size (2B ~1.1-1.2x, 4B ~1.2-1.4x), peak at n-max 1-2 and falling below 1.0x by n-max 4-6; acceptance higher on code/structured text than prose. **Generalization claim supported if:** acceptance and tokens/step curves are stable across prompts of the same type and ordered the same way across 3 model sizes, and speed-up is predicted by `tokens_per_step / r` to within ~5%. **Success criterion:** complete n/m and n-max sweeps on at least 2 task types with SD < 3% on speed-up; report which setting is best per task type and per size. **Status (0.8B): done 2026-10-26** for S2a, S2b, S2d (greedy only, 6 copy-heavy + 6 free-text prompts, fresh server per config, 5 timed reps, SD in the report). **Not run:** S2c (2B/4B), temperature 0.8, quality rubric. Full tables, per-config SDs, repeat runs and per-prompt copy fractions: `results/2026-10-26-s2-spec-0.8b.md` (raw data `results/2026-10-26-s2-spec-0.8b.raw.json.gz`, regenerate with `python scripts/s2_report.py`).
 
-Results to fill in:
+**Results [measured]** (Qwen3.5-0.8B Q4_K_M, RTX 3050 laptop; plain = same-file control, ~140 tok/s for the bartowski file, ~142 for the unsloth MTP file; speed-up = decode tok/s / plain; r = tokens per step / speed-up):
 
-| Mode | n / m or n-max | Model size | Task type | acceptance | tokens/step | r | speed-up vs plain mean +/- SD | Notes |
-|---|---|---|---|---|---|---|---|---|
-| plain | - | 0.8B | free / copy | n/a | 1.00 | 1.00 | 1.00x | |
-| ngram-simple | n=3 m=16 | 0.8B | free | | | | | |
-| ngram-simple | n=3 m=16 | 0.8B | copy | | | | | |
-| ngram-simple | (full n x m grid) | 0.8B | free / copy | | | | | |
-| ngram-map-* | (grid) | 0.8B | free / copy | | | | | |
-| draft-mtp | n-max 1 | 0.8B | free / copy | | | | | |
-| draft-mtp | n-max 2, 3, 4, 6 | 0.8B | free / copy | | | | | |
-| draft-mtp | n-max 1, 2 | 2B | free / copy | | | | | |
-| draft-mtp | n-max 1, 2 | 4B | free / copy | | | | | |
-| ngram + MTP | best of each | 0.8B | copy | | | | | |
+| Mode | n / m or n-max | Task type | acceptance | tokens/step | r | speed-up vs plain mean +/- SD | Notes |
+|---|---|---|---|---|---|---|---|
+| plain | - | free / copy | n/a | 1.00 | 1.00 | 1.00x | 140 tok/s |
+| ngram-simple | n=3 m=16 | copy | 59% | 4.24 | 2.18 | 1.95x +/- 0.02 (273 tok/s) | repeat later in session: 1.66x +/- 0.12 (235 tok/s), same acceptance |
+| ngram-simple | n=3 m=16 | free | 6.8% | 1.04 | 1.13 | 0.92x +/- 0.01 | repeat 0.86x |
+| ngram-simple | n=4 m=4 | copy / free | 82% / 30% | 2.58 / 1.02 | 1.85 / 1.02 | 1.40x / 0.99x | best free-text setting (no loss) |
+| ngram-simple | n=2 m=16 | copy / free | 46% / 3.8% | 4.24 / 1.05 | 2.6 / 1.4 | 1.6x / 0.75x | short n drafts garbage on free text |
+| ngram-simple | grid n 2-4 x m 4-16 | copy / free | see report | | | copy 1.2-1.95x (rises with m, n=3-4 best); free 0.75-0.99x | free-text loss shrinks as n grows |
+| ngram-map-k | n=3 m=16 (best) | copy / free | 35% / 8% | 1.20 / 1.03 | 1.16 / 1.08 | 1.03x / 0.95x | n=4: 0.67-0.73x; n=2: 0.8-0.9x (high per-step overhead) |
+| ngram-map-k4v | n=3 m=16 | copy / free | 45% / 8% | 1.20 / 1.03 | 1.6 | 0.73x / 0.64x | slower than plain |
+| ngram-mod | match 8 (warm) | copy / free | 80% / 72% | 8.59 / 2.19 | 4.9 / 2.1 | 1.75x +/- 0.08 / 1.07x +/- 0.21 | warm numbers replay earlier identical prompts (artifact); cold: copy 244 tok/s (~1.7x, 70% acc), free 136 tok/s (0.97x, 2% acc), 1 rep |
+| draft-mtp | n-max 1 | copy / free | 98.7% / 64% | 1.97 / 1.64 | 1.68 / 1.65 | 1.17x +/- 0.04 / 0.99x +/- 0.01 | bartowski file with head: 1.18x / 0.99x |
+| draft-mtp | n-max 2 | copy / free | 95% / 51% | 2.89 / 2.00 | 2.1 | 1.37x / 0.97x | |
+| draft-mtp | n-max 3 | copy / free | 92% / 40% | 3.67 / 2.18 | 2.5 | 1.44x / 0.86x | |
+| draft-mtp | n-max 4 | copy / free | 88% / 31% | 4.36 / 2.22 | 2.8 | 1.54x / 0.79x | best MTP on copy (218 tok/s) |
+| draft-mtp | n-max 6 | copy / free | 78% / 22% | 5.41 / 2.28 | 3.6 | 1.48x / 0.63x | |
+| MTP + ngram-simple n=3 m=16 | n-max 2 / 3 | copy | 56% / 60% | 5.01 / 5.51 | 3.1 / 3.3 | 1.60x / 1.66x +/- 0.12 (227 / 235 tok/s) | combination is allowed |
+| MTP + ngram-simple n=3 m=16 | n-max 2 / 3 | free | 40% / 31% | 1.98 / 2.04 | 2.2 / 2.6 | 0.90x / 0.78x | |
+| any, 2B / 4B | - | - | | | | not run | S2c open |
 
-Copy-fraction check:
+Reproducibility: acceptance and tokens/step were identical between pass 1 and the repeat (-r2) for every repeated config (they are deterministic under greedy decoding); tok/s was not: MTP pass 1 ran while the machine was in a slow state (~90-100 tok/s plain) and is superseded by pass 2 (SDs <= 0.03 on speed-up); ngram-simple n=3 m=16 fell from 273 to 235 tok/s copy and 129 to 121 free between passes, so treat its 1.95x as the best case and 1.66-1.95x as the range.
 
-| Prompt | copy fraction (4-gram) | ngram acceptance | speed-up |
-|---|---|---|---|
-| C1..C4, F1..F3 | | | |
+**Max single-reply decode speed [measured]:** copy-heavy: 501 tok/s on one reply (prompt C3, 184 tokens, rep 5, MTP n-max 3 + ngram-simple); best configuration mean over the six copy prompts 273 tok/s (ngram-simple n=3 m=16; 235 on repeat). Free text: 149 tok/s on one reply (MTP n-max 2, F4); best mean ~140 (nothing beats plain by more than noise except warm ngram-mod replays). **>300 tok/s was reached only on individual copy-heavy replies (C3 and similar), never as a mean over the copy prompts and never on free text.**
+
+**vs expectation:** n-gram free text expected ~1.0x: measured 0.92x at n=3 m=16 and 0.99x only at n=4 m=4 (worse than plan). n-gram copy-heavy expected 1.3-1.7x: measured 1.4-1.95x for ngram-simple (above the range; repeat 1.66x). MTP n-max 1 expected 0.95-1.2x: measured 1.17x copy / 0.99x free (inside). Expected MTP peak at n-max 1-2 and below 1.0x by n-max 4-6: true on free text (0.97x at 2, 0.86x at 3, 0.63x at 6) but not on copy-heavy text, where the gain rises to 1.54x at n-max 4. Per prompt, ngram-simple n=3 m=16 ranged 0.97x (C1, copy fraction 0.41) to 3.85x (C6, copy fraction 1.00); free-text prompts 0.85-0.98x. The claim that speed-up follows tokens/step / r holds by construction (r is derived); r grows with draft length (1.1 at m=4-ish to 3.6 at n-max 6), i.e. each verified draft token adds cost, so long drafts only pay when acceptance is high.
+
+**Caveats:** only 6 hand-written prompts per type (copy-heavy ones are editing tasks, i.e. best case); greedy only; 0.8B only; speculative outputs are not byte-identical to plain on free text (the report lists the share of identical replies), and no quality score was run; control drift across the session was 4-5%; two reps were excluded as machine interruptions; decode tok/s excludes prompt processing (wall-based speed-ups are ~5-10% lower).
+
+Copy-fraction check [measured, ngram-simple n=3 m=16]: acceptance rises with copy fraction (C1 0.41 -> 26%; C3 0.95 -> 83%; C6 1.00 -> 94%; free prompts 0.00-0.03 -> 4-10%) but not monotonically (C4 1.00 -> 78%); the full per-prompt table is in the report.
 
 ---
 

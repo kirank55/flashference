@@ -1,0 +1,66 @@
+{
+ "copy": [
+  {
+   "id": "C1",
+   "n_predict": 256,
+   "user": "Fix all spelling mistakes in the following paragraph and output only the corrected paragraph, changing nothing else:\n\nYesterday the commitee met to discus the new reciept policy for the volunteer kitchen. Evryone agreed that every donation shoud be recorded in the ledgar, and that a second person must check the totals befor the end of the day. Treasurer Jonas Albrecht noted that last mounth three entries were mising, wich made the quarterly report late. The group also decided to purchace a small lockbox, and to review the arangement again in september."
+  },
+  {
+   "id": "C2",
+   "n_predict": 256,
+   "user": "Here is a JSON record. Change the \"role\" field to \"senior analyst\" and the \"team\" field to \"risk\". Output the complete updated JSON and nothing else.\n\n{\n  \"id\": 4821,\n  \"name\": \"Ravi Menon\",\n  \"email\": \"ravi.menon@example.com\",\n  \"role\": \"analyst\",\n  \"team\": \"forecasting\",\n  \"location\": {\"city\": \"Pune\", \"country\": \"India\", \"timezone\": \"Asia/Kolkata\"},\n  \"skills\": [\"python\", \"sql\", \"statistics\", \"dashboards\"],\n  \"active\": true,\n  \"start_date\": \"2021-03-15\"\n}"
+  },
+  {
+   "id": "C3",
+   "n_predict": 320,
+   "user": "The following Python program has two bugs (the average is off by one and the most expensive item is wrong). Fix the bugs and print the complete corrected file in a code block.\n\nimport csv\n\ndef load_rows(path):\n    rows = []\n    with open(path, newline=\"\") as f:\n        reader = csv.DictReader(f)\n        for row in reader:\n            rows.append(row)\n    return rows\n\ndef average_price(rows):\n    total = 0\n    for row in rows:\n        total += float(row[\"price\"])\n    return total / len(rows) + 1\n\ndef most_expensive(rows):\n    best = rows[0]\n    for row in rows:\n        if float(row[\"price\"]) < float(best[\"price\"]):\n            best = row\n    return best\n\nif __name__ == \"__main__\":\n    data = load_rows(\"items.csv\")\n    print(\"Average price:\", average_price(data))\n    print(\"Most expensive:\", most_expensive(data)[\"name\"])"
+  },
+  {
+   "id": "C4",
+   "n_predict": 256,
+   "user": "Quote word for word the sentences from the passage below that contain a number, one per line, with no other text.\n\nThe Harbour Lights festival returns to the city of Marlow on the second weekend of June. Organisers expect around 42,000 visitors over three days, up from 35,500 last year. More than sixty lanterns, some taller than a bus, will be floated along the river each evening at 9 p.m. Entry is free, but tickets are required for the night cruises, which cost 18 pounds for adults and 9 pounds for children. The council has added two extra shuttle buses from the railway station, running every ten minutes until midnight. Local baker Maria Okafor says her stall will sell 3,000 lantern-shaped biscuits, and she has hired four temporary helpers."
+  },
+  {
+   "id": "C5",
+   "n_predict": 256,
+   "user": "Rewrite the email below, replacing \"Tuesday the 14th\" with \"Thursday the 16th\" and the shuttle time with 8:30. Keep every other word identical and output only the new email.\n\nSubject: Team offsite planning\n\nHi all,\n\nThe offsite is confirmed for Tuesday the 14th at the Lakeside Conference Centre. Please arrive by 9:00 so we can start the first session on time. Lunch will be provided, and vegetarian and vegan options are available. If you have any dietary restrictions, reply to this email by Friday. Parking is free on site, and a shuttle leaves the main office at 8:15.\n\nBest regards,\nPriya"
+  },
+  {
+   "id": "C6",
+   "n_predict": 256,
+   "user": "Convert this bulleted list into a numbered list, keeping each item's text exactly the same. Output only the list.\n\n- Buy oat milk and two litres of sparkling water\n- Return the library books before the 20th\n- Call the plumber about the kitchen tap\n- Renew the car insurance policy\n- Print the boarding passes for the Lisbon trip\n- Water the balcony plants twice a week\n- Book a dentist appointment for November"
+  }
+ ],
+ "free": [
+  {
+   "id": "F1",
+   "n_predict": 256,
+   "user": "Write a ~400-word explanation of how electric cars work."
+  },
+  {
+   "id": "F2",
+   "n_predict": 256,
+   "user": "Write a short story about a lighthouse keeper who finds a message in a bottle."
+  },
+  {
+   "id": "F3",
+   "n_predict": 256,
+   "user": "Write a short essay on the advantages and disadvantages of remote work."
+  },
+  {
+   "id": "F4",
+   "n_predict": 256,
+   "user": "Explain how vaccines train the immune system, in plain language."
+  },
+  {
+   "id": "F5",
+   "n_predict": 256,
+   "user": "Explain the difference between TCP and UDP and when you would use each."
+  },
+  {
+   "id": "F6",
+   "n_predict": 256,
+   "user": "Describe what a day in the life of a medieval blacksmith might look like."
+  }
+ ]
+}
