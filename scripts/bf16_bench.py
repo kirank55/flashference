@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 r"""bf16 free-text experiments (B1/B2/B3) on Qwen3.5-0.8B via llama-server / llama-bench (stdlib only).
 Per server config: fresh server, GPU-idle check, one discarded warm-up pass over the 6 free-text prompts, 5 timed passes,
 greedy (temperature 0, seed 1), cache_prompt=false. Per pass tok/s = sum(n)/sum(predicted_ms) over the 6 prompts.
@@ -184,7 +184,7 @@ def configs(session):
         S("own-n1-bs", "OWN build (patched source, MSVC, release CUDA DLL), NO trim: draft-mtp n-max=1 + -bs", args=BASE_ARGS + mt(1), lc="llama-cpp-b4")
         S("own-n2-bs", "OWN build, NO trim: draft-mtp n-max=2 + -bs", args=BASE_ARGS + mt(2), lc="llama-cpp-b4")
         S("own-control", "OWN build, plain bf16 (no MTP)", lc="llama-cpp-b4")
-        for K in (8192, 16384, 32768):
+        for K in (2048, 4096, 8192, 16384, 32768):
             for k in (1, 2):
                 S("trim%dk-n%d-bs" % (K // 1024, k), "OWN build, draft head trimmed to top-%d tokens: draft-mtp n-max=%d + -bs" % (K, k),
                   args=BASE_ARGS + mt(k), lc="llama-cpp-b4", env={"LLAMA_MTP_TRIM_FILE": RANK, "LLAMA_MTP_TRIM_K": str(K)})
