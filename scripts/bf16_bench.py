@@ -185,7 +185,7 @@ def configs(session):
         S("own-n2-bs", "OWN build, NO trim: draft-mtp n-max=2 + -bs", args=BASE_ARGS + mt(2), lc="llama-cpp-b4")
         S("own-control", "OWN build, plain bf16 (no MTP)", lc="llama-cpp-b4")
         for K in (2048, 4096, 8192, 16384, 32768):
-            for k in (1, 2):
+            for k in (1, 2, 3, 4):
                 S("trim%dk-n%d-bs" % (K // 1024, k), "OWN build, draft head trimmed to top-%d tokens: draft-mtp n-max=%d + -bs" % (K, k),
                   args=BASE_ARGS + mt(k), lc="llama-cpp-b4", env={"LLAMA_MTP_TRIM_FILE": RANK, "LLAMA_MTP_TRIM_K": str(K)})
         S("trim16k-n1-nobs", "OWN build, trim 16k, n-max=1 WITHOUT -bs (CPU sampling)", args=BASE_ARGS + ["--spec-type", "draft-mtp", "--spec-draft-n-max", "1"], lc="llama-cpp-b4",
