@@ -14,7 +14,8 @@ for name in which:
     args = ["-dev", "none", "-ngl", "0", "-fa", "off", "-np", "1", "-c", "1024", "-t", "8", "--spec-type", "draft-mtp", "--spec-draft-n-max", str(n)]
     p, cmd = bb.start_server("smoke-" + name, "Qwen_Qwen3.5-0.8B-bf16.gguf", args, CF[name], "", lc="llama-cpp-e")
     try:
-        for pid in ("L3", "L4", "K3"):
+        for pid in ("L3-zh", "L4-hi", "K3"):
             t0 = time.time(); r = bb.complete(P[pid], 40)
             print(name, pid, "n", r["n"], "draft", r["draft_n"], "acc", r["draft_acc"], "%.0fs" % (time.time() - t0), "hash", hash(r["text"]) % 100000, flush=True)
     finally: bb.stop(p)
+
