@@ -28,5 +28,8 @@ def configs(e):
         S("e3-%s-ngs-only" % st, "%s: ngram-simple(N4,M8) only, n-max 8" % st, st, BA + ["--spec-type", "ngram-simple", "--spec-draft-n-max", "8", "-bs"] + NG(4, 8))
         S("e3-%s-ngmod-mtp" % st, "%s: ngram-mod then MTP trim8k" % st, st,
           BA + ["--spec-type", "ngram-mod,draft-mtp", "--spec-draft-n-max", "8", "-bs"], X(8192, LLAMA_MTP_ADAPT=1, LLAMA_MTP_ADAPT_INIT=2))
+    # ---- E5: speed ceiling of a Q8_0 output head (token_embd q8_0 => NOT lossless; measures what an exact Q8-first-pass head could save at most)
+    Q8 = "Qwen_Qwen3.5-0.8B-bf16-q8head.gguf"
+    C["e5-plain-q8head"] = dict(kind="server", desc="free: plain, bf16 body + Q8_0 token_embd/output head (speed ceiling, lossy)", set="free", model=Q8, args=BA, env=None, lc=None, req=None)
+    C["e5-trim8k-q8head"] = dict(kind="server", desc="free: trim8k MTP n2 -bs, bf16 body + Q8_0 head (speed ceiling, lossy)", set="free", model=Q8, args=BA + mt(2), env=X(8192), lc=LE, req=None)
     return C
-
