@@ -16,3 +16,13 @@ The phase names B0-B7 follow the research list (sections 3-4 of the research not
 | B7 | Code: fuse more GDN ops / custom head kernel in llama.cpp | **not started**; only worth it if B6 shows large overhead |
 
 Open questions: why the 09:50 llama-bench run measured 51 tok/s (not reproducible; cause unknown); machine-state drift of 3-5 % within a day (use same-block controls).
+
+### E-series (2026-10-27) - see `results/2026-10-27-bf16-E1-E5.md`
+| Phase | What | Status |
+|---|---|---|
+| E1 | B4 robustness: code, non-English, T=0.7 | **mostly done** [measured]: free 1.64x; code trimmed-32k 1.88x (8k loses acceptance on code; clean 8k n2 rerun missing); non-English trimmed/untrimmed ~1.0x (acceptance 12-39 %); T=0.7 trimmed 8k 1.56x. |
+| E2a | Adaptive draft length / p-min | patch built (`patches/e2-e4-adaptive-n-dynamic-vocab.patch`), **not measured** (CUDA unavailable) |
+| E2b | Tree / multi-candidate drafts | **infeasible** (no tree verification in the server; recurrent GDN state cannot be forked per branch) |
+| E3 | n-gram drafters + MTP | configs ready, **not measured** |
+| E4 | Context-adaptive draft vocabulary | patch built; CPU smoke: zh 1/73 -> 14/47, hi 5/67 -> 23/30 accepted, identical text; **GPU speed not measured** |
+| E5 | Exact lossless trimmed target head | CPU study [measured]: Q8 first pass + <=16 exact bf16 rows certifies argmax at 100 % of 2560 positions (0.53x head bytes); est +4-8 %; needs graph surgery, not built |
