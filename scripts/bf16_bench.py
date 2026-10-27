@@ -99,7 +99,8 @@ def run_server(name, c, reps, tag):
     rec = {"name": name, "kind": "server", "desc": c["desc"], "model": c["model"], "env": c.get("env", {}), "cmd": cmd, "n_predict": n_pred,
            "idle_before": idle, "runs": [], "t_start": time.strftime("%Y-%m-%d %H:%M:%S")}
     try:
-        for p in PROMPTS: complete(p, n_pred, c.get("req"))  # discarded warm-up pass
+        if c.get("warm", True):
+            for p in PROMPTS: complete(p, n_pred, c.get("req"))  # discarded warm-up pass (warm=False for stateful drafters such as ngram-mod: a replayed warm-up pass memorises the outputs)
         for rep in range(reps):
             run = []
             for p in PROMPTS:
