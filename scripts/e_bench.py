@@ -43,7 +43,7 @@ def configs():
     for n, c in C.items(): c["name"] = n
     return C
 
-def wait_idle(maxwait=3600):
+def wait_idle(maxwait=int(os.environ.get('E_MAXWAIT', '600'))):
     """wait (poll 15 s) until the GPU is idle (an external process was seen using it on 2026-10-27 ~00:20); no system setting is touched"""
     t0 = time.time()
     while True:
