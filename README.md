@@ -106,7 +106,7 @@ Useful options: `-LlamaDir` / `--llama-dir` (use an existing patched build), `-M
 
 Please close other GPU applications before a run; on a laptop also keep it on AC power. A GPU shared with another workload skews the numbers (during one measurement session an external Hyper-V worker was using the GPU; those runs were discarded and redone).
 
-`reproduce.sh` has the same logic but has **not been run** (at most syntax-checked); the PowerShell script was run end to end on Windows 11 (smoke and full run).
+`reproduce.sh` has the same logic but has **not been run** (only \ash -n\ syntax-checked); the PowerShell script was run end to end on Windows 11: smoke mode, the full 3-pass run, and the \-Build\ path (hybrid MSVC build of the patched llama.cpp, then a smoke run on that binary).
 
 ### The original experiment harness
 
