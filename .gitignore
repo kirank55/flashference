@@ -1,14 +1,27 @@
-﻿# llama.cpp binaries (re-created by scripts/setup.ps1)
+# llama.cpp binaries (re-created by scripts/setup.ps1 / scripts/reproduce.*)
 llama-cpp/
-# model weights (re-created by scripts/download-models.ps1)
+# model weights (re-created by scripts/download-models.ps1 / scripts/reproduce.*)
 models/
 *.gguf
 *.zip
 logs/
 data/
 __pycache__/
+*.pyc
 
-# llama.cpp source + custom builds (B4)
+# llama.cpp source + custom builds (patched b11884 tree, built binaries)
 llama-src/
-llama-cpp-b4/
-llama-cpp-e/
+llama-cpp-*/
+build*/
+
+# reproduce.* working directory and outputs
+work/
+reproduce-out/
+
+# local editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.env
+.env.*
