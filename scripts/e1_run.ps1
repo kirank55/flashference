@@ -1,4 +1,4 @@
-﻿Set-Location C:\Users\kiran\code\p\infer\slmspeed
+﻿Set-Location (Split-Path $PSScriptRoot -Parent)
 $env:PYTHONUTF8='1'
 python scripts\e_bench.py --only e1-free-plain
 python scripts\e_bench.py --only e1-free-untrim-n2 e1-free-trim8k-n2 e1-free-trim32k-n2

@@ -1,5 +1,5 @@
 ﻿# E1 rerun -> E4 -> E2 -> E3 -> E5 ceiling; 3 timed passes for sweeps; commits raw data after each block; stops if the GPU stays busy >10 min
-cd C:\Users\kiran\code\p\infer\slmspeed
+Set-Location (Split-Path $PSScriptRoot -Parent)
 $env:PYTHONUNBUFFERED = "1"; $env:PYTHONUTF8 = "1"; $env:E_MAXWAIT = "600"
 function Block($name, $cmd) {
   Write-Output "=== BLOCK $name $(Get-Date -Format HH:mm:ss)"

@@ -1,4 +1,4 @@
-﻿Set-Location C:\Users\kiran\code\p\infer\slmspeed
+﻿Set-Location (Split-Path $PSScriptRoot -Parent)
 python scripts\bf16_bench.py --session B4 --only control --tag=-mid
 python scripts\bf16_bench.py --session B4 --only trim8k-n2-bs trim16k-n2-bs trim32k-n2-bs trim4k-n1-bs trim2k-n1-bs trim4k-n2-bs trim2k-n2-bs
 python scripts\bf16_bench.py --session B4 --only control --tag=-mid2

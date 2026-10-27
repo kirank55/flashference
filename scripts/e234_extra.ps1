@@ -1,4 +1,4 @@
-﻿cd C:\Users\kiran\code\p\infer\slmspeed
+﻿Set-Location (Split-Path $PSScriptRoot -Parent)
 $env:PYTHONUNBUFFERED = "1"; $env:PYTHONUTF8 = "1"; $env:E_MAXWAIT = "600"
 python scripts\e_bench.py --module e_cfg2 --reps 3 --only e3-rep-plain e3-free-ngmod-mtp
 python scripts\e_bench.py --reps 3 --only e1-free-plain --tag=-e234

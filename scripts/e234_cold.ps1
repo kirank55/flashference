@@ -1,4 +1,4 @@
-﻿Set-Location C:\Users\kiran\code\p\infer\slmspeed
+﻿Set-Location (Split-Path $PSScriptRoot -Parent)
 $env:PYTHONUTF8='1'
 foreach ($t in '-c1','-c2','-c3') {
   python -W ignore scripts\e_bench.py --module e_cfg2 --reps 1 --tag=$t --only e3-free-ngmod-mtp-cold e3-rep-ngmod-mtp-cold

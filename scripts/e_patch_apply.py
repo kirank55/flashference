@@ -1,6 +1,7 @@
 """Apply the E2/E4 edits (adaptive draft length + context-adaptive draft vocabulary) on top of the B4-patched llama-src (b11884)."""
-import sys
-R = r"C:\Users\kiran\code\p\infer\slmspeed\llama-src"
+import os, sys
+# llama.cpp source tree (b11884 + patches/b4-trim-draft-head.patch); override with env LLAMA_SRC
+R = os.environ.get("LLAMA_SRC") or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "llama-src")
 def edit(path, pairs, region=None):
     p = R + "\\" + path; t = open(p, encoding="utf-8", newline="").read(); nl = "\r\n" if "\r\n" in t else "\n"; t = t.replace("\r\n", "\n")
     a, b = 0, len(t)
