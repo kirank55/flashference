@@ -17,12 +17,14 @@ The phase names B0-B7 follow the research list (sections 3-4 of the research not
 
 Open questions: why the 09:50 llama-bench run measured 51 tok/s (not reproducible; cause unknown); machine-state drift of 3-5 % within a day (use same-block controls).
 
-### E-series (2026-10-27) - see `results/2026-10-27-bf16-E1-E5.md`
-| Phase | What | Status |
+### E-series (2026-10-27) - see `results/2026-10-27-bf16-E1-E5.md` (all [measured] unless noted; lossless unless noted)
+| Phase | What | Result |
 |---|---|---|
-| E1 | B4 robustness: code, non-English, T=0.7 | **mostly done** [measured]: free 1.64x; code trimmed-32k 1.88x (8k loses acceptance on code; clean 8k n2 rerun missing); non-English trimmed/untrimmed ~1.0x (acceptance 12-39 %); T=0.7 trimmed 8k 1.56x. |
-| E2a | Adaptive draft length / p-min | patch built (`patches/e2-e4-adaptive-n-dynamic-vocab.patch`), **not measured** (CUDA unavailable) |
+| E1 | B4 robustness: code, non-English, T=0.7 | free 1.57-1.64x (107.2 tok/s); code trimmed-8k 1.48x (98.5, acceptance 40.8 %), trimmed-32k **1.88x** (124.9); non-English trimmed/untrimmed ~1.0x (acceptance 12-39 %); T=0.7 trimmed 8k 1.56x |
+| E2a | Adaptive draft length / p-min | **negative**: adaptive n 93 tok/s (0.86x of base 109), p-min 0.5 gate 82-85, fixed n-max 3 = tie; n-max 2 stays optimal |
 | E2b | Tree / multi-candidate drafts | **infeasible** (no tree verification in the server; recurrent GDN state cannot be forked per branch) |
-| E3 | n-gram drafters + MTP | configs ready, **not measured** |
-| E4 | Context-adaptive draft vocabulary | patch built; CPU smoke: zh 1/73 -> 14/47, hi 5/67 -> 23/30 accepted, identical text; **GPU speed not measured** |
-| E5 | Exact lossless trimmed target head | CPU study [measured]: Q8 first pass + <=16 exact bf16 rows certifies argmax at 100 % of 2560 positions (0.53x head bytes); est +4-8 %; needs graph surgery, not built |
+| E3 | n-gram drafters + MTP | **rep/copy-heavy: ngram-simple+MTP 201 tok/s = 2.97x plain (1.37x over MTP alone)**, ngram-mod cold 190-195; free text 0.8x (worse). ngram-mod pool memorises replayed requests (592 tok/s artefact) |
+| E4 | Context-adaptive draft vocabulary (4096 fixed + 4096 dynamic rows) | **non-English 86.6 tok/s = 1.26x** (was 1.01x, acceptance 12 -> 33 %); code 114.0 = 1.71x (+16 % over 8k); free 105.6 (-3 %); output byte-identical to trimmed 8k (42/42 pairs) |
+| E5 | Exact lossless trimmed target head | CPU study: Q8 first pass + <=16 exact bf16 rows certifies argmax at 100 % of 2560 positions (0.53x head bytes). GPU ceiling of a Q8 head (lossy): +11 % on B4 (121.3 vs 109.0 tok/s); realistic lossless +5-8 % [est]; needs graph surgery, not built |
+
+Best per domain: free text B4 (MTP n2 -bs trim8k, ~107-109 tok/s); code trim32k (124.9, 1.88x); non-English E4 dynamic 4k+4k (86.6, 1.26x); copy-heavy text ngram-simple,draft-mtp (201, 2.97x).
