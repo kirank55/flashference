@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tables for S3 from results/2026-10-26-s3-sot-0.8b.raw.json -> prints markdown (redirect into results/2026-10-26-s3-sot-0.8b.md)."""
+"""Tables for S3 from results/2026-10-26-s3-sot-0.8b.raw.json -> prints markdown (redirect into docs/experiments/2026-10-26-s3-sot-0.8b.md)."""
 import json, os, math, statistics as st
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 D = json.load(open(os.path.join(ROOT, "results", "2026-10-26-s3-sot-0.8b.raw.json")))["servers"]

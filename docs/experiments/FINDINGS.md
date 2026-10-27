@@ -22,7 +22,7 @@ Not recorded in the repo: the exact GPU memory bandwidth and the Windows power-m
 
 ## 3. Quant baseline (llama-bench) [measured]
 
-Source: `results/2026-10-26-baseline-quants.md`. `scripts/bench-quants.ps1`: `llama-bench -ngl 99 -fa 1 -p 512 -n 128 -r 3` (only 3 repetitions, so the SDs are crude). Mean +/- standard deviation as printed by llama-bench.
+Source: `docs/experiments/2026-10-26-baseline-quants.md`. `scripts/bench-quants.ps1`: `llama-bench -ngl 99 -fa 1 -p 512 -n 128 -r 3` (only 3 repetitions, so the SDs are crude). Mean +/- standard deviation as printed by llama-bench.
 
 | Quant | Size | Decode tg128 (tok/s) | Prompt pp512 (tok/s) |
 |---|---|---|---|
@@ -39,7 +39,7 @@ Reading it:
 
 ## 4. Server baseline: 139 tok/s single stream [measured]
 
-Source: `results/2026-10-26-parallel-subtasks.md`, "Baseline A". `llama-server` with Q4_K_M, `-ngl 99 -fa on -np 1 -c 2048 --no-webui`, one ~400-word reply ("explain how electric cars work", 476 tokens, 404 words), temperature 0, `cache_prompt=false`, 5 timed runs after a discarded warm-up.
+Source: `docs/experiments/2026-10-26-parallel-subtasks.md`, "Baseline A". `llama-server` with Q4_K_M, `-ngl 99 -fa on -np 1 -c 2048 --no-webui`, one ~400-word reply ("explain how electric cars work", 476 tokens, 404 words), temperature 0, `cache_prompt=false`, 5 timed runs after a discarded warm-up.
 
 | Metric | Value (mean +/- sd, 5 runs) |
 |---|---|
@@ -99,7 +99,7 @@ All URLs below were read while writing this document (or earlier in the research
 
 ## 6. Parallel sub-task experiments [measured]
 
-Full detail: `results/2026-10-26-parallel-subtasks.md` (tables below are copied from it; "+/-" is sd, ranges omitted for brevity). Raw JSON: `results/2026-10-26-parallel-subtasks.raw.json`, `...-saturation.raw.json`. Scripts: `scripts/parallel_subtasks.py`, `scripts/make_report.py`.
+Full detail: `docs/experiments/2026-10-26-parallel-subtasks.md` (tables below are copied from it; "+/-" is sd, ranges omitted for brevity). Raw JSON: `results/2026-10-26-parallel-subtasks.raw.json`, `...-saturation.raw.json`. Scripts: `scripts/parallel_subtasks.py`, `scripts/make_report.py`.
 
 Setup: Qwen3.5-0.8B Q4_K_M, llama-server, `-ngl 99 -fa on -c 2048*np --no-webui`, raw `/completion` with the Qwen chat format and an empty think block, temperature 0, seed 1, `cache_prompt=false`, Python stdlib threaded client. One discarded warm-up pass per server config, then 5 timed runs (3 for saturation). Fresh server per `-np`; np=1 repeated at the end as a drift check (within 1-2%). Laptop on AC, Balanced plan.
 
@@ -210,7 +210,7 @@ The plan was refocused on **general scaling behaviour** (hardware-independent me
 Deliberately **out of scope** (hardware-specific, see the plan's last section): power/clock tuning (including the 114 vs 139 tok/s question, treated as measurement noise), CUDA graphs on/off, and runtime micro-settings (`-c`, `--no-warmup`, `--no-mmap`, `-ub`, threads, KV-quant, Vulkan). This GPU's exact memory bandwidth also remains unrecorded.
 ## 9. Scaling experiments on Qwen3.5-0.8B (run 2026-10-26; 0.8B only, 2B/4B not yet run)
 
-Hardware, methodology, tables and raw data: `results/2026-10-26-scaling-0.8b.md` and the `*.raw.json` files next to it. Plan items filled in: [PLAN-single-reply.md](PLAN-single-reply.md) S1, S2a/S2b, S3. Tags: **[measured]** = run here in this session; **[estimate]** = reasoning; **[reported]** = other people's number. Every speed number here is for this laptop; ratios, acceptance and quality metrics are the parts that should transfer.
+Hardware, methodology, tables and raw data: `docs/experiments/2026-10-26-scaling-0.8b.md` and the `*.raw.json` files next to it. Plan items filled in: [PLAN-single-reply.md](PLAN-single-reply.md) S1, S2a/S2b, S3. Tags: **[measured]** = run here in this session; **[estimate]** = reasoning; **[reported]** = other people's number. Every speed number here is for this laptop; ratios, acceptance and quality metrics are the parts that should transfer.
 
 ### 9.1 S1: speed vs bits per weight (14 quants), quality vs bf16
 
@@ -223,7 +223,7 @@ Hardware, methodology, tables and raw data: `results/2026-10-26-scaling-0.8b.md`
 
 ### 9.2 S2: speculative decoding on the 0.8B (Q4_K_M, greedy, 6 copy-heavy + 6 free-text prompts, 5 reps; plain = ~140 tok/s)
 
-Tables and raw data: `results/2026-10-26-s2-spec-0.8b.md`; plan entry: [PLAN-single-reply.md](PLAN-single-reply.md) S2. 2B/4B (S2c) and temperature 0.8 were not run.
+Tables and raw data: `docs/experiments/2026-10-26-s2-spec-0.8b.md`; plan entry: [PLAN-single-reply.md](PLAN-single-reply.md) S2. 2B/4B (S2c) and temperature 0.8 were not run.
 
 - **[measured] n-gram speculation helps only on copy-heavy output and costs on free text.** `ngram-simple` n=3 m=16: 1.95x on copy-heavy (273 tok/s; 59% acceptance, 4.2 tokens/step), but 1.66x when repeated later in the session (235 tok/s, same acceptance) and 0.92x (0.86x repeat) on free text. Best no-loss free-text setting n=4 m=4: 0.99x (copy 1.40x). Plan expectation was ~1.0x free and 1.3-1.7x copy [estimate]: copy-heavy is at or above it, free text is worse. `ngram-map-k` (best 1.03x copy / 0.95x free) and `ngram-map-k4v` (0.73x / 0.64x) are slower than plain because of per-step overhead; `ngram-mod` match=8 reaches 1.75x copy (cold ~1.7x) but its free-text 1.07x is a replay artifact of the warm-up (cold 0.97x).
 - **[measured] MTP (draft-mtp) on 0.8B is a small win only on copy-heavy text.** n-max 1: 1.17x copy / 0.99x free (bartowski file with head: 1.18x / 0.99x), inside the plan's 0.95-1.2x. On free text every larger n-max is a loss (0.97x, 0.86x, 0.79x, 0.63x for n-max 2, 3, 4, 6; acceptance falls 64% -> 22%). On copy text speed-up rises to 1.54x at n-max 4 (218 tok/s) before falling at 6 - contradicting the plan's "peak at 1-2" for copy-heavy.
@@ -233,7 +233,7 @@ Tables and raw data: `results/2026-10-26-s2-spec-0.8b.md`; plan entry: [PLAN-sin
 
 ### 9.3 S3: improved skeleton-of-thought for ONE reply (0.8B Q4_K_M, greedy, 6 topics main / 3 topics grid, 3 reps)
 
-Tables, method and raw data: `results/2026-10-26-s3-sot-0.8b.md`; plan entry: [PLAN-single-reply.md](PLAN-single-reply.md) S3. Speed is the ratio of words per second of the stitched reply to a same-session sequential reply of similar length; the 0.8B ignores word targets so lengths differ between cells.
+Tables, method and raw data: `docs/experiments/2026-10-26-s3-sot-0.8b.md`; plan entry: [PLAN-single-reply.md](PLAN-single-reply.md) S3. Speed is the ratio of words per second of the stitched reply to a same-session sequential reply of similar length; the 0.8B ignores word targets so lengths differ between cells.
 
 - **[measured] Speed: 1.49x per word** for the improved variant (distinct outline + section context + intro + conclusion; N=6, 100-token sections, np=4; range 1.40-1.59 over 6 topics) vs **1.25x** for the naive outline (1.09-1.49; matches the earlier 1.14-1.25x). Best grid cell 1.72x (N=6, 200-token sections, np=4, T1-T3); best np 8 at 1.59x (np=4 1.50x on the same topics). Plan expectation was 1.3-1.8x per word at N=4-6, np=3-4 [estimate]: **met on speed**.
 - **[measured] Scaling shape.** Speed-up grows with section length (1.0-1.1x at 50 tokens, 1.4-1.5x at 100, 1.6-1.7x at 200: the outline/intro cost is fixed), peaks at N=6 (N=8 is ~0.1x lower at every length, with more truncated/repeated sections) and saturates at np=4 (np=8 +0.0-0.1x); sequential SoT (np=1) is 0.83x. Realised/ideal is 0.4-0.55 at np>=4 because per-stream decode falls to 0.53x (np=4) / 0.35x (np=8) of single-stream while aggregate rises only to ~1.7x; so "speed-up follows ideal up to the knee" holds at np<=2-3 at best [claim only weakly supported]. `ideal` (from tokens) and the shape transfer; the ~1.7x aggregate ceiling is this laptop GPU.

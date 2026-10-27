@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tables for S2 from results/2026-10-26-s2-spec-0.8b.raw.json(.gz) -> prints markdown (redirect into results/2026-10-26-s2-spec-0.8b.md).
+"""Tables for S2 from results/2026-10-26-s2-spec-0.8b.raw.json(.gz) -> prints markdown (redirect into docs/experiments/2026-10-26-s2-spec-0.8b.md).
 Control handling: speed-up = mean decode tok/s of a config / pooled mean of the plain controls of the same model file listed for that table
 (start/end/end2 controls); drift = (max-min)/mean of the control means. Reps whose decode speed is < 60% of the median rep of the same config
 (machine interruption, e.g. the PC going unreachable) are excluded and listed."""
