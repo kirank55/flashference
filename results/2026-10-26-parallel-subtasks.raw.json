@@ -5,7 +5,7 @@
   {
    "np": 1,
    "drift_check": false,
-   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 1 -c 2048 --no-webui --host 127.0.0.1 --port 8089",
+   "cmd": "-m models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 1 -c 2048 --no-webui --host 127.0.0.1 --port 8089",
    "idle_before": [
     0.0,
     0.0,
@@ -295,7 +295,7 @@
   {
    "np": 2,
    "drift_check": false,
-   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 2 -c 4096 --no-webui --host 127.0.0.1 --port 8089",
+   "cmd": "-m models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 2 -c 4096 --no-webui --host 127.0.0.1 --port 8089",
    "idle_before": [
     0.0,
     0.0,
@@ -585,7 +585,7 @@
   {
    "np": 4,
    "drift_check": false,
-   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 4 -c 8192 --no-webui --host 127.0.0.1 --port 8089",
+   "cmd": "-m models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 4 -c 8192 --no-webui --host 127.0.0.1 --port 8089",
    "idle_before": [
     0.0,
     0.0,
@@ -875,7 +875,7 @@
   {
    "np": 8,
    "drift_check": false,
-   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 8 -c 16384 --no-webui --host 127.0.0.1 --port 8089",
+   "cmd": "-m models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 8 -c 16384 --no-webui --host 127.0.0.1 --port 8089",
    "idle_before": [
     0.0,
     0.0,
@@ -1165,7 +1165,7 @@
   {
    "np": 16,
    "drift_check": false,
-   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 16 -c 32768 --no-webui --host 127.0.0.1 --port 8089",
+   "cmd": "-m models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 16 -c 32768 --no-webui --host 127.0.0.1 --port 8089",
    "idle_before": [
     0.0,
     0.0,
@@ -1455,7 +1455,7 @@
   {
    "np": 1,
    "drift_check": true,
-   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 1 -c 2048 --no-webui --host 127.0.0.1 --port 8089",
+   "cmd": "-m models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 1 -c 2048 --no-webui --host 127.0.0.1 --port 8089",
    "idle_before": [
     0.0,
     0.0,

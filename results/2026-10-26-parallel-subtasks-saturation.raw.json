@@ -5,7 +5,7 @@
  "configs": [
   {
    "np": 8,
-   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 8 -c 16384 --no-webui --host 127.0.0.1 --port 8089",
+   "cmd": "-m models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 8 -c 16384 --no-webui --host 127.0.0.1 --port 8089",
    "runs": [
     {
      "wall": 14.02706119999948,
@@ -36,7 +36,7 @@
   },
   {
    "np": 16,
-   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 16 -c 32768 --no-webui --host 127.0.0.1 --port 8089",
+   "cmd": "-m models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 16 -c 32768 --no-webui --host 127.0.0.1 --port 8089",
    "runs": [
     {
      "wall": 13.594484199999897,
@@ -67,7 +67,7 @@
   },
   {
    "np": 32,
-   "cmd": "-m C:\\Users\\kiran\\code\\p\\infer\\slmspeed\\models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 32 -c 65536 --no-webui --host 127.0.0.1 --port 8089",
+   "cmd": "-m models\\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf -ngl 99 -fa on -np 32 -c 65536 --no-webui --host 127.0.0.1 --port 8089",
    "runs": [
     {
      "wall": 14.464485100000275,
