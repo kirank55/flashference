@@ -106,7 +106,7 @@ Useful options: `-LlamaDir` / `--llama-dir` (use an existing patched build), `-M
 
 Please close other GPU applications before a run; on a laptop also keep it on AC power. A GPU shared with another workload skews the numbers (during one measurement session an external Hyper-V worker was using the GPU; those runs were discarded and redone).
 
-`reproduce.sh` has the same logic but has **not been run** (only \ash -n\ syntax-checked); the PowerShell script was run end to end on Windows 11: smoke mode, the full 3-pass run, and the \-Build\ path (hybrid MSVC build of the patched llama.cpp, then a smoke run on that binary).
+`reproduce.sh` is the Linux and WSL entry point. Without `nvcc` it does the same hybrid build as `reproduce.ps1`: patched host code plus the official CUDA libraries for this tag (Ubuntu CUDA 12.8; there is no Ubuntu CUDA 12.4 asset). On 2026-10-27, `scripts/reproduce.sh --build --smoke` was run in Ubuntu on WSL2 on this same RTX 3050 A Laptop. Absolute tok/s were about 1–7% below the Windows smoke on that GPU; draft acceptance matched exactly and the speed-up ratios were slightly higher. Details: [`results/2026-10-27-wsl-smoke.md`](results/2026-10-27-wsl-smoke.md). The PowerShell script was run end to end on Windows 11: smoke mode, the full 3-pass run, and the `-Build` path.
 
 ### The original experiment harness
 
@@ -132,7 +132,7 @@ cmake --build build --config Release -j --target llama-server
 
 `scripts/reproduce.ps1 -Build` / `scripts/reproduce.sh --build` do exactly this (clone, verify the commit, apply both patches, build into `work/llama-patched/bin`).
 
-What the measurements were actually run on: the CUDA toolkit was not installed on the author's PC, so the patched binary was a **hybrid build**: the patch only touches host-side code (`src/`, `common/`), so llama.cpp b11884 was built with MSVC and `-DGGML_CUDA=OFF -DGGML_BACKEND_DL=ON`, and the official b11884 CUDA 12.4 Windows release DLLs (`ggml-cuda.dll`, cuBLAS) were dropped next to it. That hybrid build was measured to be as fast as the stock release (79.14 vs 79.23 tok/s on the same untrimmed MTP config; see `results/2026-10-26-bf16-b4-trim-draft.md`). `reproduce.ps1` falls back to this recipe when `nvcc` is not found and does a normal native CUDA build when it is. A patched binary with none of the env vars set behaves like stock b11884.
+What the measurements were actually run on: the CUDA toolkit was not installed on the author's PC, so the patched binary was a **hybrid build**: the patch only touches host-side code (`src/`, `common/`), so llama.cpp b11884 was built with MSVC and `-DGGML_CUDA=OFF -DGGML_BACKEND_DL=ON`, and the official b11884 CUDA 12.4 Windows release DLLs (`ggml-cuda.dll`, cuBLAS) were dropped next to it. That hybrid build was measured to be as fast as the stock release (79.14 vs 79.23 tok/s on the same untrimmed MTP config; see `results/2026-10-26-bf16-b4-trim-draft.md`). `reproduce.ps1` and `reproduce.sh` fall back to this recipe when `nvcc` is not found and do a normal native CUDA build when it is. On Linux the hybrid runtime is the official b11884 Ubuntu CUDA 12.8 tree (`libggml-cuda.so`, cuBLAS, cudart), with the patched `libllama` / `libllama-common` copied over it. A patched binary with none of the env vars set behaves like stock b11884.
 
 Which binary produced which number: code configs ran on the build with patch 1 (`llama-cpp-b4`), copy-heavy configs on the build with patches 1+2 (`llama-cpp-e`, whose source is identical to b11884 + both patches in `patches/`; verified by diffing); patch 2 does nothing without its env vars.
 
@@ -145,7 +145,7 @@ The ranking file shipped in `results/` (`2026-10-26-bf16-b4-token-rank.txt`, one
 - **Ratios are the thing that should transfer; raw tok/s will not.** All absolute numbers here are for an RTX 3050 Laptop GPU (4 GB; the driver reports "RTX 3050 A Laptop GPU"), i5-13420H, 16 GB RAM, plugged in, Windows 11 Balanced power plan (no system settings changed), NVIDIA driver 592.82, llama.cpp b11884 with CUDA 12.4 DLLs.
 - **Why the gain should exist elsewhere** (reasoning, *not measured* on other hardware): a 0.8B model decodes memory-bandwidth-bound and launch-overhead-bound on small GPUs, so verifying 2-3 tokens in one batch costs little more than one, and the draft head's re-read of the 248k-row output matrix is a large share of drafting cost. On a much faster GPU the plain model gets faster, the fixed per-step overheads stay, so ratios may shrink; on slower memory they may grow. We have no data for either.
 - **Replicating on your hardware:** use `scripts/reproduce.ps1` (Windows) or `scripts/reproduce.sh` (Linux) on any NVIDIA CUDA GPU with enough free VRAM for the 1.5 GB model plus a 4096-token context (it fits a 4 GB card), compare *ratios* to the tables above, and include `-IncludeProse`. If your plain speed differs a lot, report plain and speculative numbers together.
-- **Tested:** NVIDIA RTX 3050 Laptop on Windows 11 only. CPU: the adaptive-length/dynamic-vocabulary patch was smoke-tested for functionality on CPU (`-dev none`, `scripts/e_smoke.py`); no CPU speed-up was measured. Vulkan, Metal, ROCm/HIP, SYCL and other backends are **untested**; the patch only uses generic ggml tensor copies so it may work, but nothing is claimed.
+- **Tested:** NVIDIA RTX 3050 A Laptop on Windows 11 (full reproduce) and the same GPU from Ubuntu on WSL2 (smoke only; about 1–7% lower tok/s, same acceptance — [`results/2026-10-27-wsl-smoke.md`](results/2026-10-27-wsl-smoke.md)). CPU: the adaptive-length/dynamic-vocabulary patch was smoke-tested for functionality on CPU (`-dev none`, `scripts/e_smoke.py`); no CPU speed-up was measured. Vulkan, Metal, ROCm/HIP, SYCL and other backends are **untested**; the patch only uses generic ggml tensor copies so it may work, but nothing is claimed.
 - The scripts assume `nvidia-smi` for the idle check; without it the check is skipped.
 
 ## Limitations and the losslessness caveat
@@ -165,10 +165,11 @@ README.md                 this file
 LICENSE                   MIT (this repo's code)
 patches/                  the two llama.cpp patches (b11884)
 prompts/                  prompts.json (copy-heavy "copy" C1-C6 + prose "free" F1-F6), e-prompts.json (code K1-K4, non-English)
-scripts/reproduce.ps1     one-command reproduction (Windows)      reproduce.sh (Linux, untested)
+scripts/reproduce.ps1     one-command reproduction (Windows)
+scripts/reproduce.sh      Linux/WSL reproduction (smoke-tested on WSL2)
 scripts/reproduce_bench.py  the benchmark used by both
 scripts/b4_*.py, e_*.py   draft-head ranking, original B/E-series harness and reports
-results/                  headline reports + raw data (B0-B4, E1-E5), token-rank file, reproduce check
+results/                  headline reports + raw data (B0-B4, E1-E5), token-rank file, reproduce check, WSL smoke
 docs/                     index of the other experiments (docs/README.md)
 docs/experiments/         write-ups of everything else (quant sweeps, skeleton-of-thought, parallel sub-tasks, ...)
 ```
