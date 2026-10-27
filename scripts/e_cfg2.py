@@ -32,4 +32,5 @@ def configs(e):
     Q8 = "Qwen_Qwen3.5-0.8B-bf16-q8head.gguf"
     C["e5-plain-q8head"] = dict(kind="server", desc="free: plain, bf16 body + Q8_0 token_embd/output head (speed ceiling, lossy)", set="free", model=Q8, args=BA, env=None, lc=None, req=None)
     C["e5-trim8k-q8head"] = dict(kind="server", desc="free: trim8k MTP n2 -bs, bf16 body + Q8_0 head (speed ceiling, lossy)", set="free", model=Q8, args=BA + mt(2), env=X(8192), lc=LE, req=None)
+    C["e3-rep-plain"] = dict(kind="server", desc="rep: plain bf16 (release build)", set="rep", model=e.bb.BF16, args=BA, env=None, lc=None, req=None)
     return C
