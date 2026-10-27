@@ -1,4 +1,12 @@
-﻿diff --git a/common/speculative.cpp b/common/speculative.cpp
+slmspeed patch 1/2: trimmed draft head for Qwen3.5 native MTP (draft-mtp)
+Base: ggml-org/llama.cpp tag b11884 (commit 63412d873). Apply first.
+  git clone --branch b11884 --depth 1 https://github.com/ggml-org/llama.cpp.git
+  cd llama.cpp; git apply /path/to/slmspeed/patches/b4-trim-draft-head.patch
+Behaviour is off unless the env vars LLAMA_MTP_TRIM_FILE (token-rank file) and LLAMA_MTP_TRIM_K are set.
+License: this patch modifies llama.cpp (MIT License, Copyright (c) 2023-2026 The ggml authors) and is
+distributed under the same MIT License. See ../LICENSE and https://github.com/ggml-org/llama.cpp/blob/master/LICENSE
+
+diff --git a/common/speculative.cpp b/common/speculative.cpp
 index 4305ac6..9f4fd5e 100644
 --- a/common/speculative.cpp
 +++ b/common/speculative.cpp
