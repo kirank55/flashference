@@ -1,4 +1,6 @@
-# slmspeed - fast code and copy-heavy generation for a 0.8B model
+# flashference
+
+Fast code and copy-heavy generation for a 0.8B model.
 
 **Up to 1.9x faster code generation and ~2.8-3.0x faster copy-heavy generation for Qwen3.5-0.8B (bf16, not quantized) in llama.cpp, using the model's own multi-token-prediction (MTP) head as a speculative-decoding drafter. The full bf16 model verifies every token.**
 
@@ -102,11 +104,11 @@ scripts/reproduce.sh --smoke          # Linux equivalent (CUDA); see the note be
 scripts/reproduce.sh
 ```
 
-Useful options: `-LlamaDir` / `--llama-dir` (use an existing patched build), `-Model` / `--model`, `-Passes`, `-Build` (force a rebuild), `-RequireIdle` (abort if the GPU is busy; by default it only warns). Output tables go to `reproduce-out/` (git-ignored). The default 3-pass run on the author's PC is recorded in [`results/2026-10-27-reproduce-check.md`](results/2026-10-27-reproduce-check.md).
+Useful options: `-LlamaDir` / `--llama-dir` (use an existing patched build; or set `FLASHFERENCE_LLAMA` to that folder), `-Model` / `--model`, `-Passes`, `-Build` (force a rebuild), `-RequireIdle` (abort if the GPU is busy; by default it only warns). Output tables go to `reproduce-out/` (git-ignored). The default 3-pass run on the author's PC is recorded in [`results/2026-10-27-reproduce-check.md`](results/2026-10-27-reproduce-check.md).
 
 Please close other GPU applications before a run; on a laptop also keep it on AC power. A GPU shared with another workload skews the numbers (during one measurement session an external Hyper-V worker was using the GPU; those runs were discarded and redone).
 
-`reproduce.sh` has the same logic but has **not been run** (only \ash -n\ syntax-checked); the PowerShell script was run end to end on Windows 11: smoke mode, the full 3-pass run, and the \-Build\ path (hybrid MSVC build of the patched llama.cpp, then a smoke run on that binary).
+`reproduce.sh` has the same logic but has **not been run** end to end (only `bash -n` syntax-checked). The PowerShell script was run end to end on Windows 11: smoke mode, the full 3-pass run, and the `-Build` path (hybrid MSVC build of the patched llama.cpp, then a smoke run on that binary).
 
 ### The original experiment harness
 
@@ -121,11 +123,13 @@ The trimmed draft head is not in upstream llama.cpp. It is two small patches aga
 | [`patches/b4-trim-draft-head.patch`](patches/b4-trim-draft-head.patch) | Copies the output-layer rows of the K most frequent tokens (rank file, env `LLAMA_MTP_TRIM_FILE` / `LLAMA_MTP_TRIM_K`) into a small `[n_embd, K]` weight used only by the MTP drafter, and maps drafted ids back to token ids. Qwen3.5 dense with an MTP block only (anything else falls back to the stock path with a warning); no-op if the env vars are unset | both headline configs |
 | [`patches/e2-e4-adaptive-n-dynamic-vocab.patch`](patches/e2-e4-adaptive-n-dynamic-vocab.patch) | Adaptive draft length (`LLAMA_MTP_ADAPT*`) and the experimental context-adaptive draft vocabulary (`LLAMA_MTP_TRIM_FIXED`, `LLAMA_MTP_DYN`). Applies on top of patch 1; no-op unless its env vars are set | the exact copy-heavy config (`LLAMA_MTP_ADAPT=1`, `LLAMA_MTP_ADAPT_INIT=2`; not separately ablated on the copy-heavy set) |
 
+Apply both patches, in this order, to a clean llama.cpp `b11884` checkout. The paths below assume this repo is cloned as `flashference` beside that checkout (the folder name GitHub uses by default):
+
 ```bash
 git clone --branch b11884 --depth 1 https://github.com/ggml-org/llama.cpp.git
 cd llama.cpp
-git apply ../slmspeed/patches/b4-trim-draft-head.patch
-git apply ../slmspeed/patches/e2-e4-adaptive-n-dynamic-vocab.patch   # apply in this order
+git apply ../flashference/patches/b4-trim-draft-head.patch
+git apply ../flashference/patches/e2-e4-adaptive-n-dynamic-vocab.patch
 cmake -B build -DGGML_CUDA=ON -DLLAMA_CURL=OFF
 cmake --build build --config Release -j --target llama-server
 ```
@@ -165,7 +169,8 @@ README.md                 this file
 LICENSE                   MIT (this repo's code)
 patches/                  the two llama.cpp patches (b11884)
 prompts/                  prompts.json (copy-heavy "copy" C1-C6 + prose "free" F1-F6), e-prompts.json (code K1-K4, non-English)
-scripts/reproduce.ps1     one-command reproduction (Windows)      reproduce.sh (Linux, untested)
+scripts/reproduce.ps1     one-command reproduction (Windows; run end to end)
+scripts/reproduce.sh      Linux equivalent (bash -n only; not run end to end)
 scripts/reproduce_bench.py  the benchmark used by both
 scripts/b4_*.py, e_*.py   draft-head ranking, original B/E-series harness and reports
 results/                  headline reports + raw data (B0-B4, E1-E5), token-rank file, reproduce check

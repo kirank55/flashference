@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  One-command reproduction of the slmspeed headline results (fast code + fast copy-heavy generation, Qwen3.5-0.8B bf16, llama.cpp).
+  One-command reproduction of the flashference headline results (fast code + fast copy-heavy generation, Qwen3.5-0.8B bf16, llama.cpp).
 .DESCRIPTION
   1. builds (or locates) llama.cpp b11884 (commit 63412d873) + patches/*.patch
   2. downloads (or locates) the bf16 GGUF
@@ -9,7 +9,7 @@
   The token-rank file that trims the draft head is shipped in results\; the trim itself happens at model load (env vars), no new GGUF is written.
 .PARAMETER Smoke           1 timed pass, 64 tokens, code+copy only (a few minutes at most)
 .PARAMETER Passes          timed passes per config (default 3)
-.PARAMETER LlamaDir        folder with a PATCHED llama-server (skips the build). Also: env SLMSPEED_LLAMA
+.PARAMETER LlamaDir        folder with a PATCHED llama-server (skips the build). Also: env FLASHFERENCE_LLAMA
 .PARAMETER Model           bf16 GGUF path (default models\Qwen_Qwen3.5-0.8B-bf16.gguf, downloaded if missing)
 .PARAMETER Build           force a (re)build of the patched llama.cpp into work\llama-patched
 .PARAMETER BuildOnly       build/locate and stop
@@ -68,14 +68,14 @@ function Build-Llama {
   New-Item -ItemType Directory -Force $Bin | Out-Null
   $vc = Find-Vcvars
   $nvcc = Get-Command nvcc -ErrorAction SilentlyContinue
-  $bd = Join-Path $Src "build-slmspeed"
+  $bd = Join-Path $Src "build-flashference"
   if ($nvcc) {
     Write-Host "== CUDA toolkit found: native CUDA build (arch $CudaArch)"
-    $cfg = "cmake -S . -B build-slmspeed -G Ninja -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=$CudaArch -DLLAMA_CURL=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=ON -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl"
+    $cfg = "cmake -S . -B build-flashference -G Ninja -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=$CudaArch -DLLAMA_CURL=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=ON -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl"
     $copyRelease = $false
   } else {
     Write-Host "== No CUDA toolkit: hybrid build (patched CPU-side code + the official b11884 CUDA 12.4 DLLs; the patch touches no ggml-cuda code)"
-    $cfg = "cmake -S . -B build-slmspeed -G Ninja -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=OFF -DGGML_BACKEND_DL=ON -DGGML_NATIVE=OFF -DLLAMA_CURL=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=ON -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl"
+    $cfg = "cmake -S . -B build-flashference -G Ninja -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=OFF -DGGML_BACKEND_DL=ON -DGGML_NATIVE=OFF -DLLAMA_CURL=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=ON -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl"
     $copyRelease = $true
     $base = "https://github.com/ggml-org/llama.cpp/releases/download/$LlamaTag"
     foreach ($z in "llama-$LlamaTag-bin-win-cuda-12.4-x64.zip", "cudart-llama-bin-win-cuda-12.4-x64.zip") {
@@ -84,8 +84,8 @@ function Build-Llama {
       Expand-Archive -Force $zp $Bin
     }
   }
-  $bat = Join-Path $Work "build-slmspeed.cmd"
-  Set-Content -Encoding ASCII $bat @("@echo off", "call `"$vc`"", "cd /d `"$Src`"", $cfg, "if errorlevel 1 exit /b 1", "cmake --build build-slmspeed --target llama-server llama-tokenize llama-quantize llama-bench -j 4")
+  $bat = Join-Path $Work "build-flashference.cmd"
+  Set-Content -Encoding ASCII $bat @("@echo off", "call `"$vc`"", "cd /d `"$Src`"", $cfg, "if errorlevel 1 exit /b 1", "cmake --build build-flashference --target llama-server llama-tokenize llama-quantize llama-bench -j 4")
   Native cmd @("/c", $bat)
   $built = Join-Path $bd "bin"
   if (-not (Test-Path (Join-Path $built "llama-server.exe"))) { throw "build produced no llama-server.exe in $built" }
@@ -95,7 +95,7 @@ function Build-Llama {
 
 # ---- 1. locate / build llama.cpp
 $srv = $null
-if ($LlamaDir) { $srv = $LlamaDir } elseif ($env:SLMSPEED_LLAMA) { $srv = $env:SLMSPEED_LLAMA }
+if ($LlamaDir) { $srv = $LlamaDir } elseif ($env:FLASHFERENCE_LLAMA) { $srv = $env:FLASHFERENCE_LLAMA }
 elseif (-not $Build) {
   foreach ($c in @($Bin, (Join-Path $Root "llama-cpp-e"))) { if (Test-Path (Join-Path $c "llama-server.exe")) { $srv = $c; break } }   # llama-cpp-e = the original dev build of the same patched source
 }

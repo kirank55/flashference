@@ -1,6 +1,6 @@
 # Other experiments (archive)
 
-The [top-level README](../README.md) covers only the two results this repo is released for: fast **code** generation and fast **copy-heavy** generation for Qwen3.5-0.8B bf16 with lossless speculative decoding. Everything else that was tried on the way is archived here. These are working notes written during the experiments, not polished docs: they were written before the release, some used different models/quantizations (mostly Qwen3.5-0.8B Q4_K_M) and earlier builds, and some conclusions are superseded by the bf16 E-series (`../results/2026-10-27-bf16-E1-E5.md`). Treat numbers in them as belonging to their own session; nothing here is part of the release claims.
+The [top-level README](../README.md) covers only the two results flashference is released for: fast **code** generation and fast **copy-heavy** generation for Qwen3.5-0.8B bf16 with lossless speculative decoding. Everything else that was tried on the way is archived here. These are working notes written during the experiments, not polished docs: they were written before the release, some used different models/quantizations (mostly Qwen3.5-0.8B Q4_K_M) and earlier builds, and some conclusions are superseded by the bf16 E-series (`../results/2026-10-27-bf16-E1-E5.md`). Treat numbers in them as belonging to their own session; nothing here is part of the release claims.
 
 | Topic | Write-up | Scripts | Raw data (in `../results/`) |
 |---|---|---|---|

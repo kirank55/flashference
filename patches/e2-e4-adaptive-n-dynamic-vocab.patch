@@ -1,6 +1,6 @@
-slmspeed patch 2/2: adaptive draft length (LLAMA_MTP_ADAPT*) and context-adaptive draft vocabulary (LLAMA_MTP_TRIM_FIXED, LLAMA_MTP_DYN)
+flashference patch 2/2: adaptive draft length (LLAMA_MTP_ADAPT*) and context-adaptive draft vocabulary (LLAMA_MTP_TRIM_FIXED, LLAMA_MTP_DYN)
 Base: llama.cpp b11884 (63412d873) + patches/b4-trim-draft-head.patch (apply that one first, then this).
-  git apply /path/to/slmspeed/patches/e2-e4-adaptive-n-dynamic-vocab.patch
+  git apply /path/to/flashference/patches/e2-e4-adaptive-n-dynamic-vocab.patch
 Needed for the copy-heavy headline config (LLAMA_MTP_ADAPT=1 LLAMA_MTP_ADAPT_INIT=2 with --spec-type ngram-simple,draft-mtp).
 All behaviour is off unless the env vars are set.
 License: this patch modifies llama.cpp (MIT License, Copyright (c) 2023-2026 The ggml authors) and is
