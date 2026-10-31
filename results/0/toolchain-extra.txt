@@ -1,0 +1,12 @@
+# model file and extra toolkit tools, saved 2026-10-31T18:17:57Z
+
+$ stat -c "%s bytes  mtime %y  %n" models/*.gguf
+1557662528 bytes  mtime 2026-10-30 05:10:52.725386152 +0000  models/Qwen_Qwen3.5-0.8B-bf16.gguf
+
+$ nsys --version
+NVIDIA Nsight Systems version 2024.6.2.225-246235244400v0
+
+$ cuda-gdb --version | head -3
+exec: cuda-gdb-python3.12-tui --version
+NVIDIA (R) cuda-gdb 12.8
+Portions Copyright (C) 2007-2024 NVIDIA Corporation

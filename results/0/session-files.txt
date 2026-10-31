@@ -1,0 +1,121 @@
+# files modified since 2026-10-31 08:55:00 UTC under /home/kiran and /tmp, listed 2026-10-31T18:19:27Z
+
+## counted only: build/install
+    169  /home/kiran/code-wsl/flashference/.git
+    619  /home/kiran/code-wsl/flashference/llama.cpp
+   3358  /home/kiran/code-wsl/flashference/.venv
+     83  /home/kiran/code-wsl/flashference/ref
+   5534  /home/kiran/opt/cuda-12.8
+
+## counted only: caches
+      8  /home/kiran/.cache/claude-cli-nodejs
+      3  /home/kiran/.cache/copilot
+     76  /home/kiran/.cache/huggingface
+   2922  /home/kiran/.cache/uv
+
+## counted only: agent harness (this executor's tool outputs and settings)
+     57  /tmp/claude-1000
+     31  /home/kiran/.claude
+      1  /home/kiran/.claude.json
+   1593  /home/kiran/.t3
+
+## counted only: other applications on this machine
+    414  /tmp/node-compile-cache
+     18  /home/kiran/.gemini
+     18  /home/kiran/.npm
+      6  /home/kiran/.codex
+      1  /home/kiran/.opencode
+      1  /home/kiran/.copilot
+      1  /home/kiran/.config
+      8  /home/kiran/.local
+     22  /home/kiran/.vscode-server
+      2  /tmp/initgoogle_syslog_dir.1000
+      1  /tmp/vscode-distro-env.evwdAn
+      1  /tmp/remote-wsl-loc.txt
+      1  /tmp/.bun-1000-99cf65a7ec1d243c.so
+
+## counted only: reviewers' scratch
+    189  /tmp/review-0
+      1  /tmp/review-0-r2
+    274  /tmp/review-0-r2b
+
+## counted only: executor's scratch clone for testing check.py before committing it
+    389  /tmp/ff-selftest
+
+## listed individually (mtime UTC, bytes, path, git state for repo files)
+2026-10-31T09:00:12.346002432Z  54270  /home/kiran/code-wsl/flashference/plan.md  [tracked]
+2026-10-31T09:03:20.615732292Z  0  /home/kiran/code-wsl/flashference/results/_jobs/dl-cuda/log  [ignored]
+2026-10-31T09:03:20.615732292Z  253  /home/kiran/code-wsl/flashference/results/_jobs/dl-cuda/cmd  [ignored]
+2026-10-31T09:03:20.619815881Z  6  /home/kiran/code-wsl/flashference/results/_jobs/dl-cuda/pid  [ignored]
+2026-10-31T09:03:20.623899469Z  21  /home/kiran/code-wsl/flashference/results/_jobs/dl-cuda/start  [ignored]
+2026-10-31T09:03:42.249736042Z  128  /home/kiran/code-wsl/flashference/.gitignore  [tracked]
+2026-10-31T09:03:49.465383421Z  1196  /home/kiran/code-wsl/flashference/prompts/v1/e-prompts.json  [tracked]
+2026-10-31T09:03:49.465383421Z  4894  /home/kiran/code-wsl/flashference/prompts/v1/prompts.json  [tracked]
+2026-10-31T09:04:09.889163849Z  981  /home/kiran/code-wsl/flashference/autopilot/env.sh  [tracked]
+2026-10-31T09:04:42.904542868Z  0  /tmp/flashference-gpu.lock
+2026-10-31T09:06:49.541932671Z  9740  /home/kiran/code-wsl/flashference/autopilot/guard.sh  [tracked]
+2026-10-31T09:10:11.855025728Z  208  /home/kiran/code-wsl/flashference/.claude/settings.json  [tracked]
+2026-10-31T09:10:11.859104989Z  1938  /home/kiran/code-wsl/flashference/autopilot/review-brief.md  [tracked]
+2026-10-31T09:12:23.948323385Z  101  /home/kiran/code-wsl/flashference/results/0/model-sha256.txt  [tracked]
+2026-10-31T09:15:06.399514780Z  1721  /home/kiran/code-wsl/flashference/results/env/pip-freeze.txt  [tracked]
+2026-10-31T09:15:09.419431181Z  5382238770  /home/kiran/opt/dl/cuda_12.8.1_570.124.06_linux.run
+2026-10-31T09:15:09.423512149Z  2  /home/kiran/code-wsl/flashference/results/_jobs/dl-cuda/exit  [ignored]
+2026-10-31T09:15:09.423512149Z  21  /home/kiran/code-wsl/flashference/results/_jobs/dl-cuda/end  [ignored]
+2026-10-31T09:16:11.373903698Z  0  /home/kiran/code-wsl/flashference/results/_jobs/install-cuda/log  [ignored]
+2026-10-31T09:16:11.373903698Z  214  /home/kiran/code-wsl/flashference/results/_jobs/install-cuda/cmd  [ignored]
+2026-10-31T09:16:11.382065637Z  21  /home/kiran/code-wsl/flashference/results/_jobs/install-cuda/start  [ignored]
+2026-10-31T09:16:11.382065637Z  6  /home/kiran/code-wsl/flashference/results/_jobs/install-cuda/pid  [ignored]
+2026-10-31T09:17:32.526713040Z  2944  /home/kiran/code-wsl/flashference/autopilot/job.sh  [tracked]
+2026-10-31T09:17:32.530793984Z  315  /home/kiran/code-wsl/flashference/autopilot/gpu-run.sh  [tracked]
+2026-10-31T09:18:02.103807213Z  980  /home/kiran/code-wsl/flashference/bench/phase0_llama_bench.sh  [tracked]
+2026-10-31T09:18:10.722684158Z  18179  /tmp/cuda-installer.log
+2026-10-31T09:18:11.000186892Z  2  /home/kiran/code-wsl/flashference/results/_jobs/install-cuda/exit  [ignored]
+2026-10-31T09:18:11.000186892Z  21  /home/kiran/code-wsl/flashference/results/_jobs/install-cuda/end  [ignored]
+2026-10-31T09:18:33.563097508Z  573  /tmp/ff-cudatest/t.cu
+2026-10-31T09:18:34.485362699Z  1007360  /tmp/ff-cudatest/t
+2026-10-31T09:19:09.538203421Z  2269  /tmp/ff-cmake-configure.log
+2026-10-31T09:19:14.394573252Z  2269  /home/kiran/code-wsl/flashference/results/0/cmake-configure.log  [tracked]
+2026-10-31T09:19:20.891497226Z  189  /home/kiran/code-wsl/flashference/results/_jobs/build-stock/cmd  [ignored]
+2026-10-31T09:19:20.903740173Z  21  /home/kiran/code-wsl/flashference/results/_jobs/build-stock/start  [ignored]
+2026-10-31T09:19:20.903740173Z  6  /home/kiran/code-wsl/flashference/results/_jobs/build-stock/pid  [ignored]
+2026-10-31T09:27:33.378169348Z  3446  /home/kiran/code-wsl/flashference/docs/drafts/ff-phase1-checks.py  [tracked]
+2026-10-31T09:32:32.386448234Z  35619  /home/kiran/code-wsl/flashference/results/_jobs/build-stock/log  [ignored]
+2026-10-31T09:32:32.390527423Z  2  /home/kiran/code-wsl/flashference/results/_jobs/build-stock/exit  [ignored]
+2026-10-31T09:32:32.390527423Z  21  /home/kiran/code-wsl/flashference/results/_jobs/build-stock/end  [ignored]
+2026-10-31T09:32:45.481483859Z  35619  /home/kiran/code-wsl/flashference/results/0/build-stock.log  [tracked]
+2026-10-31T09:33:13.378201801Z  4077  /home/kiran/code-wsl/flashference/results/0/toolchain.txt  [tracked]
+2026-10-31T09:33:52.525754418Z  297  /home/kiran/code-wsl/flashference/results/0/build-stock-job.txt  [tracked]
+2026-10-31T09:35:53.104581563Z  1329  /home/kiran/code-wsl/flashference/results/0/llama-bench-1.json  [tracked]
+2026-10-31T09:36:42.902808880Z  1330  /home/kiran/code-wsl/flashference/results/0/llama-bench-3.json  [tracked]
+2026-10-31T09:36:57.036337680Z  1115  /home/kiran/code-wsl/flashference/results/0/llama-bench-env.jsonl  [tracked]
+2026-10-31T12:53:04.825340315Z  1562  /home/kiran/code-wsl/flashference/bench/timesync_snapshot.sh  [tracked]
+2026-10-31T12:53:05.179949358Z  2518  /home/kiran/code-wsl/flashference/results/0/timesync-snapshot.txt  [tracked]
+2026-10-31T12:54:26.997418099Z  477  /tmp/a
+2026-10-31T12:54:27.025962080Z  477  /tmp/b
+2026-10-31T13:15:36.444886116Z  1333  /home/kiran/code-wsl/flashference/results/0/llama-bench-2.json  [tracked]
+2026-10-31T13:28:41.052238958Z  25149  /home/kiran/code-wsl/flashference/reviews/phase-0-r1.md  [tracked]
+2026-10-31T13:32:51.508769060Z  17187  /home/kiran/code-wsl/flashference/results/0/tick-watch.json  [tracked]
+2026-10-31T13:33:40.996753748Z  18360  /home/kiran/code-wsl/flashference/results/0/cuda-install.txt  [tracked]
+2026-10-31T13:33:41.013053968Z  2810  /home/kiran/code-wsl/flashference/results/0/build-bin-ls.txt  [tracked]
+2026-10-31T13:33:44.843605540Z  658  /home/kiran/code-wsl/flashference/results/env/hf-models.txt  [tracked]
+2026-10-31T13:34:28.916345312Z  3955  /home/kiran/code-wsl/flashference/autopilot/preflight.sh  [tracked]
+2026-10-31T13:34:28.916345312Z  5136  /home/kiran/code-wsl/flashference/bench/phase0_report.py  [tracked]
+2026-10-31T13:36:06.428891109Z  2437  /home/kiran/code-wsl/flashference/bench/tick_watch.py  [tracked]
+2026-10-31T13:36:06.428891109Z  4329  /home/kiran/code-wsl/flashference/bench/clock_steps.py  [tracked]
+2026-10-31T13:38:26.478838110Z  17117  /home/kiran/code-wsl/flashference/results/0/tick-watch-2.json  [tracked]
+2026-10-31T13:39:47.347821676Z  1642  /home/kiran/code-wsl/flashference/BLOCKED.md  [tracked]
+2026-10-31T17:55:04.815470316Z  3448  /home/kiran/code-wsl/flashference/results/0/clock-steps.json  [tracked]
+2026-10-31T18:09:52.930006289Z  27752  /home/kiran/code-wsl/flashference/reviews/phase-0-r2.md  [UNTRACKED]
+2026-10-31T18:12:34.857476406Z  3586  /home/kiran/code-wsl/flashference/toy/phase1_tokens.py  [tracked]
+2026-10-31T18:12:34.857476406Z  3936  /home/kiran/code-wsl/flashference/toy/phase1_params.py  [tracked]
+2026-10-31T18:12:34.857476406Z  5374  /home/kiran/code-wsl/flashference/toy/phase1_sample.py  [tracked]
+2026-10-31T18:12:34.857476406Z  6362  /home/kiran/code-wsl/flashference/toy/phase1_greedy.py  [tracked]
+2026-10-31T18:12:34.857476406Z  6511  /home/kiran/code-wsl/flashference/toy/phase1_gguf.py  [tracked]
+2026-10-31T18:17:06.872180185Z  4682  /home/kiran/code-wsl/flashference/autopilot/test_check_predictions.py  [tracked]
+2026-10-31T18:17:06.884413982Z  1743  /home/kiran/code-wsl/flashference/bench/phase0_toolchain.sh  [tracked]
+2026-10-31T18:17:59.400511157Z  436  /home/kiran/code-wsl/flashference/results/0/toolchain-extra.txt  [UNTRACKED]
+2026-10-31T18:19:04.502858556Z  21759  /home/kiran/code-wsl/flashference/autopilot/check.py  [tracked]
+2026-10-31T18:19:04.539562663Z  5812  /home/kiran/code-wsl/flashference/STATE.md  [tracked]
+2026-10-31T18:19:19.102362365Z  35728  /home/kiran/code-wsl/flashference/NOTEBOOK.md  [tracked]
+2026-10-31T18:19:27.890951002Z  2239  /home/kiran/code-wsl/flashference/bench/session_files.sh  [UNTRACKED]
+2026-10-31T18:19:28.771856394Z  1514  /home/kiran/code-wsl/flashference/results/0/session-files.txt  [UNTRACKED]
