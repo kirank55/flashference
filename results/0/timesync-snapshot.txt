@@ -1,0 +1,40 @@
+# timesync snapshot 2026-10-31T12:53:04Z
+
+## systemd-resolved clock-change events, 2026-10-31 09:35:00 .. 2026-10-31 09:37:30 (journal, realtime clock)
+Oct 31 09:35:11.471545 KIRAN systemd-resolved[230]: Clock change detected. Flushing caches.
+Oct 31 09:35:43.111856 KIRAN systemd-resolved[230]: Clock change detected. Flushing caches.
+Oct 31 09:36:14.740422 KIRAN systemd-resolved[230]: Clock change detected. Flushing caches.
+Oct 31 09:36:46.343938 KIRAN systemd-resolved[230]: Clock change detected. Flushing caches.
+Oct 31 09:37:17.981535 KIRAN systemd-resolved[230]: Clock change detected. Flushing caches.
+
+## systemd-timesyncd log
+Oct 30 09:18:31.214977 KIRAN systemd-timesyncd[239]: Timed out waiting for reply from 185.125.190.57:123 (ntp.ubuntu.com).
+Oct 30 09:18:30.282893 KIRAN systemd-timesyncd[239]: Contacted time server 185.125.190.56:123 (ntp.ubuntu.com).
+-- Boot cbfbbaa0ce144b0883dc5cbb8215945d --
+Oct 31 06:20:59.209099 KIRAN systemd[1]: Starting systemd-timesyncd.service - Network Time Synchronization...
+Oct 31 06:20:59.319493 KIRAN systemd[1]: Started systemd-timesyncd.service - Network Time Synchronization.
+Oct 31 06:20:59.499801 KIRAN systemd-timesyncd[243]: Contacted time server 185.125.190.57:123 (ntp.ubuntu.com).
+Oct 31 06:20:59.499880 KIRAN systemd-timesyncd[243]: Initial clock synchronization to Sat 2026-10-31 06:20:59.170373 UTC.
+Oct 31 11:27:39.572726 KIRAN systemd-timesyncd[243]: Timed out waiting for reply from 185.125.190.57:123 (ntp.ubuntu.com).
+Oct 31 11:27:49.820682 KIRAN systemd-timesyncd[243]: Timed out waiting for reply from 91.189.91.157:123 (ntp.ubuntu.com).
+Oct 31 11:28:00.070657 KIRAN systemd-timesyncd[243]: Timed out waiting for reply from 185.125.190.58:123 (ntp.ubuntu.com).
+Oct 31 11:28:10.320738 KIRAN systemd-timesyncd[243]: Timed out waiting for reply from 185.125.190.56:123 (ntp.ubuntu.com).
+Oct 31 11:36:41.687747 KIRAN systemd-timesyncd[243]: Contacted time server 185.125.190.58:123 (ntp.ubuntu.com).
+
+## timedatectl timesync-status
+       Server: 185.125.190.58 (ntp.ubuntu.com)
+Poll interval: 32s (min: 32s; max 34min 8s)
+         Leap: normal
+      Version: 4
+      Stratum: 2
+    Reference: 1D586304
+    Precision: 1us (-25)
+Root distance: 3.600ms (max: 5s)
+       Offset: -665.347ms
+        Delay: 153.503ms
+       Jitter: 51.926ms
+ Packet count: 710
+    Frequency: +31.635ppm
+
+## kernel clock adjustment (adjtimex): tick in us per 10 ms USER_HZ tick; freq in ppm
+tick=10189 (nominal 10000: clock rate +1.890 %) freq=+91.485 ppm status=0x2000
