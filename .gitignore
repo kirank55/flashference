@@ -1,2 +1,12 @@
-models
-toy
+models/
+llama.cpp/
+ref/
+.venv/
+__pycache__/
+*.pyc
+results/_incomplete/
+results/_jobs/
+autopilot/logs/
+prof/
+*.nsys-rep
+*.sqlite
