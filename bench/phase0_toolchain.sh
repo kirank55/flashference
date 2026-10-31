@@ -2,6 +2,8 @@
 # Phase 0 / Gate 0 evidence: the toolchain as this run sees it, saved as a raw file.
 #   bench/phase0_toolchain.sh > results/0/toolchain.txt
 set -u
+# torch and llama-server touch the GPU, so the whole snapshot runs under the GPU lock (rule 8)
+if [[ ${FF_LOCK_HELD:-0} != 1 ]]; then FF_LOCK_HELD=1 exec flock /tmp/flashference-gpu.lock "$0" "$@"; fi
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT/autopilot/env.sh"
 section() { printf '\n## %s\n$ %s\n' "$1" "$2"; bash -c "$2" 2>&1; echo "(exit $?)"; }

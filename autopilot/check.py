@@ -123,27 +123,35 @@ def check_tables(update=False):
 
 PRED_RE = re.compile(r"^(P-\d{3}) \| (\d{4}-\d{2}-\d{2}) \| ([^|]+?) \| (.+?) \| evidence: ([^|]+?) \| "
                      r"got (.+?) \| error (.+?) \| learned (.*)$")
-TIME_KEYS = {"test_time", "started_utc", "ts", "timestamp", "time_utc"}
+ISO_RE = re.compile(r"\b(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2}(?:\.\d+)?)(Z|[+-]\d{2}:?\d{2})?\b")
 
 
-def is_time_key(k):
-    return k in TIME_KEYS or k.endswith(("_utc", "_time"))
+def iso_times(text):
+    """Every ISO-8601 date-time in a string, as epoch seconds (no zone means UTC, this machine's zone)."""
+    out = []
+    for d, t, z in ISO_RE.findall(text):
+        z = "+00:00" if z in ("", "Z") else (z if ":" in z else z[:3] + ":" + z[3:])
+        try:
+            out.append(datetime.fromisoformat(f"{d}T{t}{z}").timestamp())
+        except ValueError:
+            pass
+    return out
 
 
-def times_in(obj):
+def strings_in(obj):
     if isinstance(obj, dict):
-        for k, v in obj.items():
-            if is_time_key(k) and isinstance(v, str):
-                yield v
-            else:
-                yield from times_in(v)
+        for v in obj.values():
+            yield from strings_in(v)
     elif isinstance(obj, list):
         for v in obj:
-            yield from times_in(v)
+            yield from strings_in(v)
+    elif isinstance(obj, str):
+        yield obj
 
 
 def evidence_times(path):
-    """ISO timestamps inside a JSON / JSONL (optionally .gz) evidence file; None if it isn't JSON."""
+    """Every ISO time recorded in an evidence file: in any JSON string value (JSON / JSONL, optionally
+    .gz), or anywhere in a text file. None if the file can't be read."""
     p = ROOT / path
     try:
         raw = gzip.open(p, "rt").read() if p.suffix == ".gz" else p.read_text()
@@ -157,17 +165,60 @@ def evidence_times(path):
             try:
                 docs.append(json.loads(line))
             except ValueError:
-                pass
+                docs = []
+                break
     if not docs:
-        return None
-    out = []
-    for d in docs:
-        for t in times_in(d):
-            try:
-                out.append(datetime.fromisoformat(t.replace("Z", "+00:00")).timestamp())
-            except ValueError:
-                pass
-    return out
+        return iso_times(raw)
+    return [t for d in docs for x in strings_in(d) for t in iso_times(x)]
+
+
+def notebook_versions():
+    """(commit, NOTEBOOK.md text) for every commit that touched NOTEBOOK.md, oldest first."""
+    return [(c, git("show", f"{c}:NOTEBOOK.md")) for c in git("log", "--reverse", "--format=%H", "--", "NOTEBOOK.md").split()]
+
+
+def prediction_problems(pid, pred, evid, got):
+    """Returns (status, problems, ties, prediction commit). status is pending | checked."""
+    problems, ties = [], []
+    log = git("log", "--reverse", "--format=%H %ct", "-S", f"{pid} |", "--", "NOTEBOOK.md").split()
+    if not log:
+        return ("pending", [], [], None) if got.strip() == "__" else \
+            ("checked", ["result filled in but the prediction was never committed without it"], [], None)
+    pc, pt = log[0], int(log[1])
+    old = next((l for l in git("show", f"{pc}:NOTEBOOK.md").splitlines() if l.startswith(pid + " |")), "")
+    m0 = PRED_RE.match(old)
+    if not m0 or m0.group(6).strip() != "__":
+        return "checked", ["first committed with a result already filled in"], [], pc
+    if m0.group(4) != pred or m0.group(5) != evid:
+        return "checked", ["prediction text or evidence path changed after it was committed"], [], pc
+    pending = 0
+    for path in [x.strip() for x in evid.split(",")]:
+        elog = git("log", "--reverse", "--diff-filter=A", "--format=%H %ct", "--", path).split()
+        if not elog:
+            if got.strip() == "__":
+                pending += 1
+            else:
+                problems.append(f"result filled in but evidence {path} is not committed")
+            continue
+        ec, et = elog[0], int(elog[1])
+        if ec == pc or not is_ancestor(pc, ec) or et <= pt:
+            problems.append(f"evidence {path} ({ec[:7]}) is not strictly after the prediction ({pc[:7]})"); continue
+        touched = git("log", "--format=%H", "--", path).split()
+        if len(touched) != 1 or run(["git", "diff", "--quiet", "HEAD", "--", path]).returncode:
+            problems.append(f"evidence {path} changed after its first commit"); continue
+        times = evidence_times(path)
+        if not times:
+            problems.append(f"evidence {path} records no ISO timestamp"); continue
+        # git stores whole seconds, so a run counts as later only from the next second on
+        early = [t for t in times if t < pt]
+        tie = [t for t in times if pt <= t < pt + 1]
+        if early:
+            problems.append(f"{path} records {len(early)} timestamp(s) before the prediction commit")
+        elif tie:
+            ties.append(f"{path} records {len(tie)} timestamp(s) in the prediction commit's own second")
+    if pending and got.strip() == "__":
+        return "pending", problems, ties, pc
+    return "checked", problems, ties, pc
 
 
 def check_predictions():
@@ -175,6 +226,13 @@ def check_predictions():
     if not nb.exists():
         report("predictions", None, "no NOTEBOOK.md"); return
     lines = [l for l in nb.read_text().splitlines() if re.match(r"^P-\d{3} \|", l)]
+    versions = notebook_versions()
+    ever = {m.group(1) for _, txt in versions for m in re.finditer(r"^(P-\d{3}) \|", txt, re.M)}
+    now_ids = [l[:5] for l in lines]
+    want = [f"P-{i:03d}" for i in range(1, len(now_ids) + 1)]
+    gone = sorted(ever - set(now_ids))
+    report("prediction ids are consecutive and none was ever deleted", not gone and now_ids == want,
+           f"deleted: {gone}" if gone else ("" if now_ids == want else f"ids {now_ids} are not P-001..P-{len(now_ids):03d}"))
     if not lines:
         report("predictions committed before their evidence", None, "no predictions yet"); return
     bad, done, pending, void = [], 0, 0, []
@@ -182,54 +240,38 @@ def check_predictions():
         m = PRED_RE.match(line)
         if not m:
             bad.append(f"unparsable: {line[:50]}"); continue
-        pid, _, _, pred, evid, got = m.group(1, 2, 3, 4, 5, 6)
-        if got.startswith("VOID"):      # shown, never credited; the reason is in the line itself
-            void.append(pid); continue
-        log = git("log", "--reverse", "--format=%H %ct", "-S", f"{pid} |", "--", "NOTEBOOK.md").split()
-        if not log:
-            if got.strip() == "__":
-                pending += 1
+        pid, pred, evid, got = m.group(1), m.group(4), m.group(5), m.group(6)
+        status, problems, ties, pc = prediction_problems(pid, pred, evid, got)
+        if status == "pending" and not problems:
+            pending += 1; continue
+        if got.startswith("VOID"):
+            # VOID is for a run whose order can't be proved only because it began in the prediction
+            # commit's own second. Any other problem still fails, and the mark must come in at or
+            # after the evidence commit, so a miss can't be voided ahead of time or after the fact.
+            first_void = next((c for c, txt in versions
+                               if re.search(rf"^{pid} \|.*\| got VOID", txt, re.M)), None)
+            ecs = [git("log", "--reverse", "--diff-filter=A", "--format=%H", "--", x.strip()).split()[:1]
+                   for x in evid.split(",")]
+            after = first_void and all(e and is_ancestor(e[0], first_void) for e in ecs)
+            if problems:
+                bad += [f"{pid} (VOID): {x}" for x in problems]
+            elif not ties:
+                bad.append(f"{pid}: marked VOID but its order is provable; a miss can't be voided")
+            elif not after:
+                bad.append(f"{pid}: VOID mark first appears before its evidence was committed")
             else:
-                bad.append(f"{pid}: result filled in but the prediction was never committed without it")
+                void.append(pid)
             continue
-        pc, pt = log[0], int(log[1])
-        old = next((l for l in git("show", f"{pc}:NOTEBOOK.md").splitlines() if l.startswith(pid + " |")), "")
-        m0 = PRED_RE.match(old)
-        if not m0 or m0.group(6).strip() != "__":
-            bad.append(f"{pid}: first committed with a result already filled in"); continue
-        if m0.group(4) != pred or m0.group(5) != evid:
-            bad.append(f"{pid}: prediction text or evidence path changed after it was committed"); continue
-        for path in [x.strip() for x in evid.split(",")]:
-            elog = git("log", "--reverse", "--diff-filter=A", "--format=%H %ct", "--", path).split()
-            if not elog:
-                if got.strip() == "__":
-                    pending += 1
-                else:
-                    bad.append(f"{pid}: result filled in but evidence {path} is not committed")
-                continue
-            ec, et = elog[0], int(elog[1])
-            if ec == pc or not is_ancestor(pc, ec) or et <= pt:
-                bad.append(f"{pid}: evidence {path} ({ec[:7]}) is not strictly after the prediction ({pc[:7]})")
-                continue
-            touched = git("log", "--format=%H", "--", path).split()
-            if len(touched) != 1 or run(["git", "diff", "--quiet", "HEAD", "--", path]).returncode:
-                bad.append(f"{pid}: evidence {path} changed after its first commit")
-                continue
-            times = evidence_times(path)
-            if times is not None and not times:
-                bad.append(f"{pid}: {path} is JSON but records no recognised timestamp")
-                continue
-            # git stores whole seconds, so a run counts as later only from the next second on
-            early = [t for t in times or [] if t < pt + 1]
-            if early:
-                bad.append(f"{pid}: {path} records {len(early)} timestamp(s) before the prediction commit")
-                continue
+        if ties:
+            bad += [f"{pid}: {x}; order unprovable at 1 s resolution (mark VOID and retest)" for x in ties]
+        bad += [f"{pid}: {x}" for x in problems]
+        if not problems and not ties:
             done += 1
     for b in bad:
         report("prediction order", False, b)
     report("predictions committed before their evidence", not bad,
-           f"{len(lines)} predictions, {done} evidence files in order, {pending} pending"
-           + (f", void (not credited): {', '.join(void)}" if void else ""))
+           f"{len(lines)} predictions, {done} checked in order, {pending} pending"
+           + (f", void (not credited, same-second tie verified): {', '.join(void)}" if void else ""))
 
 
 def check_test_ledger():
