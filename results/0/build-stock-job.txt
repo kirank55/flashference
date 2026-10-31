@@ -1,0 +1,7 @@
+cmd: bash -c source\ autopilot/env.sh\ \&\&\ cmake\ --build\ llama.cpp/build\ -j\ 4\ --target\ llama-server\ llama-cli\ llama-bench\ llama-tokenize 
+lock=0 cwd=/home/kiran/code-wsl/flashference
+start: 2026-10-31T09:19:20Z
+end: 2026-10-31T09:32:32Z
+exit: 0
+steps: 387
+lines mentioning 'warning': 0

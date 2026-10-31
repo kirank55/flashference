@@ -1,0 +1,78 @@
+# toolchain snapshot 2026-10-31T09:33:08Z
+
+## nvcc
+$ nvcc --version
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Fri_Feb_21_20:23:50_PST_2025
+Cuda compilation tools, release 12.8, V12.8.93
+Build cuda_12.8.r12.8/compiler.35583870_0
+(exit 0)
+
+## nvidia-smi
+$ nvidia-smi --query-gpu=name,compute_cap,driver_version,memory.total,clocks.max.sm,clocks.max.mem --format=csv
+name, compute_cap, driver_version, memory.total [MiB], clocks.max.sm [MHz], clocks.max.memory [MHz]
+NVIDIA GeForce RTX 3050 A Laptop GPU, 8.9, 592.82, 4094 MiB, 3105 MHz, 8001 MHz
+(exit 0)
+
+## torch
+$ python -c 'import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0))'
+2.15.0+cu132 True NVIDIA GeForce RTX 3050 A Laptop GPU
+(exit 0)
+
+## llama-server
+$ /home/kiran/code-wsl/flashference/llama.cpp/build/bin/llama-server --version
+version: 0.7.0-dev (build 11884, commit 63412d873)
+built with GNU 13.3.0 for Linux x86_64
+(exit 0)
+
+## llama.cpp checkout
+$ git -C /home/kiran/code-wsl/flashference/llama.cpp rev-parse HEAD; git -C /home/kiran/code-wsl/flashference/llama.cpp status --porcelain | wc -l
+63412d8737b3efa30748dd79ceb2c93487e19f2b
+0
+(exit 0)
+
+## build flags
+$ grep -E '^(CMAKE_BUILD_TYPE|GGML_CUDA|GGML_CUDA_GRAPHS|GGML_CUDA_FA|CMAKE_CUDA_ARCHITECTURES|LLAMA_OPENSSL|GGML_NATIVE):' /home/kiran/code-wsl/flashference/llama.cpp/build/CMakeCache.txt
+CMAKE_BUILD_TYPE:STRING=Release
+CMAKE_CUDA_ARCHITECTURES:UNINITIALIZED=89
+GGML_CUDA:BOOL=ON
+GGML_CUDA_FA:BOOL=ON
+GGML_CUDA_GRAPHS:BOOL=ON
+GGML_NATIVE:BOOL=ON
+LLAMA_OPENSSL:BOOL=OFF
+(exit 0)
+
+## binaries and libraries
+$ cd /home/kiran/code-wsl/flashference && find llama.cpp/build/bin -maxdepth 1 -type f \( -name 'llama-*' ! -name 'llama-test*' -o -name '*.so*' \) | sort | xargs sha256sum
+a25c895157e8552e4e4187df99617464bcae37cfa86a3ec8ebb0bc807ab2b9a6  llama.cpp/build/bin/libggml-base.so.0.27.0
+ccc280fa86203118a0d2d16c855474658ada3b2c70510a7982e737d6994bb5e6  llama.cpp/build/bin/libggml-cpu.so.0.27.0
+db651db042a3432c3a53db6066497f6f8e9dc56201f9d923c8c3b8716d8e2e76  llama.cpp/build/bin/libggml-cuda.so.0.27.0
+70acab4e7b48a2ed859912918ff59dc18f20c1d9cb4daf4b38d2a3be18bf25d0  llama.cpp/build/bin/libggml.so.0.27.0
+57c8c7a1255ef523d445d0f89833e1c3c475c4ba93375a6649e4bdb998714bd0  llama.cpp/build/bin/libllama-bench-impl.so
+875f439f1873836422633db957aee69da2b55c5120bf7dc18496312ba50feece  llama.cpp/build/bin/libllama-cli-impl.so
+3b86d9d882923ac871e3ebf6ad146e6442f66d26f9baadd03d138568307440f8  llama.cpp/build/bin/libllama-common.so.0.7.0
+423ab68242003771995505f39a397ec6897cef524584949a2a162ff927d5c0a8  llama.cpp/build/bin/libllama-server-impl.so
+ca53015675518f81ace77fdcfdca566fe12dc2f61656aae2cbb1760fd9f744c6  llama.cpp/build/bin/libllama.so.0.7.0
+28123d429585f5ac703cac9e299e18398756c727c90d06de33ffe0dc7962e10d  llama.cpp/build/bin/libmtmd.so.0.7.0
+8e78f05f23f8b87b3d2016a0fab979c675b012afcf816c340c1a8c313bfce2e5  llama.cpp/build/bin/llama-bench
+99df67977905dfd9ecb9b5c0af561ddc38499e5df4aa55679c5815eb52b3622a  llama.cpp/build/bin/llama-cli
+7bc07fd8c009ae9eb904682965d8e87706dc51e416dea483d4a6c74c192e9c3b  llama.cpp/build/bin/llama-server
+3d27f56b4b4e873859d3893056e63598c1a74f6c28859936b895dc4c0d033ca4  llama.cpp/build/bin/llama-tokenize
+(exit 0)
+
+## CUDA libraries llama-server loads
+$ ldd /home/kiran/code-wsl/flashference/llama.cpp/build/bin/llama-server | grep -E 'cuda|cublas'
+	libggml-cuda.so.0 => /home/kiran/code-wsl/flashference/llama.cpp/build/bin/libggml-cuda.so.0 (0x000070cbee400000)
+	libcudart.so.12 => /home/kiran/opt/cuda-12.8/lib64/libcudart.so.12 (0x000070cbee000000)
+	libcublas.so.12 => /home/kiran/opt/cuda-12.8/lib64/libcublas.so.12 (0x000070cbe6e00000)
+	libcuda.so.1 => /usr/lib/wsl/lib/libcuda.so.1 (0x000070cbe6a00000)
+	libcublasLt.so.12 => /home/kiran/opt/cuda-12.8/lib64/libcublasLt.so.12 (0x000070cbb4600000)
+(exit 0)
+
+## gcc / cmake / ninja
+$ gcc --version | head -1; cmake --version | head -1; ninja --version
+gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+cmake version 3.28.3
+1.13.2.git.kitware.jobserver-pipe-1
+(exit 0)
