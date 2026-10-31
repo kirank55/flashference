@@ -51,10 +51,15 @@ check_once() {
     if [[ $mu -gt 5 || $mm -gt 500 ]]; then code=10; fi
   fi
   IFS=', ' read -r temp csm cmem pw drv pst <<< "$smi"
-  printf '{"ts":"%s","mode":"%s","code":%d,"disk_free_gb":%s,"dirty":%s,"lock_held":%s,"battery_status":"%s","gpu_util":[%s],"mem_used_mib":[%s],"temp_c":"%s","clk_sm_mhz":"%s","clk_mem_mhz":"%s","power_w":"%s","driver":"%s","pstate":"%s"}\n' \
+  # kernel clock tick (nominal 10000 us): above it, CLOCK_MONOTONIC runs fast (NOTEBOOK.md, Phase 0.6)
+  local tick
+  tick=$(python3 -c 'import ctypes as c, ctypes.util as u
+class T(c.Structure): _fields_ = [("m", c.c_uint)] + [(f"f{i}", c.c_long) for i in range(8)] + [("tv", c.c_long * 2), ("tick", c.c_long), ("pad", c.c_long * 20)]
+t = T(); c.CDLL(u.find_library("c")).adjtimex(c.byref(t)); print(t.tick)' 2>/dev/null)
+  printf '{"ts":"%s","mode":"%s","code":%d,"disk_free_gb":%s,"dirty":%s,"lock_held":%s,"battery_status":"%s","gpu_util":[%s],"mem_used_mib":[%s],"temp_c":"%s","clk_sm_mhz":"%s","clk_mem_mhz":"%s","power_w":"%s","driver":"%s","pstate":"%s","kernel_tick_us":"%s"}\n' \
     "$(date -u +%FT%TZ)" "$mode" "$code" "${disk:-0}" "$dirty" "$lock" "${bat:-}" \
     "$(IFS=,; echo "${util[*]:-}")" "$(IFS=,; echo "${mem[*]:-}")" \
-    "${temp:-}" "${csm:-}" "${cmem:-}" "${pw:-}" "${drv:-}" "${pst:-}"
+    "${temp:-}" "${csm:-}" "${cmem:-}" "${pw:-}" "${drv:-}" "${pst:-}" "${tick:-}"
   return "$code"
 }
 
