@@ -4,6 +4,7 @@
 #   autopilot/preflight.sh            session start: all checks, including the dirty-tree check
 #   autopilot/preflight.sh --gpu      just before a GPU run: skips the dirty-tree check
 #   add --wait                        on 10/20, re-check every 10 min for up to 1 h
+#   FF_LOCK_HELD=1 in the environment  the caller holds the GPU lock for this run (gpu-run.sh, job.sh)
 #
 # Prints one JSON line of readings to stdout. Exit codes:
 #   0 OK | 11 our own GPU job holds the lock | 10 GPU busy (median of 5 samples over 10 s:
@@ -32,7 +33,10 @@ check_once() {
   if [[ $code == 0 && $mode == start && -n $(git -C "$ROOT" status --porcelain) ]]; then
     dirty=true; code=30
   fi
-  if [[ $code == 0 ]] && ! flock -n "$LOCK" true 2>/dev/null; then lock=true; code=11; fi
+  # FF_LOCK_HELD=1: the caller already holds the lock for this run, so it isn't "another job"
+  if [[ $code == 0 && ${FF_LOCK_HELD:-0} != 1 ]] && ! flock -n "$LOCK" true 2>/dev/null; then
+    lock=true; code=11
+  fi
   bat=$(timeout 30 powershell.exe -NoProfile -Command "(Get-CimInstance Win32_Battery).BatteryStatus" \
         2>/dev/null | tr -dc 0-9)
   if [[ $code == 0 && $bat != 2 ]]; then code=20; fi

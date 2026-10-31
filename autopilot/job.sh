@@ -17,7 +17,7 @@ if [[ ${1:-} == --_run ]]; then          # internal: the detached wrapper
   dir=$2; use_lock=$3; shift 3
   echo $$ > "$dir/pid"
   date -u +%FT%TZ > "$dir/start"
-  if [[ $use_lock == 1 ]]; then flock "$LOCK" "$@"; else "$@"; fi
+  if [[ $use_lock == 1 ]]; then FF_LOCK_HELD=1 flock "$LOCK" "$@"; else "$@"; fi
   rc=$?
   date -u +%FT%TZ > "$dir/end"
   echo "$rc" > "$dir/exit"

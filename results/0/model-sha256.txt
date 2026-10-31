@@ -1,0 +1,1 @@
+ad1549eedc613064971dcbbbfab6c9b7990984d1c9ab38f792c6f2ec1207bbc2  models/Qwen_Qwen3.5-0.8B-bf16.gguf
