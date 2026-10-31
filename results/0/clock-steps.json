@@ -1,0 +1,129 @@
+{
+ "script": "bench/clock_steps.py",
+ "started_utc": "2026-10-31T12:47:37+00:00",
+ "seconds": 120,
+ "summary": {
+  "window_guest_monotonic_s": 123.623641643,
+  "n_steps": 4,
+  "step_ms": [
+   -590.833,
+   -597.597,
+   -630.887,
+   -617.062
+  ],
+  "seconds_between_steps": [
+   32.265,
+   32.3,
+   32.185
+  ],
+  "host_readings": 13,
+  "host_elapsed_s": 120.2091914,
+  "guest_monotonic_elapsed_s": 122.543940872,
+  "guest_minus_host_rate_pct": 1.9422387296750498,
+  "monotonic_minus_raw_over_window_us": 2361644.611,
+  "samples_kept": 104249,
+  "samples_dropped": 38
+ },
+ "steps": [
+  {
+   "guest_monotonic_s": 23557.966455042,
+   "realtime_after_step": "2026-10-31T12:47:37.572+00:00",
+   "step_ms": -590.833469
+  },
+  {
+   "guest_monotonic_s": 23590.231104355,
+   "realtime_after_step": "2026-10-31T12:48:09.239+00:00",
+   "step_ms": -597.596694
+  },
+  {
+   "guest_monotonic_s": 23622.531137421,
+   "realtime_after_step": "2026-10-31T12:48:40.908+00:00",
+   "step_ms": -630.887299
+  },
+  {
+   "guest_monotonic_s": 23654.716611681,
+   "realtime_after_step": "2026-10-31T12:49:12.477+00:00",
+   "step_ms": -617.061572
+  }
+ ],
+ "host": [
+  {
+   "host_ticks": 639290476578038493,
+   "guest_monotonic_ns": 23557880248261,
+   "guest_realtime_ns": 1793450858077404384,
+   "guest_realtime_minus_host_ms": 273.555084
+  },
+  {
+   "host_ticks": 639290476679223060,
+   "guest_monotonic_ns": 23568179929376,
+   "guest_realtime_ns": 1793450867786253590,
+   "guest_realtime_minus_host_ms": -136.05241
+  },
+  {
+   "host_ticks": 639290476779281020,
+   "guest_monotonic_ns": 23578376956165,
+   "guest_realtime_ns": 1793450877983278074,
+   "guest_realtime_minus_host_ms": 55.176074
+  },
+  {
+   "host_ticks": 639290476879410093,
+   "guest_monotonic_ns": 23588579453637,
+   "guest_realtime_ns": 1793450888185775720,
+   "guest_realtime_minus_host_ms": 244.76642
+  },
+  {
+   "host_ticks": 639290476979478243,
+   "guest_monotonic_ns": 23598767845895,
+   "guest_realtime_ns": 1793450897776570102,
+   "guest_realtime_minus_host_ms": -171.254198
+  },
+  {
+   "host_ticks": 639290477079531099,
+   "guest_monotonic_ns": 23608971799542,
+   "guest_realtime_ns": 1793450907980523726,
+   "guest_realtime_minus_host_ms": 27.413826
+  },
+  {
+   "host_ticks": 639290477179546524,
+   "guest_monotonic_ns": 23619167480965,
+   "guest_realtime_ns": 1793450918176205170,
+   "guest_realtime_minus_host_ms": 221.55277
+  },
+  {
+   "host_ticks": 639290477279644622,
+   "guest_monotonic_ns": 23629352373497,
+   "guest_realtime_ns": 1793450927730210164,
+   "guest_realtime_minus_host_ms": -234.252036
+  },
+  {
+   "host_ticks": 639290477379683211,
+   "guest_monotonic_ns": 23639566475211,
+   "guest_realtime_ns": 1793450937944311740,
+   "guest_realtime_minus_host_ms": -24.00936
+  },
+  {
+   "host_ticks": 639290477479806430,
+   "guest_monotonic_ns": 23649795676757,
+   "guest_realtime_ns": 1793450948173513567,
+   "guest_realtime_minus_host_ms": 192.870567
+  },
+  {
+   "host_ticks": 639290477579838326,
+   "guest_monotonic_ns": 23659966131000,
+   "guest_realtime_ns": 1793450957726906600,
+   "guest_realtime_minus_host_ms": -256.926
+  },
+  {
+   "host_ticks": 639290477679960776,
+   "guest_monotonic_ns": 23670196191018,
+   "guest_realtime_ns": 1793450967956966753,
+   "guest_realtime_minus_host_ms": -39.110847
+  },
+  {
+   "host_ticks": 639290477780130407,
+   "guest_monotonic_ns": 23680424189133,
+   "guest_realtime_ns": 1793450978184964474,
+   "guest_realtime_minus_host_ms": 171.923774
+  }
+ ]
+}
