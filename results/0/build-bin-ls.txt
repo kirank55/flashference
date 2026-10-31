@@ -1,0 +1,30 @@
+# llama.cpp/build/bin listing, saved 2026-10-31T13:33:41Z
+total 88256
+lrwxrwxrwx 1 kiran kiran       17 2026-10-31 09:19:27.611138722 +0000 libggml-base.so -> libggml-base.so.0
+lrwxrwxrwx 1 kiran kiran       22 2026-10-31 09:19:27.611138722 +0000 libggml-base.so.0 -> libggml-base.so.0.27.0
+-rwxr-xr-x 1 kiran kiran   930464 2026-10-31 09:19:27.598896698 +0000 libggml-base.so.0.27.0
+lrwxrwxrwx 1 kiran kiran       16 2026-10-31 09:30:07.246855547 +0000 libggml-cpu.so -> libggml-cpu.so.0
+lrwxrwxrwx 1 kiran kiran       21 2026-10-31 09:30:07.246855547 +0000 libggml-cpu.so.0 -> libggml-cpu.so.0.27.0
+-rwxr-xr-x 1 kiran kiran  1410344 2026-10-31 09:30:05.530586201 +0000 libggml-cpu.so.0.27.0
+lrwxrwxrwx 1 kiran kiran       17 2026-10-31 09:30:15.955591224 +0000 libggml-cuda.so -> libggml-cuda.so.0
+lrwxrwxrwx 1 kiran kiran       22 2026-10-31 09:30:15.955591224 +0000 libggml-cuda.so.0 -> libggml-cuda.so.0.27.0
+-rwxr-xr-x 1 kiran kiran 64315896 2026-10-31 09:30:15.939278045 +0000 libggml-cuda.so.0.27.0
+lrwxrwxrwx 1 kiran kiran       12 2026-10-31 09:30:16.196210625 +0000 libggml.so -> libggml.so.0
+lrwxrwxrwx 1 kiran kiran       17 2026-10-31 09:30:16.196210625 +0000 libggml.so.0 -> libggml.so.0.27.0
+-rwxr-xr-x 1 kiran kiran    56208 2026-10-31 09:30:16.188054035 +0000 libggml.so.0.27.0
+-rwxr-xr-x 1 kiran kiran   485856 2026-10-31 09:32:30.179606998 +0000 libllama-bench-impl.so
+-rwxr-xr-x 1 kiran kiran   251768 2026-10-31 09:32:32.198805541 +0000 libllama-cli-impl.so
+lrwxrwxrwx 1 kiran kiran       20 2026-10-31 09:31:59.307270342 +0000 libllama-common.so -> libllama-common.so.0
+lrwxrwxrwx 1 kiran kiran       24 2026-10-31 09:31:59.307270342 +0000 libllama-common.so.0 -> libllama-common.so.0.7.0
+-rwxr-xr-x 1 kiran kiran  6425896 2026-10-31 09:31:59.295032710 +0000 libllama-common.so.0.7.0
+-rwxr-xr-x 1 kiran kiran  7568560 2026-10-31 09:32:32.035637982 +0000 libllama-server-impl.so
+lrwxrwxrwx 1 kiran kiran       13 2026-10-31 09:30:49.186248749 +0000 libllama.so -> libllama.so.0
+lrwxrwxrwx 1 kiran kiran       17 2026-10-31 09:30:49.186248749 +0000 libllama.so.0 -> libllama.so.0.7.0
+-rwxr-xr-x 1 kiran kiran  5378120 2026-10-31 09:30:49.174011045 +0000 libllama.so.0.7.0
+lrwxrwxrwx 1 kiran kiran       12 2026-10-31 09:32:14.968150240 +0000 libmtmd.so -> libmtmd.so.0
+lrwxrwxrwx 1 kiran kiran       16 2026-10-31 09:32:14.968150240 +0000 libmtmd.so.0 -> libmtmd.so.0.7.0
+-rwxr-xr-x 1 kiran kiran  2142664 2026-10-31 09:31:59.923231162 +0000 libmtmd.so.0.7.0
+-rwxr-xr-x 1 kiran kiran    17888 2026-10-31 09:32:30.489625360 +0000 llama-bench
+-rwxr-xr-x 1 kiran kiran  1297152 2026-10-31 09:32:32.382369045 +0000 llama-cli
+-rwxr-xr-x 1 kiran kiran    17888 2026-10-31 09:32:32.215122297 +0000 llama-server
+-rwxr-xr-x 1 kiran kiran    40808 2026-10-31 09:32:27.193570338 +0000 llama-tokenize
