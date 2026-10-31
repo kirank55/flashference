@@ -1,0 +1,38 @@
+{
+  "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+  "dtype": "torch.bfloat16",
+  "tie_word_embeddings": true,
+  "lm_head_is_embedding": true,
+  "vocab_size": 49152,
+  "hidden_size": 960,
+  "groups": {
+    "embedding": {
+      "params": 47185920,
+      "bytes": 94371840,
+      "tensors": 1
+    },
+    "attention": {
+      "params": 78643200,
+      "bytes": 157286400,
+      "tensors": 128
+    },
+    "mlp": {
+      "params": 235929600,
+      "bytes": 471859200,
+      "tensors": 96
+    },
+    "norms": {
+      "params": 62400,
+      "bytes": 124800,
+      "tensors": 65
+    },
+    "lm_head": {
+      "params": 0,
+      "bytes": 0,
+      "tensors": 1
+    }
+  },
+  "total_bytes": 723642240,
+  "embedding_head_bytes": 94371840,
+  "embedding_head_fraction": 0.13041228770725158
+}

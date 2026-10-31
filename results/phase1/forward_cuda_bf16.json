@@ -1,0 +1,58 @@
+{
+  "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+  "device": "cuda",
+  "dtype": "bf16",
+  "reps": 30,
+  "gpu": "NVIDIA GeForce RTX 3050 A Laptop GPU",
+  "torch": "2.15.0+cu132",
+  "prompt": "Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Sunlight is made of many colours. Air molecules are much smaller than the wavelength of visible light. Explain in two sentences why the sky is blue.",
+  "full_forward": {
+    "1": {
+      "median_ms": 28.95204900050885,
+      "min_ms": 22.599800000534742,
+      "max_ms": 82.85847099978128
+    },
+    "40": {
+      "median_ms": 30.12964799927431,
+      "min_ms": 21.451450998938526,
+      "max_ms": 71.12118700024439
+    },
+    "72": {
+      "median_ms": 24.734747001275537,
+      "min_ms": 20.61900999979116,
+      "max_ms": 62.97122199976002
+    },
+    "150": {
+      "median_ms": 26.135522999538807,
+      "min_ms": 21.03239000098256,
+      "max_ms": 65.37630599996191
+    },
+    "300": {
+      "median_ms": 33.4751430000324,
+      "min_ms": 28.297019998717587,
+      "max_ms": 69.11370899979374
+    },
+    "600": {
+      "median_ms": 46.55943600118917,
+      "min_ms": 45.44276999877184,
+      "max_ms": 66.91176999993331
+    },
+    "1240": {
+      "median_ms": 90.83861099861679,
+      "min_ms": 89.52164000038465,
+      "max_ms": 94.30732500004524
+    }
+  },
+  "cached_step": {
+    "40": {
+      "median_ms": 41.15271999944525,
+      "min_ms": 20.11166399825015,
+      "max_ms": 74.76667700029793
+    },
+    "1200": {
+      "median_ms": 35.09353499975987,
+      "min_ms": 21.162191998882918,
+      "max_ms": 74.65341700117278
+    }
+  }
+}
