@@ -386,6 +386,9 @@ def check_bootstrap():
     report(".claude/settings.json registers guard.sh on Bash", any("autopilot/guard.sh" in h for h in hooks))
     for f in ("STATE.md", "NOTEBOOK.md", "autopilot/review-brief.md"):
         report(f"{f} exists", (ROOT / f).exists())
+    p = run([sys.executable, str(ROOT / "autopilot/test_check_predictions.py")], timeout=900)
+    report("check.py --predictions self-test: broken histories fail, clean ones pass", p.returncode == 0,
+           f"{p.stdout.count('ok  ')} cases ok" if p.returncode == 0 else (p.stdout + p.stderr).strip()[-300:])
 
 
 def state_field(name):
