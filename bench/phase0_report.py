@@ -4,7 +4,9 @@
   python bench/phase0_report.py --summary  the derived numbers that predictions P-001..P-003 test
   python bench/phase0_report.py --clock    the clock measurement that P-004 and P-005 test
 
-Screening rule, fixed before it was applied: llama-bench times each repetition with the wall clock
+Screening rule. It was written after the Phase 0 outlier had been seen, so for the Phase 0 data
+it is post hoc; from Phase 0 on it applies to every llama-bench run as stated here, before the data
+are seen. llama-bench times each repetition with the wall clock
 (std::chrono::high_resolution_clock is system_clock in libstdc++), and this WSL2 wall clock is
 stepped back ~0.6 s every ~32 s (results/0/clock-steps.json). A repetition is excluded only if
 (a) it is more than 0.3 s shorter than its run's median repetition (half the smallest step measured)
@@ -72,13 +74,16 @@ def summary():
 
 
 def clock():
-    s = json.loads((R0 / "clock-steps.json").read_text())["summary"]
+    doc = json.loads((R0 / "clock-steps.json").read_text())
+    s = doc["summary"]
+    t = [x["guest_monotonic_s"] for x in doc["steps"]]
+    gaps = [b - a for a, b in zip(t, t[1:])]                # from the raw stamps: round once
     print("| quantity | value |")
     print("|---|---:|")
     print(f"| window (guest CLOCK_MONOTONIC) | {s['window_guest_monotonic_s']:.1f} s |")
     print(f"| wall-clock steps | {s['n_steps']} |")
     print(f"| step sizes | {', '.join(f'{v / 1000:+.3f} s' for v in s['step_ms'])} |")
-    print(f"| time between steps (guest monotonic) | {', '.join(f'{v:.2f} s' for v in s['seconds_between_steps'])} |")
+    print(f"| time between steps (guest monotonic) | {', '.join(f'{v:.2f} s' for v in gaps)} |")
     print(f"| host elapsed / guest monotonic elapsed | {s['host_elapsed_s']:.3f} s / {s['guest_monotonic_elapsed_s']:.3f} s |")
     print(f"| guest CLOCK_MONOTONIC rate vs Windows clock | {s['guest_minus_host_rate_pct']:+.2f} % |")
     raw = s['window_guest_monotonic_s'] - s['monotonic_minus_raw_over_window_us'] / 1e6
