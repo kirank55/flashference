@@ -78,7 +78,7 @@ def main():
     ap.add_argument("--n", type=int, default=48)
     ap.add_argument("--out", default=str(ROOT / "results/1"))
     a = ap.parse_args()
-    started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    started = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
     torch.manual_seed(0)
     det = {"toy": toy_check()}
 

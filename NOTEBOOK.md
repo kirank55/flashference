@@ -14,7 +14,8 @@ P-002 | 2026-10-31 | 0.6 | the 3 runs' mean tok/s agree within 0–2 % (max/min 
 P-003 | 2026-10-31 | 0.6 | within each run, the SD of the 5 repetitions is 0–1 % of that run's mean, because each repetition decodes the same 128 tokens from an empty context | evidence: results/0/llama-bench-1.json, results/0/llama-bench-2.json, results/0/llama-bench-3.json | got 0.32 %, 20.32 %, 0.18 % raw (run 2 a miss); worst 0.32 % screened | error miss for run 2 raw, inside screened | learned same cause as P-002; without the step, 5 repetitions agree within ~0.3 %
 P-004 | 2026-10-31 | 0.6 | over 120 s, CLOCK_REALTIME − CLOCK_MONOTONIC changes only in 3–4 discrete steps spaced 31–32 s apart, each backward by 0.4–0.8 s, because systemd-resolved logs a clock change every ~31.5 s and run 2's 4th repetition came out 0.622 s short | evidence: results/0/clock-steps.json | got 4 steps in 123.6 s, each back 0.591–0.631 s; 32.19–32.30 s apart by the guest's monotonic clock | error count and size inside; spacing 0.2–0.3 s above the range by the guest clock, but ~31.6 s by the host clock [derived: 32.25 / 1.0194] | learned a duration needs a named clock; here guest seconds are ~1.9 % short
 P-005 | 2026-10-31 | 0.6 | over the same 120 s the guest's CLOCK_MONOTONIC advances 1.3–2.5 % more than the Windows host clock, because steps of ~0.62 s every ~31.5 s mean the guest clock gains about 2 % and time sync pulls it back | evidence: results/0/clock-steps.json | got +1.94 % | error −0.06 points from the ~2 % I reasoned from | learned the cause is the kernel tick (10188–10191 µs instead of 10000, results/0/timesync-snapshot.txt), and CLOCK_MONOTONIC_RAW, which ignores the tick, keeps host time
-P-006 | 2026-10-31 | 0.6 | sampled every 0.5 s for 120 s, the kernel tick stays within 10185–10210 µs and changes value at least 3 times, because readings so far span 10188–10201 µs (only 10189 is saved) and the reviewer saw it change within 4 s | evidence: results/0/tick-watch.json | got __ | error __ | learned __
+P-006 | 2026-10-31 | 0.6 | sampled every 0.5 s for 120 s, the kernel tick stays within 10185–10210 µs and changes value at least 3 times, because readings so far span 10188–10201 µs (only 10189 is saved) and the reviewer saw it change within 4 s | evidence: results/0/tick-watch.json | got VOID: the run started in the same second as the prediction commit (13:30:53), so the order can't be proved from the records; for what it's worth, the data showed tick 10160–10238 and 13 changes, outside the range | error n/a | learned leave at least a second between a prediction commit and its run; scripts now stamp milliseconds; retested as P-007
+P-007 | 2026-10-31 | 0.6 | sampled every 0.5 s for 120 s, the kernel tick stays within 10140–10260 µs, changes 12–16 times, and the median time between changes is 7.5–8.5 s, because P-006's (void) data showed 10160–10238 µs and a change about every 8 s | evidence: results/0/tick-watch-2.json | got __ | error __ | learned __
 
 ## Entries
 
@@ -75,7 +76,7 @@ Two departures from plan.md 0.5. The first is autoplan.md's own rule; the second
 | window (guest CLOCK_MONOTONIC) | 123.6 s |
 | wall-clock steps | 4 |
 | step sizes | -0.591 s, -0.598 s, -0.631 s, -0.617 s |
-| time between steps (guest monotonic) | 32.27 s, 32.30 s, 32.19 s |
+| time between steps (guest monotonic) | 32.26 s, 32.30 s, 32.19 s |
 | host elapsed / guest monotonic elapsed | 120.209 s / 122.544 s |
 | guest CLOCK_MONOTONIC rate vs Windows clock | +1.94 % |
 | CLOCK_MONOTONIC gain over CLOCK_MONOTONIC_RAW in the window | 2.362 s (+1.95 %) |

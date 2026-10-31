@@ -126,10 +126,14 @@ PRED_RE = re.compile(r"^(P-\d{3}) \| (\d{4}-\d{2}-\d{2}) \| ([^|]+?) \| (.+?) \|
 TIME_KEYS = {"test_time", "started_utc", "ts", "timestamp", "time_utc"}
 
 
+def is_time_key(k):
+    return k in TIME_KEYS or k.endswith(("_utc", "_time"))
+
+
 def times_in(obj):
     if isinstance(obj, dict):
         for k, v in obj.items():
-            if k in TIME_KEYS and isinstance(v, str):
+            if is_time_key(k) and isinstance(v, str):
                 yield v
             else:
                 yield from times_in(v)
@@ -139,12 +143,12 @@ def times_in(obj):
 
 
 def evidence_times(path):
-    """ISO timestamps recorded inside a JSON / JSONL (optionally .gz) evidence file."""
+    """ISO timestamps inside a JSON / JSONL (optionally .gz) evidence file; None if it isn't JSON."""
     p = ROOT / path
     try:
         raw = gzip.open(p, "rt").read() if p.suffix == ".gz" else p.read_text()
     except (OSError, UnicodeDecodeError):
-        return []
+        return None
     docs = []
     try:
         docs = [json.loads(raw)]
@@ -154,6 +158,8 @@ def evidence_times(path):
                 docs.append(json.loads(line))
             except ValueError:
                 pass
+    if not docs:
+        return None
     out = []
     for d in docs:
         for t in times_in(d):
@@ -171,12 +177,14 @@ def check_predictions():
     lines = [l for l in nb.read_text().splitlines() if re.match(r"^P-\d{3} \|", l)]
     if not lines:
         report("predictions committed before their evidence", None, "no predictions yet"); return
-    bad, done, pending = [], 0, 0
+    bad, done, pending, void = [], 0, 0, []
     for line in lines:
         m = PRED_RE.match(line)
         if not m:
             bad.append(f"unparsable: {line[:50]}"); continue
         pid, _, _, pred, evid, got = m.group(1, 2, 3, 4, 5, 6)
+        if got.startswith("VOID"):      # shown, never credited; the reason is in the line itself
+            void.append(pid); continue
         log = git("log", "--reverse", "--format=%H %ct", "-S", f"{pid} |", "--", "NOTEBOOK.md").split()
         if not log:
             if got.strip() == "__":
@@ -203,7 +211,16 @@ def check_predictions():
             if ec == pc or not is_ancestor(pc, ec) or et <= pt:
                 bad.append(f"{pid}: evidence {path} ({ec[:7]}) is not strictly after the prediction ({pc[:7]})")
                 continue
-            early = [t for t in evidence_times(path) if t <= pt]
+            touched = git("log", "--format=%H", "--", path).split()
+            if len(touched) != 1 or run(["git", "diff", "--quiet", "HEAD", "--", path]).returncode:
+                bad.append(f"{pid}: evidence {path} changed after its first commit")
+                continue
+            times = evidence_times(path)
+            if times is not None and not times:
+                bad.append(f"{pid}: {path} is JSON but records no recognised timestamp")
+                continue
+            # git stores whole seconds, so a run counts as later only from the next second on
+            early = [t for t in times or [] if t < pt + 1]
             if early:
                 bad.append(f"{pid}: {path} records {len(early)} timestamp(s) before the prediction commit")
                 continue
@@ -211,7 +228,8 @@ def check_predictions():
     for b in bad:
         report("prediction order", False, b)
     report("predictions committed before their evidence", not bad,
-           f"{len(lines)} predictions, {done} evidence files in order, {pending} pending")
+           f"{len(lines)} predictions, {done} evidence files in order, {pending} pending"
+           + (f", void (not credited): {', '.join(void)}" if void else ""))
 
 
 def check_test_ledger():
@@ -344,7 +362,7 @@ def check_phase0():
         report("nvcc --version works, or STATE.md says toolkit: hybrid", state_field("toolkit") == "hybrid")
     p = run(["nvidia-smi", "--query-gpu=name,driver_version", "--format=csv,noheader"], env=env)
     report("nvidia-smi works", p.returncode == 0, p.stdout.strip())
-    p = run([str(ROOT / ".venv/bin/python"), "-c",
+    p = run(["flock", "/tmp/flashference-gpu.lock", str(ROOT / ".venv/bin/python"), "-c",
              "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0))"],
             env=env, timeout=300)
     report("torch.cuda.is_available()", p.returncode == 0 and " True " in p.stdout, p.stdout.strip() or p.stderr[-200:])

@@ -26,7 +26,7 @@ def main():
     ap.add_argument("--out", default=str(ROOT / "results/0/tick-watch.json"))
     a = ap.parse_args()
     libc = ctypes.CDLL(ctypes.util.find_library("c"))
-    started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    started = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
     t0, rows = time.monotonic(), []
     while time.monotonic() - t0 < a.seconds:
         t = Timex()

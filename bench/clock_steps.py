@@ -45,7 +45,7 @@ def main():
     ap.add_argument("--seconds", type=int, default=120)
     ap.add_argument("--out", default=str(ROOT / "results/0/clock-steps.json"))
     a = ap.parse_args()
-    started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    started = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
     n_lines = a.seconds // 10 + 1
     ps = subprocess.Popen(
         ["powershell.exe", "-NoProfile", "-Command",

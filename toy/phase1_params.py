@@ -68,7 +68,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(ROOT / "results/1"))
     a = ap.parse_args()
-    started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    started = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
     det = {}
     for key, repo in MODELS.items():
         model = AutoModelForCausalLM.from_pretrained(repo, dtype=torch.bfloat16)   # the stored dtype

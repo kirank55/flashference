@@ -41,7 +41,7 @@ def main():
     ap.add_argument("--model", default=os.environ.get("FF_MODEL", str(ROOT / "models/Qwen_Qwen3.5-0.8B-bf16.gguf")))
     ap.add_argument("--out", default=str(ROOT / "results/1"))
     a = ap.parse_args()
-    started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    started = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
     r = GGUFReader(a.model)
 
     fields = {k: field_value(f) for k, f in r.fields.items() if not k.startswith("GGUF.")}
