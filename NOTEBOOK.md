@@ -9,6 +9,10 @@ Every number in prose carries a tag and a source file:
 
 One line per prediction (autoplan.md §5.2). Fields are separated by ` | `, so the prediction text never contains a `|`. A line is committed with `got __ | error __ | learned __` before the run that tests it, and `evidence:` names the exact file(s) that run will write. `python autopilot/check.py --predictions` checks the order from git history.
 
+P-001 | 2026-10-31 | 0.6 | llama-bench tg128 (bf16, -ngl 99 -fa on, Release build, CUDA 12.8) averages 68 tok/s (range 62–74) over the 3 runs, because v1's WSL smoke measured plain server decode at 63.7–64.9 tok/s and llama-bench skips the server's HTTP and sampling work (on Windows, v1 saw llama-bench about 71 against server 65–68) | evidence: results/0/llama-bench-1.json, results/0/llama-bench-2.json, results/0/llama-bench-3.json | got __ | error __ | learned __
+P-002 | 2026-10-31 | 0.6 | the 3 runs' mean tok/s agree within 0–2 % (max/min − 1), because they run back to back on an idle GPU and v1 saw its ~5 % drift between sessions, not within one | evidence: results/0/llama-bench-1.json, results/0/llama-bench-2.json, results/0/llama-bench-3.json | got __ | error __ | learned __
+P-003 | 2026-10-31 | 0.6 | within each run, the SD of the 5 repetitions is 0–1 % of that run's mean, because each repetition decodes the same 128 tokens from an empty context | evidence: results/0/llama-bench-1.json, results/0/llama-bench-2.json, results/0/llama-bench-3.json | got __ | error __ | learned __
+
 ## Entries
 
 ## 2026-10-31 — Bootstrap
