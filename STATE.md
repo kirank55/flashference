@@ -1,9 +1,9 @@
 # STATE
-updated: 2026-11-01T12:28Z   session: 2
-status: gate-review          # running | gate-review | blocked | done-all
-phase: 1   step: Gate 1 review
-phase_start_commit: 9068467
-next: Gate 1 review round 1 (reviews/phase-1-r1.md) by opencode/deepseek-v4.1-flash (brief in docs/briefs/phase-1-review.md); on PASS, Phase 2
+updated: 2026-11-01T12:43Z   session: 2
+status: running              # running | gate-review | blocked | done-all
+phase: 2   step: not started
+phase_start_commit: (the commit that adds reviews/phase-1-r1.md; Phase 2's first commit records its id)
+next: Phase 2 predictions. Not started: this session's instruction covered Phases 0 and 1 ("implement phase 0 and 1 in autoplan.md")
 timebox: phase 0 closed at 3/3 units (0.2–0.4; 0.5–0.6 run; 0.6 report + clock investigation), review rounds 1–3 and their fixes counted separately (Deviations); phase 1 used 4/4 units (predictions; code; runs; reports + Gate 1 answers)
 units: 11 of the 200-unit budget (incl. the review-1, review-2 and review-3 fix units)
 running_jobs: none
@@ -16,6 +16,7 @@ second_reviewer: off
 - Phase 0.1–0.4: toolkit native, venv packages, model sha256 matches plan.md (1ec302a)
 - Phase 0.5–0.6: Release build 63412d873; llama-bench tg128 68.32 tok/s screened, 70.60 raw (b4e140f raw, report 382c369); WSL2 clock problem measured (d8bb89a)
 - Phase 1.1–1.5: predictions a2b4e25, code a6c843c, raw a7f3d6e, reports and Gate 1 answers in the next commit; P-008 missed on Hindi (2.44× vs 3–10×), P-009–P-013 inside; check.py --phase 1 passes (clean-checkout re-runs identical)
+- Gate 1: PASS in review round 1 (reviews/phase-1-r1.md, 2026-11-01, reviewer opencode-go/deepseek-v4.1-flash); v2 replication matches exactly
 - Gate 0: PASS in review round 3 (reviews/phase-0-r3.md, 2026-11-01). Rounds 1 and 2 failed (reviews/phase-0-r1.md, -r2.md); their fixes are 45b79d9 and a5764ff.
 ## Decisions
 - 2026-10-31 Timing on this WSL2 machine (NOTEBOOK Phase 0.5–0.6): the kernel tick (nominal 10000 µs) is re-set about every 8 s to 10160–10238 µs (results/0/tick-watch*.json), so CLOCK_MONOTONIC and the wall clock run +1.6 to +2.4 % fast, +1.94 % on average. timesyncd steps the wall clock back ~0.6 s every 32 s. (1) Same-session ratios are fine when each number averages over many 8 s stretches. A single few-second timing carries up to ±0.4 % clock error, and our own timers use CLOCK_MONOTONIC_RAW or CUDA events. (2) Absolute GPU timings use CUDA events (GPU clock). (3) Absolute rates from CLOCK_MONOTONIC (perf_counter, llama-server timings) are reported as measured, plus a corrected value using the rate measured in that session. (4) Durations never come from the wall clock (no time.time()). (5) llama-bench numbers always get the step-screening rule of bench/phase0_report.py, with raw numbers shown next to them. preflight.sh now records kernel_tick_us.
@@ -31,6 +32,8 @@ second_reviewer: off
 - 2026-10-31 GPU lock (rule 8) lapses: the 0.2 CUDA test program and a torch probe in the same call (~09:18:34Z), the torch probe in bench/phase0_toolchain.sh (09:32:45Z, 09:33:07Z) and `llama-bench --help` (09:33:18Z, which initializes CUDA; reviews/phase-0-r3.md N1) ran without the lock. No other GPU job existed, and no measurement was running. The toolchain script now takes the lock; preflight records gpu_lock. Whether these count as a broken hard rule is the owner's call (BLOCKED.md).
 - 2026-11-01 Delegation (owner's instruction, 2026-11-01: "use delegate task and use opencode/deepseek v4.1 flash free to offload some work", to save Claude usage). Phase 1 code-writing goes to an opencode child (model opencode/deepseek-v4.1-flash-free) in this checkout. The child makes no git changes, runs nothing into results/, and runs torch only under the GPU lock. The executor reviews every diff, runs every measurement and makes every commit. guard.sh is a Claude Code hook and doesn't run inside the child, so the child's brief repeats the hard rules.
 - 2026-11-01 Gate 1 reviewer: an opencode child, per the owner's offloading instruction. The free model (opencode/deepseek-v4.1-flash-free) hit its usage limit before starting; the owner then said "try using the regular non free version of deepseek v4.1 flash model", so the reviewer is opencode/deepseek-v4.1-flash. It is used instead of a Claude subagent. It starts with a fresh context and gets autopilot/review-brief.md, but it is the same model that wrote Phase 1's code, so it is less independent than a different model would be. Its brief forbids every git write; its deliberate-break test uses a copy outside the repo.
+- 2026-11-01 Exact predictions (reviews/phase-1-r1.md N1): P-011 and P-012 give exact counts, not ranges (rule 11). A deterministic count derived from shapes is a range of width zero, and any difference is a miss. Later exact predictions say "exactly X" explicitly.
+- 2026-11-01 Gate 1 reviewer model: the free and the paid opencode/deepseek-v4.1-flash both failed to start (usage limit; no account funds), so the review ran on opencode-go/deepseek-v4.1-flash, the subscription version of the same model.
 - 2026-11-01 Timebox reading (reviews/phase-0-r3.md N5): review rounds and their fix units are counted outside a phase's timebox, because autoplan.md §9 budgets "about 130 work units plus review rounds". Counted the other way, Phase 0 would be 5 units against 3, past the 1.5× limit (a hard block under §6).
 - 2026-11-01 check.py tie window (reviews/phase-0-r3.md N2b): a run counts as after its prediction only from 5 s after the prediction commit's second (STEP_MARGIN_S = 4 plus git's 1 s), not 1 s, because the wall clock steps back by up to 1.6 s. Predictions wait at least 15 s before their run.
 - 2026-10-31 P-006 void: its run started in the same second as its prediction commit, so the order can't be proved. It is shown but not credited (check.py lists void predictions); P-007 retested it.

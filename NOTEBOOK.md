@@ -239,10 +239,12 @@ autoplan.md's extra Phase 0 checks: `llama-server --version` reports `version: 0
 - v1's README line 37, "every drafted token re-reads a ~0.5 GB (bf16) matrix". It agrees with P-012(b)'s 508,559,360 bytes.
 - Phase 0's llama-bench speed, which P-010 uses.
 
-Nothing from Phase 1 has been run, and there is no results/1/. The five drafts in toy/ are unchanged since 05f4335 and have never been run. Every run that tests these predictions starts at least 15 s after this commit (check.py's tie window is 5 s).
+Nothing from Phase 1 has been run, and there is no results/1/. The five drafts in toy/ are unchanged since 05f4335 and have never been run (true at this commit; a6c843c finished them later, see the 1.1 entry). Every run that tests these predictions starts at least 15 s after this commit (check.py's tie window is 5 s).
+
+**What this shows:** a prediction is only a test if it is written down before the answer is known, and if it says honestly what was already known. Most of these predictions come from arithmetic on the models' published shapes. If the arithmetic is right, the measured byte counts must match it exactly, and a single missing tensor would show up as a difference (added after review r1, N5).
 
 ## 2026-11-01 — Phase 1.1 Token round-trip
-**Plan:** plan.md 1.1. Tokenize six short texts with three tokenizers, print the ids, and decode each id on its own (`toy/phase1_tokens.py`, run 11:53:37Z → results/1/tokens.json). How Phase 1's code was made, for every entry below: an opencode child (deepseek-v4.1-flash-free, at the owner's request) finished the five drafts, the report script and check.py's Phase 1 checks. I reviewed and corrected its code (a6c843c). Dev runs, its and mine, went to `/tmp`, all after the prediction commit a2b4e25. The official runs are job phase1-runs (11:53:20–11:58:32Z, `toy/phase1_run_all.sh`, preflight code 0 three times, results/1/preflight.jsonl), and `check.py --phase 1` re-ran every script from a clean `git archive HEAD` with identical deterministic output.
+**Plan:** plan.md 1.1. Tokenize six short texts with three tokenizers (both listed in results/1/tokens.json), print the ids, and decode each id on its own (`toy/phase1_tokens.py`, run 11:53:37Z → results/1/tokens.json). How Phase 1's code was made, for every entry below: an opencode child (deepseek-v4.1-flash-free, at the owner's request) finished the five drafts, the report script and check.py's Phase 1 checks. I reviewed and corrected its code (a6c843c). Dev runs, its and mine, went to `/tmp`, all after the prediction commit a2b4e25. The official runs are job phase1-runs (11:53:20–11:58:32Z, `toy/phase1_run_all.sh`, preflight code 0 three times, results/1/preflight.jsonl), and `check.py --phase 1` re-ran every script from a clean `git archive HEAD` with identical deterministic output.
 **Prediction:** P-008.
 **Result:**
 <!-- gen: python toy/phase1_report.py --tokens -->
@@ -276,7 +278,7 @@ vocabulary (len(tok)): SmolLM2-360M 49,152, SmolLM2-135M 49,152, Qwen3.5-0.8B 24
 - Whether llama.cpp's tokenizer gives the same ids; Phase 6.2 checks that.
 
 ## 2026-11-01 — Phase 1.2 Generation by hand
-**Plan:** plan.md 1.2. `toy/phase1_greedy.py` has three greedy loops for SmolLM2-360M in fp32: nocache re-runs the whole sequence each step; cached passes `past_key_values`, so only the new token runs; and `model.generate(do_sample=False)`. Each made 64 new tokens from the chat-formatted prompt "Explain in one paragraph why the sky is blue." (40 prompt tokens [meas]), on the CPU (11:53:53Z) and the GPU (11:56:56Z). One warm-up call per method came first, then 5 repeats interleaved A B C (autoplan.md Phase 1), timed with `CLOCK_MONOTONIC_RAW` (STATE.md Decisions). The kernel tick read 10833 µs at the first preflight and 10000 at the next two [meas: results/1/preflight.jsonl], so `CLOCK_MONOTONIC` would have run fast during these runs; the raw clock doesn't follow the tick.
+**Plan:** plan.md 1.2. `toy/phase1_greedy.py` has three greedy loops for SmolLM2-360M in fp32: nocache re-runs the whole sequence each step; cached passes `past_key_values`, so only the new token runs; and `model.generate(do_sample=False)`. Each made 64 new tokens [meas: n in results/1/greedy-*.json] from the chat-formatted prompt "Explain in one paragraph why the sky is blue." (40 prompt tokens [meas]), on the CPU (11:53:53Z) and the GPU (11:56:56Z). One warm-up call per method came first, then 5 repeats interleaved A B C (autoplan.md Phase 1), timed with `CLOCK_MONOTONIC_RAW` (STATE.md Decisions). The kernel tick read 10833 µs at the first preflight and 10000 at the next two [meas: results/1/preflight.jsonl]. Those are spot readings and the tick moves, so a `CLOCK_MONOTONIC` timer could have run fast during these runs; the raw clock doesn't follow the tick (wording corrected after review r1, N7).
 **Prediction:** P-009 (CPU), P-010 (GPU).
 **Result:**
 <!-- gen: python toy/phase1_report.py --greedy -->
@@ -340,7 +342,7 @@ vocabulary (len(tok)): SmolLM2-360M 49,152, SmolLM2-135M 49,152, Qwen3.5-0.8B 24
 
 **Open questions:** how the ~10 ms of GPU overhead per step splits between Python and kernel launches. Phase 2's and Phase 7's profiling can say.
 
-**What this shows:** generating text is a loop: run the model, take the most likely next token, append it, repeat. A token can't come before the one it follows, because it is computed from it. The KV cache makes each pass cheaper by remembering the work on earlier tokens instead of redoing it. On the CPU that saving is large: the cached loop was 3.1× faster. On the GPU it was only 1.35×, because the GPU does arithmetic so fast that a step's time is set by reading the 1.45 GB of weights and by fixed overheads, not by how many positions it processes. That last fact is the seed of speculative decoding. If checking many positions at once costs about as much as generating one, then guessing several tokens cheaply and checking them in a single pass can save time.
+**What this shows:** generating text is a loop: run the model, take the most likely next token, append it, repeat. A token can't come before the one it follows, because it is computed from it. The KV cache makes each pass cheaper by remembering the work on earlier tokens instead of redoing it. On the CPU that saving is large: the cached loop was 3.1× faster [meas: 3.09× in the table]. On the GPU it was only 1.35× [meas], because the GPU does arithmetic so fast that a step's time is set by reading the 1.45 GB of weights and by fixed overheads, not by how many positions it processes. That last fact is the seed of speculative decoding. If checking many positions at once costs about as much as generating one, then guessing several tokens cheaply and checking them in a single pass can save time.
 
 **What I did not test:**
 - bf16, the stored dtype. fp32 was used so the three methods could be compared exactly.
@@ -417,7 +419,7 @@ vocabulary (len(tok)): SmolLM2-360M 49,152, SmolLM2-135M 49,152, Qwen3.5-0.8B 24
 
 ## 2026-11-01 — Phase 1.5 Sampling by hand
 **Plan:** plan.md 1.5. `toy/phase1_sample.py` (11:57:36Z) implements temperature and top-p sampling from a logits vector. It has two parts:
-- a toy check: 100,000 draws through the sampler itself, against probabilities computed separately in plain Python;
+- a toy check: 100,000 draws [meas: draws in results/1/sample.json] through the sampler itself, against probabilities computed separately in plain Python;
 - five 64-token samples at T = 0.7, top-p 0.9 (seeds 0–4, CPU fp32, the prompt of 1.2), compared with greedy.
 
 **Prediction:** P-013.
@@ -454,7 +456,7 @@ distinct samples = 5
 - **The model samples.** All five differed from greedy, first at positions 4, 8, 15, 2 and 5, and from each other [meas]. All five still give the same explanation, Rayleigh scattering, in different words: at T = 0.7 sampling changes the wording, not the content.
 - **Cross-check.** The script's own greedy ids equal 1.2's CPU cached ids [meas: the two JSON files].
 
-**What this shows:** greedy decoding always takes the top token, so it writes the same text every time. Sampling draws from the model's probabilities instead, so each run differs. Temperature sets how adventurous the draws are, and top-p cuts off the long tail of unlikely tokens, so a sample never picks something absurd. Here every sample began like the greedy answer and wandered off within 2–15 tokens. This matters later: speculative decoding with sampling must keep exactly this distribution, not just the greedy path.
+**What this shows:** greedy decoding always takes the top token, so it writes the same text every time. Sampling draws from the model's probabilities instead, so each run differs. Temperature sets how adventurous the draws are, and top-p cuts off the long tail of unlikely tokens, so a sample never picks something absurd. Here every sample began like the greedy answer and wandered off within 2–15 tokens [meas: first differing positions in the table]. This matters later: speculative decoding with sampling must keep exactly this distribution, not just the greedy path.
 
 **What I did not test:**
 - top-k, other temperatures, and repetition penalties.
@@ -466,23 +468,50 @@ plan.md's five questions, answered from the evidence (the reviewer's grade goes 
 1. **What is a logit? What does the LM head compute, and why does its cost grow with vocabulary size?**
    - A logit is the model's raw score for one vocabulary entry at one position, before any normalisation. There is one per vocabulary entry. The softmax turns them into probabilities, greedy takes the largest (1.2), and sampling draws from them (1.5).
    - The LM head computes the logits. It multiplies the final hidden vector (width 1,024 in Qwen3.5) by a matrix with one row per vocabulary entry, giving 248,320 logits [meas: results/1/gguf.json].
-   - Every row is read and used for every generated token, so the head's bytes and its multiply-adds both grow in proportion to the vocabulary. Here that is 248,320 × 1,024 × 2 bytes = 508,559,360 bytes per token in bf16 [meas: token_embd in results/1/gguf.json].
+   - Every row is read and used for every generated token, so the head's bytes and its multiply-adds both grow in proportion to the vocabulary. Here that is 248,320 × 1,024 × 2 bytes = 508,559,360 bytes per token in bf16 [derived; it equals token_embd's measured bytes in results/1/gguf.json].
+   - **Grade r1: CORRECT** (reviews/phase-1-r1.md §4).
 2. **Why can't the model produce token t+1 before token t?**
    - Because token t is part of its input. Each step's input is the sequence so far, and the next token's logits come from the last position (`logits[0, -1]` in toy/phase1_greedy.py). Until token t is chosen, there is nothing at that position to compute from.
-   - In 1.2, every loop is strictly sequential: 64 tokens took 64 forward passes [meas: n_generated in results/1/greedy-*.json].
+   - In 1.2, every loop is strictly sequential: 64 tokens took 64 forward passes [derived: one pass per step of the loop, and n_generated = 64 in results/1/greedy-*.json].
    - What can run in parallel is checking. One forward pass computes logits at every position at once, as the nocache loop does on every step. On the GPU, 103 positions took 33.8 ms against 21.4 ms for one [meas: step table in the 1.2 entry]. Speculative decoding uses this: a cheap draft guesses several tokens, and the target checks them all in one pass.
+   - **Grade r1: CORRECT** (reviews/phase-1-r1.md §4).
 3. **What does a KV cache store? What does a recurrent layer store instead? Why is "undo the last 3 tokens" easy for a KV cache and hard for a recurrent state?**
-   - **The KV cache** stores, for each attention layer and each past position, that position's key and value vectors; each new token's query is compared against them. It grows by one entry per layer per token. In Qwen3.5 only the 6 attention blocks have one [meas: block kinds in results/1/gguf.json], and they add 12,288 bytes per token in bf16 [derived: 6 layers × (K + V) × 2 heads × 256 × 2 bytes, from config.json].
+   - **The KV cache** stores, for each attention layer and each past position, that position's key and value vectors; each new token's query is compared against them. It grows by one entry per layer per token. Of Qwen3.5's 24 main layers, only the 6 attention blocks have one [meas: block kinds in results/1/gguf.json], and they add 12,288 bytes per token in bf16 [derived: 6 layers × (K + V) × 2 heads × 256 × 2 bytes, from config.json]. The MTP block, blk.24, is a full-attention layer too and needs its own cache while it drafts (correction after review r1, N3).
    - **A Gated DeltaNet layer** keeps a fixed-size state instead. It has a matrix per head, key width × value width, 128 × 128 here (config.json's `linear_key_head_dim` and `linear_value_head_dim` [meas]), that summarises everything seen so far. It also keeps the last few inputs of its short convolution (`ssm_conv1d`, kernel 4 [meas: config.json `linear_conv_kernel_dim`]). The state never grows, and every token updates it in place [unv: from the Gated DeltaNet design, not measured here].
    - **Undo for a KV cache** is truncation. Dropping the last 3 positions leaves exactly the cache as it was 3 tokens ago, because earlier entries never change.
    - **Undo for a recurrent state** isn't possible from the state alone. Each update mixes the token into the same matrix and overwrites the old values. To go back you need a saved copy from 3 tokens earlier, or a re-run from an older checkpoint. Speculative decoding rejects drafted tokens often, so with recurrent layers it has to checkpoint the state at every drafted position.
+   - **Grade r1: CORRECT** (reviews/phase-1-r1.md §4).
 4. **From your 1.4 output: what fraction of Qwen3.5-0.8B's bytes is the head? (flashference claims about one third. Do you agree?)**
    - token_embd, which is also the head, is 508,559,360 of the 1,546,700,032 tensor bytes, 32.88 % [meas: results/1/gguf.json]. So yes, about one third.
    - Against the bytes a plain decode step needs (every tensor except the MTP block), it is 33.77 % [derived: 508,559,360 / (1,546,700,032 − 40,916,992)]. That is one third too, assuming plain decoding doesn't read blk.24, which I didn't check.
    - The two uses of the table cost very differently: the input lookup reads one 2,048-byte row per token [derived: 1,024 × 2 bytes], while the head reads all 248,320 rows.
+   - **Grade r1: CORRECT** (reviews/phase-1-r1.md §4).
 5. **Why did tied embeddings plus a 248k vocabulary make flashference's MTP draft expensive?**
    - To draft a token, the MTP block runs one extra layer, 40.9 MB [meas: blk.24, 40,916,992 bytes], and then needs logits over the whole vocabulary.
    - It has no head of its own. blk.24 holds `nextn.shared_head_norm` but no head matrix [meas: tensor names in results/1/gguf.json], and config.json has `mtp_use_dedicated_embeddings: False`. So it uses the main tied matrix of 248,320 rows, 508.6 MB.
    - That puts 92.6 % of a drafted token's bytes in the head [derived: 508,559,360 / (508,559,360 + 40,916,992)]. A drafted token costs 36.5 % of a plain decode step's bytes [derived: 549,476,352 / 1,505,783,040], so three drafted tokens cost about as much as one target step [derived: 3 × 36.5 %].
    - At the 105.7 GB/s Phase 0 measured, the head alone takes ~4.8 ms per drafted token [derived: 508,559,360 B / 105.7 GB/s]. v1 measured ~5.3 ms per untrimmed draft token. Cutting the draft's head to 8k rows saved ~4.0 ms per drafted token, which took MTP from 1.15× to 1.41× (1 draft) and 1.60× (2 drafts) [meas: ref/flashference/results/2026-10-26-bf16-b4-trim-draft.md:9, :59].
    - A draft only pays off if it is much cheaper than the target. With a tied head and a large vocabulary, the draft inherits the target's single most expensive matrix.
+   - **Grade r1: CORRECT** (reviews/phase-1-r1.md §4).
+
+## 2026-11-01 — Gate 1 review round 1: PASS
+**Plan:** an independent review of Phase 1 with docs/briefs/phase-1-review.md, autopilot/review-brief.md filled in. The reviewer was an opencode child, at the owner's instruction (STATE.md Deviations). The free model hit its usage limit and the paid opencode/deepseek-v4.1-flash had no account funds; neither read anything. opencode-go/deepseek-v4.1-flash did the review.
+**Result:** reviews/phase-1-r1.md has verdict PASS and no blocking issue. All five Gate 1 answers are CORRECT. The reviewer:
+- found that every compared deterministic value matches v2's independent run (`results/phase1/gguf.json` and `params.json`);
+- confirmed that the bootstrap v2 listing showed no measured numbers;
+- found from commit order, /tmp mtimes, the job record and the session log that no Phase 1 code ran before the predictions;
+- found no bug in the Phase 1 code.
+
+**Non-blocking issues, and what I did:**
+- N1, P-011 and P-012 give exact values, not ranges (rule 11). Recorded under Deviations in STATE.md: an exact count states a range of width zero, and any difference is a miss. Later exact predictions will say "exactly X" explicitly.
+- N2, P-012(a) wasn't blind and the f32 set was fitted. This was already disclosed; nothing to change.
+- N3, Q3 left out the MTP block's attention layer. Corrected in the answer.
+- N4, two tags should be [derived] (Q1's product and Q2's "64 forward passes"). Retagged.
+- N5: the predictions entry now has a "What this shows", and the prose numbers the review listed now carry sources.
+- N6, a sentence that had become stale: marked "true at this commit".
+- N7, the tick sentence claimed too much from spot readings. Reworded.
+- The reviewer's own deviation: it read the first 90 lines of `git show v2:NOTEBOOK.md`, which the brief didn't allow. It says no number or grade in its report comes from there. It recomputed everything from results/1/ before that read and built the replication table only from the two permitted files. The read can't affect Phase 1's numbers, which were committed before the review.
+
+**What this shows:** the strongest check in this phase is the replication. A separate run of the same phase on another branch, with different code and a different JSON layout, gives the same byte and parameter counts down to the last byte. Exact counts like these either match or they don't, so they make a clean test of whether the scripts read the files correctly.
+
+**What I did not test:** whether a reviewer from a different model family would find more. This one is the same model that wrote Phase 1's code, in a fresh context.
