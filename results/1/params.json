@@ -1,0 +1,122 @@
+{
+ "script": "toy/phase1_params.py",
+ "started_utc": "2026-11-01T11:53:41.214+00:00",
+ "deterministic": {
+  "smollm2-360m": {
+   "dtype": "bfloat16",
+   "config_tie_word_embeddings": true,
+   "lm_head_listed_by_named_parameters": false,
+   "lm_head_listed_with_remove_duplicate_false": true,
+   "lm_head_same_storage_as_embed_tokens": true,
+   "embedding_shape": [
+    49152,
+    960
+   ],
+   "params": {
+    "embedding": 47185920,
+    "attention": 78643200,
+    "mlp": 235929600,
+    "norms": 62400,
+    "lm_head": 0,
+    "other": 0
+   },
+   "bytes": {
+    "embedding": 94371840,
+    "attention": 157286400,
+    "mlp": 471859200,
+    "norms": 124800,
+    "lm_head": 0,
+    "other": 0
+   },
+   "example_names": {
+    "embedding": [
+     "model.embed_tokens.weight"
+    ],
+    "attention": [
+     "model.layers.0.self_attn.q_proj.weight",
+     "model.layers.0.self_attn.k_proj.weight",
+     "model.layers.0.self_attn.v_proj.weight",
+     "model.layers.0.self_attn.o_proj.weight"
+    ],
+    "mlp": [
+     "model.layers.0.mlp.gate_proj.weight",
+     "model.layers.0.mlp.up_proj.weight",
+     "model.layers.0.mlp.down_proj.weight",
+     "model.layers.1.mlp.gate_proj.weight"
+    ],
+    "norms": [
+     "model.layers.0.input_layernorm.weight",
+     "model.layers.0.post_attention_layernorm.weight",
+     "model.layers.1.input_layernorm.weight",
+     "model.layers.1.post_attention_layernorm.weight"
+    ],
+    "lm_head": [],
+    "other": []
+   },
+   "total_params": 361821120,
+   "total_bytes": 723642240,
+   "embedding_share_percent": 13.041228770725159,
+   "embedding_plus_lm_head_share_percent": 13.041228770725159,
+   "n_layers": 32,
+   "note": "named_parameters() lists a tied tensor once, so lm_head shows 0 bytes of its own."
+  },
+  "smollm2-135m": {
+   "dtype": "bfloat16",
+   "config_tie_word_embeddings": true,
+   "lm_head_listed_by_named_parameters": false,
+   "lm_head_listed_with_remove_duplicate_false": true,
+   "lm_head_same_storage_as_embed_tokens": true,
+   "embedding_shape": [
+    49152,
+    576
+   ],
+   "params": {
+    "embedding": 28311552,
+    "attention": 26542080,
+    "mlp": 79626240,
+    "norms": 35136,
+    "lm_head": 0,
+    "other": 0
+   },
+   "bytes": {
+    "embedding": 56623104,
+    "attention": 53084160,
+    "mlp": 159252480,
+    "norms": 70272,
+    "lm_head": 0,
+    "other": 0
+   },
+   "example_names": {
+    "embedding": [
+     "model.embed_tokens.weight"
+    ],
+    "attention": [
+     "model.layers.0.self_attn.q_proj.weight",
+     "model.layers.0.self_attn.k_proj.weight",
+     "model.layers.0.self_attn.v_proj.weight",
+     "model.layers.0.self_attn.o_proj.weight"
+    ],
+    "mlp": [
+     "model.layers.0.mlp.gate_proj.weight",
+     "model.layers.0.mlp.up_proj.weight",
+     "model.layers.0.mlp.down_proj.weight",
+     "model.layers.1.mlp.gate_proj.weight"
+    ],
+    "norms": [
+     "model.layers.0.input_layernorm.weight",
+     "model.layers.0.post_attention_layernorm.weight",
+     "model.layers.1.input_layernorm.weight",
+     "model.layers.1.post_attention_layernorm.weight"
+    ],
+    "lm_head": [],
+    "other": []
+   },
+   "total_params": 134515008,
+   "total_bytes": 269030016,
+   "embedding_share_percent": 21.04713252516775,
+   "embedding_plus_lm_head_share_percent": 21.04713252516775,
+   "n_layers": 30,
+   "note": "named_parameters() lists a tied tensor once, so lm_head shows 0 bytes of its own."
+  }
+ }
+}
