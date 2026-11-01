@@ -21,3 +21,4 @@ what: Phase 1 is done: 1.1–1.5 have run, `check.py --phase 1` passes, and the 
 tried: one attempt. I didn't switch to another model or back to a Claude subagent, because the owner named this model.
 owner action: choose a reviewer. (a) Re-run the same model when opencode's free quota resets. (b) Let the executor use a Claude subagent, autoplan.md §5.3's usual reviewer, which costs Claude usage (the three Phase 0 rounds each ran long). (c) Another opencode/OpenRouter model, or Codex. The filled-in brief is docs/briefs/phase-1-review.md and works with any of them.
 meanwhile: nothing. Phase 2 doesn't start before Gate 1 passes.
+resolved 2026-11-01T12:27Z: the owner chose the paid model, opencode/deepseek-v4.1-flash; the review runs with docs/briefs/phase-1-review.md.
