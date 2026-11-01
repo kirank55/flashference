@@ -14,3 +14,10 @@ what: four brief CUDA uses ran without `flock /tmp/flashference-gpu.lock` on 202
 tried: recorded it as a deviation, made bench/phase0_toolchain.sh and check.py take the lock, and from Phase 1 on run every command that loads torch or a llama.cpp binary under the lock (STATE.md Decisions).
 owner action: decide whether brief device queries and test kernels count as "GPU runs" under rule 8. If they do, the run should have stopped at 09:18Z on 2026-10-31, and you may want to discard or re-review work since then.
 meanwhile: work continues on Phase 1 with the lock on every such command.
+
+## 2026-11-01 Gate 1 review waiting for a reviewer
+severity: soft
+what: Phase 1 is done: 1.1–1.5 have run, `check.py --phase 1` passes, and the Gate 1 answers are in NOTEBOOK.md (042bebe). Gate 1's review hasn't run. The owner asked on 2026-11-01 to offload work to opencode/deepseek-v4.1-flash-free, and that model was given the review. Its first attempt ended at once with "Free usage limit reached. Connect a provider or subscribe to OpenCode Go to keep going, or switch models." It read and wrote nothing, so there is no report and the attempt doesn't count as a review round.
+tried: one attempt. I didn't switch to another model or back to a Claude subagent, because the owner named this model.
+owner action: choose a reviewer. (a) Re-run the same model when opencode's free quota resets. (b) Let the executor use a Claude subagent, autoplan.md §5.3's usual reviewer, which costs Claude usage (the three Phase 0 rounds each ran long). (c) Another opencode/OpenRouter model, or Codex. The filled-in brief is docs/briefs/phase-1-review.md and works with any of them.
+meanwhile: nothing. Phase 2 doesn't start before Gate 1 passes.

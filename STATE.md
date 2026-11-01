@@ -1,9 +1,9 @@
 # STATE
-updated: 2026-11-01T12:04Z   session: 2
+updated: 2026-11-01T12:12Z   session: 2
 status: gate-review          # running | gate-review | blocked | done-all
 phase: 1   step: Gate 1 review
 phase_start_commit: 9068467
-next: Gate 1 review round 1 (reviews/phase-1-r1.md); on PASS, Phase 2
+next: Gate 1 review round 1 (reviews/phase-1-r1.md), waiting for a reviewer (BLOCKED.md; brief in docs/briefs/phase-1-review.md); on PASS, Phase 2
 timebox: phase 0 closed at 3/3 units (0.2–0.4; 0.5–0.6 run; 0.6 report + clock investigation), review rounds 1–3 and their fixes counted separately (Deviations); phase 1 used 4/4 units (predictions; code; runs; reports + Gate 1 answers)
 units: 11 of the 200-unit budget (incl. the review-1, review-2 and review-3 fix units)
 running_jobs: none
