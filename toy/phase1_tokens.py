@@ -1,8 +1,14 @@
 """Phase 1.1: token round-trip (plan.md 1.1).
 
-Tokenizes a few short texts, prints the ids, and decodes each id on its own. Two tokenizers:
-SmolLM2's (shared by the 135M draft and the 360M target of Phases 1-3; 49,152 tokens) and
-Qwen3.5-0.8B's (the real target of Phases 4-9; about 248k tokens).
+An LLM never sees text. A *tokenizer* cuts text into vocabulary pieces ("tokens") and gives
+each piece an integer id; the model predicts the next id. The same text can need very different
+numbers of tokens in different vocabularies, and a single id can hold only part of one UTF-8
+character (then decoding that id alone shows the replacement character U+FFFD).
+
+This script tokenizes six short texts with three tokenizers: SmolLM2's (shared by the 135M
+draft and the 360M target of Phases 1-3; 49,152 tokens) and Qwen3.5-0.8B's (the real target of
+Phases 4-9; about 248k tokens). For every text it records the ids, what each id decodes to on
+its own, the raw vocabulary entries, and whether decode(ids) gives the original text back.
 
   python toy/phase1_tokens.py [--out results/1]
 
@@ -42,23 +48,24 @@ def round_trip(tok, text):
         "n_chars": len(text),
         "n_utf8_bytes": len(text.encode("utf-8")),
         # a lone id that decodes to U+FFFD holds only part of a character's UTF-8 bytes
-        "pieces_with_partial_chars": sum("�" in p for p in pieces),
+        "pieces_with_partial_chars": sum("\ufffd" in p for p in pieces),
     }
 
 
 def main():
+    started = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(ROOT / "results/1"))
     a = ap.parse_args()
-    started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+
     det = {"texts": TEXTS, "vocab_size": {}, "results": {}}
     for name, repo in TOKENIZERS.items():
         tok = AutoTokenizer.from_pretrained(repo)
         det["vocab_size"][name] = len(tok)
         det["results"][name] = {k: round_trip(tok, t) for k, t in TEXTS.items()}
     small = det["results"]
-    det["smollm2_135m_ids_equal_360m"] = all(small["smollm2-135m"][k]["ids"] == small["smollm2-360m"][k]["ids"]
-                                             for k in TEXTS)
+    det["smollm2_135m_ids_equal_360m"] = all(
+        small["smollm2-135m"][k]["ids"] == small["smollm2-360m"][k]["ids"] for k in TEXTS)
 
     print(f"vocab sizes: {det['vocab_size']}; 135M ids == 360M ids: {det['smollm2_135m_ids_equal_360m']}")
     for k, text in TEXTS.items():

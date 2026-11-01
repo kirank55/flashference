@@ -1,16 +1,19 @@
 """Phase 1.4: look inside the real model, Qwen3.5-0.8B bf16 GGUF (plan.md 1.4).
 
-Lists the metadata keys and every tensor (name, shape, type, bytes), then groups tensors by name
-prefix: token_embd, blk.0 .. blk.23, blk.24 (the MTP / "nextn" block), output_norm. A block counts
-as attention if it has attn_q / attn_k / attn_v weights, and as recurrent (Gated DeltaNet) if it
-has ssm_* tensors. Shapes are printed in GGUF (ggml) order: the first number is the row length.
+A GGUF file is a header (metadata: architecture, tokenizer, hyperparameters), a table describing
+every tensor, and then the raw tensor bytes. This script reads models/Qwen_Qwen3.5-0.8B-bf16.gguf
+and groups its tensors by name prefix: token_embd, blk.0 .. blk.23, blk.24 (the MTP / "nextn"
+block), output_norm, other. A block counts as "mtp" if it has nextn.* tensors, else "recurrent"
+(Gated DeltaNet) if it has ssm_* tensors, else "attention" if it has attention q/k/v weights.
+
+Shapes are in GGUF (ggml) order: the first number is the row length. token_embd is [1024, 248320]
+because the vocabulary is the number of rows, one 1024-wide vector per token.
 
   python toy/phase1_gguf.py [--model models/Qwen_Qwen3.5-0.8B-bf16.gguf] [--out results/1]
 
 Writes <out>/gguf.json. Everything under "deterministic" must be identical on a re-run.
 """
 import argparse, json, os, re
-from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -20,106 +23,160 @@ ROOT = Path(__file__).resolve().parent.parent
 MIB = 1 << 20
 
 
+def pyval(v):
+    """Turn numpy scalars and arrays into plain Python values so json can write them."""
+    if hasattr(v, "item"):
+        return v.item()
+    if isinstance(v, (list, tuple)):
+        return [pyval(x) for x in v]
+    return v
+
+
 def field_value(f):
-    """Scalars and strings as values; long arrays as their length and element type."""
-    t = f.types[0]
-    if t == GGUFValueType.ARRAY:
-        if len(f.data) <= 16 and f.types[-1] != GGUFValueType.STRING:
-            return [v.item() if hasattr(v, "item") else v for v in f.contents()]
-        return {"array_of": f.types[-1].name, "length": len(f.data)}
-    v = f.contents()
-    return v if isinstance(v, (int, float, str, bool)) else str(v)
+    """Scalars as values; arrays as their length and element type (token lists are huge)."""
+    if f.types[0] == GGUFValueType.ARRAY:
+        elem = f.types[-1].name
+        n = len(f.data)
+        if elem == "STRING":
+            return {"array_of": elem, "length": n}
+        return {"array_of": elem, "length": n, "values": [pyval(v) for v in f.contents()][:8]}
+    return pyval(f.contents())
 
 
 def group_of(name):
+    """token_embd.* -> token_embd, blk.N.* -> blk.N, output_norm.* -> output_norm, else other."""
+    if name.startswith("token_embd."):
+        return "token_embd"
     m = re.match(r"blk\.(\d+)\.", name)
-    return f"blk.{m.group(1)}" if m else name.rsplit(".", 1)[0]     # e.g. token_embd, output_norm
+    if m:
+        return f"blk.{m.group(1)}"
+    if name.startswith("output_norm."):
+        return "output_norm"
+    return "other"
+
+
+def group_order(g):
+    """token_embd, output_norm, other, then blk.0 .. blk.24 in numeric order."""
+    if g.startswith("blk."):
+        return (1, int(g.split(".")[1]))
+    return (0, {"token_embd": 0, "output_norm": 1, "other": 2}.get(g, 3))
+
+
+def block_kind(inner_names):
+    if any(n.startswith("nextn.") for n in inner_names):
+        return "mtp"
+    if any(n.startswith("ssm_") for n in inner_names):
+        return "recurrent"
+    if any(n.startswith(("attn_q.", "attn_k.", "attn_v.", "attn_qkv.")) for n in inner_names):
+        return "attention"
+    return "other"
 
 
 def main():
+    started = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default=os.environ.get("FF_MODEL", str(ROOT / "models/Qwen_Qwen3.5-0.8B-bf16.gguf")))
     ap.add_argument("--out", default=str(ROOT / "results/1"))
     a = ap.parse_args()
-    started = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    r = GGUFReader(a.model)
 
+    r = GGUFReader(a.model)
     fields = {k: field_value(f) for k, f in r.fields.items() if not k.startswith("GGUF.")}
     tensors = [{"name": t.name, "shape": [int(x) for x in t.shape], "type": t.tensor_type.name,
                 "n_elements": int(t.n_elements), "n_bytes": int(t.n_bytes)} for t in r.tensors]
-    groups = defaultdict(lambda: {"n_tensors": 0, "n_bytes": 0, "types": Counter()})
+    tensors.sort(key=lambda t: t["name"])
+
+    # ---- per tensor type: how many tensors and bytes of BF16, F32, ...
+    types = {}
     for t in tensors:
-        g = groups[group_of(t["name"])]
-        g["n_tensors"] += 1
-        g["n_bytes"] += t["n_bytes"]
-        g["types"][t["type"]] += 1
+        s = types.setdefault(t["type"], {"n_tensors": 0, "n_bytes": 0, "n_elements": 0})
+        s["n_tensors"] += 1
+        s["n_bytes"] += t["n_bytes"]
+        s["n_elements"] += t["n_elements"]
+    types = {k: types[k] for k in sorted(types)}
+
+    # ---- groups by name prefix
+    groups = {g: {"n_tensors": 0, "n_bytes": 0, "n_elements": 0, "types": {}, "tensor_names": []}
+              for g in ("token_embd", "output_norm", "other")}
+    for t in tensors:
+        g = group_of(t["name"])
+        s = groups.setdefault(g, {"n_tensors": 0, "n_bytes": 0, "n_elements": 0, "types": {}, "tensor_names": []})
+        s["n_tensors"] += 1
+        s["n_bytes"] += t["n_bytes"]
+        s["n_elements"] += t["n_elements"]
+        s["types"][t["type"]] = s["types"].get(t["type"], 0) + 1
+        s["tensor_names"].append(t["name"])
+    groups = {g: {**groups[g], "tensor_names": sorted(groups[g]["tensor_names"])}
+              for g in sorted(groups, key=group_order)}
+
+    # ---- one record per transformer block
     blocks = {}
-    for g in groups:
-        if g.startswith("blk."):
-            names = {t["name"].split(".", 2)[2] for t in tensors if group_of(t["name"]) == g}
-            attn = any(n.startswith(("attn_q.", "attn_k.", "attn_v.")) for n in names)
-            rec = any(n.startswith("ssm_") for n in names)
-            inner = "attention" if attn and not rec else "recurrent" if rec and not attn else "other"
-            mtp = any(n.startswith("nextn.") for n in names)        # the MTP block's extra tensors
-            blocks[g] = {"kind": "mtp" if mtp else inner, "inner_layer": inner, "tensors": sorted(names)}
+    for g, s in groups.items():
+        if not g.startswith("blk."):
+            continue
+        inner = [n.split(".", 2)[2] for n in s["tensor_names"]]
+        blocks[g] = {"block": int(g.split(".")[1]), "n_tensors": s["n_tensors"],
+                     "n_bytes": s["n_bytes"], "n_elements": s["n_elements"],
+                     "kind": block_kind(inner), "tensor_names": sorted(inner)}
+    blocks = {g: blocks[g] for g in sorted(blocks, key=lambda x: blocks[x]["block"])}
+
+    # ---- block numbers and byte sizes per kind
+    kinds = {}
+    for g, b in blocks.items():
+        k = kinds.setdefault(b["kind"], {"blocks": [], "bytes": {}, "total_bytes": 0})
+        k["blocks"].append(b["block"])
+        k["bytes"][str(b["block"])] = b["n_bytes"]
+        k["total_bytes"] += b["n_bytes"]
+    kinds = {k: {**kinds[k], "n_blocks": len(kinds[k]["blocks"])} for k in sorted(kinds)}
 
     total = sum(t["n_bytes"] for t in tensors)
-    embd = groups["token_embd"]["n_bytes"]
-    arch = fields.get("general.architecture")
-    nblk = fields.get(f"{arch}.block_count")
-    vocab = fields["tokenizer.ggml.tokens"]["length"]
-    embd_t = next(t for t in tensors if t["name"] == "token_embd.weight")
-    file_size = os.path.getsize(a.model)
-    det = {
-        "file_bytes": file_size,
-        "tensor_data_offset": int(r.data_offset),          # where tensor data starts: header + metadata + padding
-        "n_fields": len(fields), "fields": fields,
-        "n_tensors": len(tensors), "tensors": tensors,
-        "groups": {g: {**v, "types": dict(v["types"])} for g, v in sorted(groups.items(), key=lambda kv: kv[0])},
-        "blocks": dict(sorted(blocks.items(), key=lambda kv: int(kv[0].split(".")[1]))),
-        "total_tensor_bytes": total,
-        "token_embd_bytes": embd,
-        "token_embd_shape": embd_t["shape"],
-        "output_weight_present": any(t["name"] == "output.weight" for t in tensors),
-        "head_fraction_of_tensor_bytes": embd / total,
-        "vocab_size": vocab,
-        "embedding_width": embd_t["shape"][0],
-        "block_count_field": nblk,
-        "attention_blocks": [g for g, b in blocks.items() if b["kind"] == "attention"],
-        "recurrent_blocks": [g for g, b in blocks.items() if b["kind"] == "recurrent"],
-        "other_blocks": [g for g, b in blocks.items() if b["kind"] in ("other", "mtp")],
+    embd = next(t for t in tensors if t["name"] == "token_embd.weight")
+    arch = fields["general.architecture"]
+    special = {k: v for k, v in fields.items()
+               if re.search(r"nextn|mtp|full_attention", k, re.I)}
+    metadata = {
+        "architecture": arch,
+        "block_count": fields.get(f"{arch}.block_count"),
+        "embedding_length": fields.get(f"{arch}.embedding_length"),
+        "context_length": fields.get(f"{arch}.context_length"),
+        "vocab_size": len(r.fields["tokenizer.ggml.tokens"].data),
+        "nextn_mtp_and_full_attention_keys": special,
     }
-    det["attention_blocks"].sort(key=lambda g: int(g.split(".")[1]))
-    det["recurrent_blocks"].sort(key=lambda g: int(g.split(".")[1]))
-    mtps = [g for g, b in blocks.items() if b["kind"] == "mtp"]
-    mtp = mtps[0] if len(mtps) == 1 else None
-    det["mtp_block"] = mtp
-    det["nextn_predict_layers_field"] = fields.get(f"{arch}.nextn_predict_layers")
-    det["mtp_block_bytes"] = groups[mtp]["n_bytes"] if mtp else None
-    # A plain (non-speculative) token runs every block except the MTP one and reads the tied head once.
-    det["bytes_used_by_a_plain_token"] = total - (det["mtp_block_bytes"] or 0)
+    file_size = os.path.getsize(a.model)
+    mtp_bytes = sum(b["n_bytes"] for b in blocks.values() if b["kind"] == "mtp")
 
-    print("metadata keys:")
-    for k, v in fields.items():
-        print(f"  {k} = {v}")
-    print(f"\n{len(tensors)} tensors:")
-    for t in tensors:
-        print(f"  {t['name']:40s} {str(t['shape']):22s} {t['type']:5s} {t['n_bytes']:>12,}")
-    print("\nby group:")
-    for g, v in det["groups"].items():
-        kind = blocks.get(g, {}).get("kind", "")
-        print(f"  {g:12s} {v['n_tensors']:3d} tensors {v['n_bytes']:>13,} bytes {v['n_bytes'] / MIB:8.2f} MiB  {kind}")
-    print(f"\nfile {file_size:,} bytes; tensor data starts at byte {det['tensor_data_offset']:,}")
-    print(f"total tensor bytes {total:,} ({total / MIB:.1f} MiB); token_embd {embd:,} ({embd / MIB:.1f} MiB) "
-          f"= {100 * det['head_fraction_of_tensor_bytes']:.2f} % of tensor bytes; output.weight present: "
-          f"{det['output_weight_present']}")
-    print(f"vocab {vocab:,}, width {det['embedding_width']}; attention blocks {det['attention_blocks']}")
-    print(f"recurrent blocks: {len(det['recurrent_blocks'])}; other: {det['other_blocks']}; "
-          f"MTP block {mtp}: {det['mtp_block_bytes']:,} bytes")
+    det = {
+        "model_file": Path(a.model).name,
+        "file_bytes": file_size,
+        "tensor_data_offset": int(r.data_offset),
+        "n_tensors": len(tensors),
+        "total_tensor_bytes": total,
+        "total_params": sum(t["n_elements"] for t in tensors),
+        "bytes_not_in_tensors": file_size - total,
+        "tensor_types": types,
+        "token_embd": {"shape": embd["shape"], "type": embd["type"], "n_bytes": embd["n_bytes"],
+                       "share_of_tensor_bytes": embd["n_bytes"] / total},
+        "output_weight_present": any(t["name"] == "output.weight" for t in tensors),
+        "groups": groups,
+        "blocks": blocks,
+        "block_kinds": kinds,
+        "mtp_bytes": mtp_bytes,
+        "metadata": metadata,
+        "tensors": tensors,
+    }
+
+    print(f"file {file_size:,} bytes; {len(tensors)} tensors; {total:,} tensor bytes "
+          f"({total / MIB:.1f} MiB); {det['total_params']:,} parameters")
+    print(f"token_embd {embd['n_bytes']:,} bytes ({100 * det['token_embd']['share_of_tensor_bytes']:.2f} %); "
+          f"separate output.weight: {det['output_weight_present']}")
+    print(f"vocab {metadata['vocab_size']:,}; width {metadata['embedding_length']}; "
+          f"blocks {metadata['block_count']}; MTP bytes {mtp_bytes:,}")
+    for k, v in kinds.items():
+        print(f"  {k:9s} blocks {v['blocks']} total {v['total_bytes']:,} bytes")
+    print(f"bytes not in tensors: {det['bytes_not_in_tensors']:,}")
+
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    doc = {"script": "toy/phase1_gguf.py", "started_utc": started, "model": str(Path(a.model).name),
-           "deterministic": det}
+    doc = {"script": "toy/phase1_gguf.py", "started_utc": started, "deterministic": det}
     (out / "gguf.json").write_text(json.dumps(doc, indent=1) + "\n")
 
 

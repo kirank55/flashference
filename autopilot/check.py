@@ -9,7 +9,7 @@
 
 Prints one PASS / FAIL / SKIP line per check. Exits 1 if any check fails.
 """
-import argparse, gzip, hashlib, json, os, re, subprocess, sys, time
+import argparse, gzip, hashlib, json, os, re, shlex, shutil, subprocess, sys, tempfile, time
 from datetime import datetime
 from pathlib import Path
 
@@ -447,6 +447,102 @@ def state_field(name):
     st = ROOT / "STATE.md"
     m = re.search(rf"^{name}:\s*(\S+)", st.read_text(), re.M) if st.exists() else None
     return m.group(1) if m else None
+
+
+PHASE1_RUNS = [  # (script and args, output file); greedy uses --repeats 0 (warm-up only)
+    ("toy/phase1_tokens.py", "tokens.json"),
+    ("toy/phase1_params.py", "params.json"),
+    ("toy/phase1_gguf.py", "gguf.json"),
+    ("toy/phase1_greedy.py --device cpu --repeats 0", "greedy-cpu.json"),
+    ("toy/phase1_greedy.py --device cuda --repeats 0", "greedy-cuda.json"),
+    ("toy/phase1_sample.py", "sample.json"),
+]
+
+
+def first_difference(a, b, path="deterministic"):
+    if type(a) is not type(b):
+        return f"{path}: type {type(a).__name__} vs {type(b).__name__}"
+    if isinstance(a, dict):
+        for k in sorted(set(a) | set(b)):
+            if k not in a or k not in b:
+                return f"{path}.{k}: missing on one side"
+            d = first_difference(a[k], b[k], f"{path}.{k}")
+            if d:
+                return d
+    elif isinstance(a, list):
+        if len(a) != len(b):
+            return f"{path}: length {len(a)} vs {len(b)}"
+        for i, (x, y) in enumerate(zip(a, b)):
+            d = first_difference(x, y, f"{path}[{i}]")
+            if d:
+                return d
+    elif a != b:
+        return f"{path}: {str(a)[:40]} vs {str(b)[:40]}"
+    return None
+
+
+@phase("1")
+def check_phase1():
+    res = Path(os.environ.get("FF_P1_RESULTS", "results/1"))
+    if not res.is_absolute():
+        res = ROOT / res
+
+    # (c) 1.2's three methods give identical ids. A missing results file is not a failure yet.
+    for dev in ("cpu", "cuda"):
+        f = res / f"greedy-{dev}.json"
+        name = f"1.2: no-cache, cached and generate() give identical ids ({dev})"
+        if not f.exists():
+            report(name, None, f"{f.name} not found")
+            continue
+        try:
+            d = json.loads(f.read_text())["deterministic"]
+            ids = d["ids"]
+            same = (bool(d.get("all_three_equal"))
+                    and ids.get("nocache") == ids.get("cached") == ids.get("generate")
+                    and len(ids.get("cached") or []) > 0)
+            report(name, same, f"{len(ids.get('cached') or [])} tokens each")
+        except (ValueError, KeyError, TypeError) as e:
+            report(name, False, f"unreadable: {e}")
+
+    # (a) every script runs from a clean copy of HEAD, with HF_HUB_OFFLINE=1 and under the GPU lock;
+    # (b) each fresh deterministic section equals the committed one.
+    tmp = Path(tempfile.mkdtemp(prefix="ff-check1-"))
+    wt = tmp / "checkout"
+    wt.mkdir()
+    try:
+        p = run(["bash", "-o", "pipefail", "-c",
+                 f"git -C {shlex.quote(str(ROOT))} archive HEAD | tar -x -C {shlex.quote(str(wt))}"],
+                timeout=600)
+        if p.returncode:
+            report("clean copy of HEAD for the Phase 1 re-run", False, (p.stderr or p.stdout).strip()[-300:])
+            return
+        (wt / "models").symlink_to(ROOT / "models")     # git-ignored input, documented in plan.md 0.4
+        env = load_env()
+        env["HF_HUB_OFFLINE"] = "1"
+        env.pop("FF_MODEL", None)                        # use the checkout's own default path
+        for cmd, out in PHASE1_RUNS:
+            od = tmp / "out"
+            argv = ["flock", "/tmp/flashference-gpu.lock", str(ROOT / ".venv/bin/python"),
+                    *cmd.split(), "--out", str(od)]
+            p = run(argv, env=env, cwd=wt, timeout=3600)
+            name = f"{cmd} re-runs from a clean checkout (HF_HUB_OFFLINE=1)"
+            if p.returncode or not (od / out).exists():
+                report(name, False, (p.stderr or p.stdout).strip()[-300:])
+                continue
+            report(name, True)
+            old_path = res / out
+            if not old_path.exists():
+                report(f"{out}: deterministic part identical on a re-run", None, f"{old_path.name} not committed")
+                continue
+            try:
+                old = json.loads(old_path.read_text())["deterministic"]
+                fresh = json.loads((od / out).read_text())["deterministic"]
+                d = first_difference(old, fresh)
+                report(f"{out}: deterministic part identical on a re-run", d is None, d or "")
+            except (ValueError, KeyError) as e:
+                report(f"{out}: deterministic part identical on a re-run", False, f"unreadable: {e}")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
 
 
 @phase("0")
