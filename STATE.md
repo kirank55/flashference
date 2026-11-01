@@ -1,11 +1,11 @@
 # STATE
-updated: 2026-10-31T18:21Z   session: 1
-status: gate-review          # running | gate-review | blocked | done-all
-phase: 0   step: Gate 0 review
-phase_start_commit: 03efb2f
-next: Gate 0 review round 3 (reviews/phase-0-r3.md; r1 and r2 FAIL; a third FAIL is a hard block); on PASS, Phase 1 starts with its predictions
-timebox: phase 0 used 3/3 units (0.2–0.4; 0.5–0.6 run; 0.6 report + clock investigation); review rounds 1–2 and their fixes are counted separately (autoplan.md §9)
-units: 6 of the 200-unit budget (incl. the review-1 and review-2 fix units)
+updated: 2026-11-01T06:18Z   session: 2
+status: running              # running | gate-review | blocked | done-all
+phase: 1   step: 1.1–1.5 predictions (none run yet)
+phase_start_commit: (the commit that adds reviews/phase-0-r3.md; the first Phase 1 commit records its id)
+next: Phase 1 predictions (P-008 on), committed at least 15 s before any Phase 1 run; then 1.1–1.5, Gate 1 answers, Gate 1 review
+timebox: phase 0 closed at 3/3 units (0.2–0.4; 0.5–0.6 run; 0.6 report + clock investigation), review rounds 1–3 and their fixes counted separately (Deviations); phase 1 used 0/4 units
+units: 7 of the 200-unit budget (incl. the review-1, review-2 and review-3 fix units)
 running_jobs: none
 toolkit: native              # ~/opt/cuda-12.8, nvcc V12.8.93
 noise_floor: (set by Gate 4, with its definition)
@@ -15,8 +15,11 @@ second_reviewer: off
 - Bootstrap B1–B6, commit 03efb2f (no review: autoplan.md gates start at Phase 0)
 - Phase 0.1–0.4: toolkit native, venv packages, model sha256 matches plan.md (1ec302a)
 - Phase 0.5–0.6: Release build 63412d873; llama-bench tg128 68.32 tok/s screened, 70.60 raw (b4e140f raw, report 382c369); WSL2 clock problem measured (d8bb89a)
+- Gate 0: PASS in review round 3 (reviews/phase-0-r3.md, 2026-11-01). Rounds 1 and 2 failed (reviews/phase-0-r1.md, -r2.md); their fixes are 45b79d9 and a5764ff.
 ## Decisions
 - 2026-10-31 Timing on this WSL2 machine (NOTEBOOK Phase 0.5–0.6): the kernel tick (nominal 10000 µs) is re-set about every 8 s to 10160–10238 µs (results/0/tick-watch*.json), so CLOCK_MONOTONIC and the wall clock run +1.6 to +2.4 % fast, +1.94 % on average. timesyncd steps the wall clock back ~0.6 s every 32 s. (1) Same-session ratios are fine when each number averages over many 8 s stretches. A single few-second timing carries up to ±0.4 % clock error, and our own timers use CLOCK_MONOTONIC_RAW or CUDA events. (2) Absolute GPU timings use CUDA events (GPU clock). (3) Absolute rates from CLOCK_MONOTONIC (perf_counter, llama-server timings) are reported as measured, plus a corrected value using the rate measured in that session. (4) Durations never come from the wall clock (no time.time()). (5) llama-bench numbers always get the step-screening rule of bench/phase0_report.py, with raw numbers shown next to them. preflight.sh now records kernel_tick_us.
+- 2026-11-01 Clock after the WSL restart (results/env/timesync-2026-11-01.txt): the tick reads 10000, but CLOCK_MONOTONIC has gained +5.142 % on CLOCK_MONOTONIC_RAW since the boot, and timesyncd's offset is −1.629 s per 32 s poll. Decisions (1)–(5) stand. But (1)'s ±0.4 % and (5)'s 0.3 s screening threshold come from the old boot, so re-derive both from a new clock measurement before llama-bench is used again. CLOCK_MONOTONIC_RAW timers don't follow the tick.
+- 2026-11-01 GPU lock from Phase 1 on (reviews/phase-0-r3.md N1): every command that loads torch or a llama.cpp binary runs under the lock (autopilot/gpu-run.sh or job.sh), CPU-only ones too, since `llama-bench --help` and torch's CUDA probe both initialize CUDA.
 ## Deviations
 - 2026-10-31 `job.sh --no-lock`: §4.3 says job.sh takes the GPU lock. Downloads and CPU-only builds don't touch the GPU, so they run detached without it and GPU units aren't held up. GPU jobs still always take the lock.
 - 2026-10-31 `preflight.sh --gpu`: the dirty-tree check (code 30) is for session start. Just before a GPU run, mid-unit, the tree is legitimately dirty, so `--gpu` skips that one check. The GPU-busy test uses the median of the 5 samples, so one blip from the Windows desktop doesn't count as busy.
@@ -24,10 +27,13 @@ second_reviewer: off
 - 2026-10-31 `autopilot/gpu-run.sh` (new helper): runs a short foreground GPU command under the lock with `FF_LOCK_HELD=1`, so preflight inside the run doesn't mistake our own lock for another job. job.sh sets the same variable for locked jobs.
 - 2026-10-31 llama-bench screening rule (an addition to autoplan.md §7.2's validity rules): a repetition is excluded only if it is > 0.3 s shorter than its run's median AND the journal shows a clock change inside the run's window. Applied once (run 2, repetition 4); raw numbers stay in every table.
 - 2026-10-31 Phase 1 work before Gate 0 (reviews/phase-0-r1.md B1, reviews/phase-0-r2.md B1). At 09:23–09:25Z, during the Phase 0 build, the executor drafted toy/phase1_*.py; at 09:27:33Z it drafted /tmp/ff-phase1-checks.py. None was run (one was syntax-checked with ast.parse), and there is no output. The toy drafts are recorded in 05f4335. Commit 1eef389 later edited them (ms timestamps), and 44a21cf reverted that, so toy/ is byte-identical to 05f4335. The /tmp draft is moved unchanged to docs/drafts/ff-phase1-checks.py (44a21cf). Bootstrap also listed v2's file names (no contents; NOTEBOOK round 2 entry). A census of every file written since the session began is in results/0/session-files.txt (bench/session_files.sh). Phase 1 numbers already seen before its predictions (configs, weight file sizes, llama-bench's model_size and n_params) are listed in NOTEBOOK.md "Phase 0 review round 2: fixes" (the complete, time-ordered account), and Phase 1's predictions must say so. Rule from now on: nothing for phase N+1 is written before gate N passes.
-- 2026-10-31 GPU lock (rule 8) lapses: the 0.2 CUDA test program (~09:18:34Z) and the torch probe in bench/phase0_toolchain.sh (09:32:45Z, 09:33:07Z) ran without the lock. No other GPU job existed, and no measurement was running. The toolchain script now takes the lock; preflight records gpu_lock.
+- 2026-10-31 GPU lock (rule 8) lapses: the 0.2 CUDA test program and a torch probe in the same call (~09:18:34Z), the torch probe in bench/phase0_toolchain.sh (09:32:45Z, 09:33:07Z) and `llama-bench --help` (09:33:18Z, which initializes CUDA; reviews/phase-0-r3.md N1) ran without the lock. No other GPU job existed, and no measurement was running. The toolchain script now takes the lock; preflight records gpu_lock. Whether these count as a broken hard rule is the owner's call (BLOCKED.md).
+- 2026-11-01 Timebox reading (reviews/phase-0-r3.md N5): review rounds and their fix units are counted outside a phase's timebox, because autoplan.md §9 budgets "about 130 work units plus review rounds". Counted the other way, Phase 0 would be 5 units against 3, past the 1.5× limit (a hard block under §6).
+- 2026-11-01 check.py tie window (reviews/phase-0-r3.md N2b): a run counts as after its prediction only from 5 s after the prediction commit's second (STEP_MARGIN_S = 4 plus git's 1 s), not 1 s, because the wall clock steps back by up to 1.6 s. Predictions wait at least 15 s before their run.
 - 2026-10-31 P-006 void: its run started in the same second as its prediction commit, so the order can't be proved. It is shown but not credited (check.py lists void predictions); P-007 retested it.
 ## Open questions carried forward
-- What re-sets the kernel tick every ~8 s, and does it survive a WSL restart? Reviewer's hypothesis: a Hyper-V time-sync loop (kernel cmdline has hv_utils.timesync_implicit=1) fighting timesyncd's 32 s steps (reviews/phase-0-r1.md I2). BLOCKED.md soft entry; owner action optional.
+- What drives the clock error? (2026-11-01: the stepping survived a WSL restart, and the clock is now further off while the tick reads 10000; results/env/timesync-2026-11-01.txt.) Before that: what re-sets the kernel tick every ~8 s, and does it survive a WSL restart? Reviewer's hypothesis: a Hyper-V time-sync loop (kernel cmdline has hv_utils.timesync_implicit=1) fighting timesyncd's 32 s steps (reviews/phase-0-r1.md I2). BLOCKED.md soft entry; owner action optional.
 - Phase 5.2: `~/opt/cuda-12.8/bin/cuda-gdb` exists (reviews/phase-0-r1.md I1), which may stand in for gdb.
+- Phase 1 predictions must list what was seen before them (NOTEBOOK.md round-1 and round-2 entries; reviews/phase-0-r3.md I4): configs, weight sizes, llama-bench's model_size and model_n_params, v1's README line 37.
 - Phase 1 (reviews/phase-0-r2.md I4): toy/phase1_greedy.py must time with CLOCK_MONOTONIC_RAW, not perf_counter (STATE Decisions). phase1_sample.py needs scipy, which is in .venv through scikit-learn (scipy 1.18.1 in results/env/pip-freeze.txt).
 - (resolved 2026-10-31) The guard hook loaded in the bootstrap session itself: `sudo -n true` was blocked with "guard.sh blocked this command (sudo)".
