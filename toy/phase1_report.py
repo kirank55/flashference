@@ -8,7 +8,7 @@ and no times or paths.
 
 With no --X option it prints every table that has a file.
 """
-import argparse, json
+import argparse, json, statistics
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -79,22 +79,27 @@ def show_greedy(d):
                 for m in ("nocache", "cached", "generate")]
         rc = med.get("nocache") / med["cached"] if med.get("cached") else None
         rg = med.get("generate") / med["cached"] if med.get("cached") else None
-        # per-step medians across repeats: step 1 runs the whole prompt in both loops; after that,
-        # nocache step k runs prompt + k - 1 positions while cached runs one
+        # Per-step times are noisy (a single step can vary 2x between repeats), so compare
+        # ranges of steps: the median over repeats for each step, then the median over the range.
+        # Step 1 runs the whole prompt in both loops; after that, nocache step k runs
+        # prompt + k - 1 positions while cached runs one.
         st = meas.get("step_seconds", {})
         n_prompt = len(det["prompt_ids"])
-        med_step = {m: [sorted(x)[len(x) // 2] for x in zip(*st[m])] for m in ("nocache", "cached") if st.get(m)}
+        med_step = {m: [statistics.median(x) for x in zip(*st[m])] for m in ("nocache", "cached") if st.get(m)}
         step_rows = []
         if len(med_step) == 2:
             n_steps = min(len(med_step["nocache"]), len(med_step["cached"]))
-            for k in sorted({1, 2, n_steps}):
-                step_rows.append([k, fi(n_prompt + k - 1), ff(med_step["nocache"][k - 1], 4),
-                                  fi(n_prompt if k == 1 else 1), ff(med_step["cached"][k - 1], 4)])
+            for lo, hi in ((1, 1), (2, 11), (n_steps - 9, n_steps)):
+                nc = statistics.median(med_step["nocache"][lo - 1:hi])
+                ca = statistics.median(med_step["cached"][lo - 1:hi])
+                pos_nc = f"{n_prompt + lo - 1}" if lo == hi else f"{n_prompt + lo - 1}–{n_prompt + hi - 1}"
+                step_rows.append([f"{lo}" if lo == hi else f"{lo}–{hi}", pos_nc, ff(1000 * nc, 1),
+                                  fi(n_prompt) if lo == 1 else "1", ff(1000 * ca, 1), ff(nc / ca, 2)])
         blocks.append("\n\n".join([
             f"**greedy-{dev}**",
             table(["method", "median s", "min s", "max s", "ms/token"], rows, right={1, 2, 3, 4}),
-            table(["step", "positions run (nocache)", "nocache median s", "positions run (cached)", "cached median s"],
-                  step_rows, right={0, 1, 2, 3, 4}),
+            table(["steps", "positions run (nocache)", "nocache ms", "positions run (cached)", "cached ms", "nocache/cached"],
+                  step_rows, right={0, 1, 2, 3, 4, 5}),
             table(["metric", "value"], [["prompt tokens", fi(len(det["prompt_ids"]))],
                                         ["tokens generated", fi(det["n_generated"])],
                                         ["timed repeats per method", fi(meas.get("repeats"))],

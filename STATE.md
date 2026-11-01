@@ -1,26 +1,32 @@
 # STATE
-updated: 2026-11-01T12:43Z   session: 2
-status: running              # running | gate-review | blocked | done-all
-phase: 2   step: not started
-phase_start_commit: (the commit that adds reviews/phase-1-r1.md; Phase 2's first commit records its id)
-next: Phase 2 predictions. Not started: this session's instruction covered Phases 0 and 1 ("implement phase 0 and 1 in autoplan.md")
+updated: 2026-11-01T12:56Z   session: 2
+status: gate-review          # running | gate-review | blocked | done-all
+phase: 1   step: Gate 1 second review
+phase_start_commit: 9068467
+next: Gate 1 second review by opencode-go/glm-5.3 (reviews/phase-1-r1-second.md). Gate 1 passes only if it passes too. Then Phase 2, which is outside this session's instruction ("implement phase 0 and 1 in autoplan.md")
 timebox: phase 0 closed at 3/3 units (0.2–0.4; 0.5–0.6 run; 0.6 report + clock investigation), review rounds 1–3 and their fixes counted separately (Deviations); phase 1 used 4/4 units (predictions; code; runs; reports + Gate 1 answers)
 units: 11 of the 200-unit budget (incl. the review-1, review-2 and review-3 fix units)
 running_jobs: none
 toolkit: native              # ~/opt/cuda-12.8, nvcc V12.8.93
 noise_floor: (set by Gate 4, with its definition)
 tau_numerics: (set in Phase 6, with its evidence file)
-second_reviewer: off
+second_reviewer: opencode-go/glm-5.3 at every gate (owner's rule, 2026-11-01; see Decisions)
 ## Done
 - Bootstrap B1–B6, commit 03efb2f (no review: autoplan.md gates start at Phase 0)
 - Phase 0.1–0.4: toolkit native, venv packages, model sha256 matches plan.md (1ec302a)
 - Phase 0.5–0.6: Release build 63412d873; llama-bench tg128 68.32 tok/s screened, 70.60 raw (b4e140f raw, report 382c369); WSL2 clock problem measured (d8bb89a)
 - Phase 1.1–1.5: predictions a2b4e25, code a6c843c, raw a7f3d6e, reports and Gate 1 answers in the next commit; P-008 missed on Hindi (2.44× vs 3–10×), P-009–P-013 inside; check.py --phase 1 passes (clean-checkout re-runs identical)
-- Gate 1: PASS in review round 1 (reviews/phase-1-r1.md, 2026-11-01, reviewer opencode-go/deepseek-v4.1-flash); v2 replication matches exactly
+- Gate 1, round 1, first review: PASS (reviews/phase-1-r1.md, opencode-go/deepseek-v4.1-flash; v2 replication matches exactly). Not confirmed: the executor's re-check found a wrong table in its recomputation and two overstated sentences it had graded CORRECT (now fixed). The second review must pass too.
 - Gate 0: PASS in review round 3 (reviews/phase-0-r3.md, 2026-11-01). Rounds 1 and 2 failed (reviews/phase-0-r1.md, -r2.md); their fixes are 45b79d9 and a5764ff.
 ## Decisions
 - 2026-10-31 Timing on this WSL2 machine (NOTEBOOK Phase 0.5–0.6): the kernel tick (nominal 10000 µs) is re-set about every 8 s to 10160–10238 µs (results/0/tick-watch*.json), so CLOCK_MONOTONIC and the wall clock run +1.6 to +2.4 % fast, +1.94 % on average. timesyncd steps the wall clock back ~0.6 s every 32 s. (1) Same-session ratios are fine when each number averages over many 8 s stretches. A single few-second timing carries up to ±0.4 % clock error, and our own timers use CLOCK_MONOTONIC_RAW or CUDA events. (2) Absolute GPU timings use CUDA events (GPU clock). (3) Absolute rates from CLOCK_MONOTONIC (perf_counter, llama-server timings) are reported as measured, plus a corrected value using the rate measured in that session. (4) Durations never come from the wall clock (no time.time()). (5) llama-bench numbers always get the step-screening rule of bench/phase0_report.py, with raw numbers shown next to them. preflight.sh now records kernel_tick_us.
 - 2026-11-01 Clock after the WSL restart (results/env/timesync-2026-11-01.txt): the tick reads 10000, but CLOCK_MONOTONIC has gained +5.142 % on CLOCK_MONOTONIC_RAW since the boot, and timesyncd's offset is −1.629 s per 32 s poll. Decisions (1)–(5) stand. But (1)'s ±0.4 % and (5)'s 0.3 s screening threshold come from the old boot, so re-derive both from a new clock measurement before llama-bench is used again. CLOCK_MONOTONIC_RAW timers don't follow the tick.
+- 2026-11-01 Delegation quality rule (owner: "I don't want a weak review or weak work. We are using opencode just to save tokens. Double check or triple check work."):
+  - opencode is for saving tokens only, never a lower standard;
+  - every delegated piece of work is checked at least twice: the executor reviews every diff line by line and re-runs its tests, and a second model checks it at the gate;
+  - a gate passes only if two independent reviews from different model families both pass (second_reviewer above). The second reviewer doesn't read the first reviewer's report before writing its own;
+  - the executor checks each review's evidence (scratch scripts, broken copies) and its claims against the raw data before accepting it, and re-checks its own write-up's sentences, not only its numbers;
+  - a FAIL from either review makes the round a FAIL, and that counts toward autoplan's three-FAIL limit.
 - 2026-11-01 GPU lock from Phase 1 on (reviews/phase-0-r3.md N1): every command that loads torch or a llama.cpp binary runs under the lock (autopilot/gpu-run.sh or job.sh), CPU-only ones too, since `llama-bench --help` and torch's CUDA probe both initialize CUDA.
 ## Deviations
 - 2026-10-31 `job.sh --no-lock`: §4.3 says job.sh takes the GPU lock. Downloads and CPU-only builds don't touch the GPU, so they run detached without it and GPU units aren't held up. GPU jobs still always take the lock.

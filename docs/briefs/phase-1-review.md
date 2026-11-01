@@ -92,3 +92,25 @@ List BLOCKING and NON-BLOCKING issues. Don't fix anything. End the report with e
 When you finish, reply with the verdict line, then a short list of the BLOCKING issues (if any) and
 the most important NON-BLOCKING ones, in under 40 lines. The full report goes in
 reviews/phase-1-r1.md.
+
+---
+
+## Second reviewer (owner's rule, 2026-11-01)
+
+A second, independent review of the same phase, by a different model family from both the author of
+Phase 1's code (deepseek-v4.1-flash) and the first reviewer (deepseek-v4.1-flash). Everything
+above applies, with these changes:
+- Write your report to reviews/phase-1-r1-second.md (not reviews/phase-1-r1.md), and finish with
+  `git status --short` showing only `?? reviews/phase-1-r1-second.md`.
+- Use /tmp/review-1b/ for your scratch files, not /tmp/review-1/ (that directory is the first reviewer's).
+- Don't read reviews/phase-1-r1.md or /tmp/review-1/ until your own grades and verdict are written.
+  NOTEBOOK.md shows the first reviewer's grades ("Grade r1") and a "Gate 1 review round 1" entry.
+  Ignore them and form your own judgment from the raw data. After your verdict, you may add a final
+  section listing where you and the first review disagree.
+- The executor has since corrected the text after re-checking it ("Gate 1: re-check of review r1"
+  entry). Review the corrected text, and check that the corrections are themselves right.
+- Be adversarial. The owner wants a rigorous review: check every number against the raw files, every
+  sentence's claim against the data, every tag, and the code line by line. Re-derive results with
+  your own scripts and compare them with the published tables, row by row.
+- v2: read only `git show v2:results/phase1/gguf.json`, `git show v2:results/phase1/params.json` and
+  `git show v2 --stat`. Nothing else from v2, not even its NOTEBOOK.md.
