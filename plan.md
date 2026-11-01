@@ -1,6 +1,6 @@
 # plan.md: the flashference framework
 
-Written 2026-11-01 for the same machine as branch `op`: RTX 3050 A Laptop GPU (4 GB, compute capability 8.9), WSL2 Ubuntu 24.04, llama.cpp b11884 (63412d873).
+Written 2026-11-01 for this machine: RTX 3050 A Laptop GPU (4 GB, compute capability 8.9), WSL2 Ubuntu 24.04, llama.cpp b11884 (63412d873).
 
 ---
 
@@ -8,9 +8,9 @@ Written 2026-11-01 for the same machine as branch `op`: RTX 3050 A Laptop GPU (4
 
 ### The goal
 
-Branch `op` has this goal: lossless speed-ups for LLM decoding that are measured honestly, are explained, and leave a study trail the owner can learn from. This branch has the same goal, with one more requirement: **the result has to work on other models.**
+Lossless speed-ups for LLM decoding that are measured honestly, are explained, and leave a study trail the owner can learn from. One more requirement: **the result has to work on any model, not only one.**
 
-`op` makes one model fast (Qwen3.5-0.8B). The framework makes a *procedure* that works on any model that llama.cpp runs. Each step of the procedure is a script:
+So the framework doesn't tune one model by hand. It makes a *procedure* that works on any model that llama.cpp runs. Each step of the procedure is a script:
 
 ```
 ff inspect  <model.gguf>                → model card (what the model is; which drafters and hooks apply)
@@ -34,22 +34,22 @@ The result for a new model is a frozen config, a proof that it is lossless, and 
 | C4 | **Every patch works unchanged on at least 2 architectures** from the model matrix (§F1), and on at least 2 drafter kinds where that applies. | A coverage script lists, for each architecture, whether each hook fires. A test asserts it fires on the matrix models. |
 | C5 | **Model knowledge lives in data, never in code.** Vocabulary size, head tensor, tying, chat template, drafter availability and rankings all go in a generated model card (`models/<id>/card.yaml`) and in per-model data files. | No model name or vocabulary size appears in `ff/`, `bench/` or a patch (grep check). |
 
-**What this drops from `op`'s plan.md:**
-- **8.3 and 8.4, the certified target head.** They change how the target computes its logits: `result_output` in each model's graph. That breaks C1 and C2.
-- **8.8, the self-distilled MTP head.** It needs each model's MTP forward pass re-implemented in PyTorch, then trained. That is per-model code and per-model training.
-- **8.9, lossless weight compression.** It needs a new ggml weight type and a fused CUDA kernel. That's a fork of ggml, not a framework feature. It's out of scope; §9 lists it.
-- **v1's patch 1 as written.** It edits `src/models/qwen35.cpp` (`graph_mtp`), so it breaks C1. Phase F4 rebuilds the same idea as a generic hook.
+**What these rules exclude:**
+- **A certified target head** (a cheaper target head whose argmax is proven equal). It changes how the target computes its logits: `result_output` in each model's graph. That breaks C1 and C2.
+- **A self-distilled MTP head.** It needs each model's MTP forward pass re-implemented in PyTorch, then trained. That is per-model code and per-model training.
+- **Lossless weight compression.** It needs a new ggml weight type and a fused CUDA kernel. That's a fork of ggml, not a framework feature.
+- **A draft-head trim written into a model file**, such as an edit to `graph_mtp` in `src/models/qwen35.cpp`. It breaks C1. Phase F4 builds the same idea as a generic hook.
 
 ### Why the trim can be generic (checked in b11884, 2026-11-01)
 
-- v1's trim replaces the draft head's matrix multiply inside `llama_model_qwen35::graph_mtp` with a K-row matrix, then pads the logits to the full vocabulary with `-inf`. That is a model-file edit.
+- The direct way to trim replaces the draft head's matrix multiply inside `llama_model_qwen35::graph_mtp` with a K-row matrix, then pads the logits to the full vocabulary with `-inf`. That is a model-file edit.
 - Every MTP graph is built with graph type `LLM_GRAPH_TYPE_DECODER_MTP`. The context maps `LLAMA_CONTEXT_TYPE_MTP` to it (`src/llama-context.cpp:115`).
 - By a grep, 15 of the 17 `graph_mtp` implementations in `src/models/` compute the draft head through the shared `llm_graph_context::build_lora_mm` (`src/llama-graph.cpp:1632`). The exceptions are `deepseek4.cpp` and `bailingmoe3.cpp`. F1 confirms this by reading the code.
 - So the substitution can live inside `build_lora_mm`: "if this is a draft graph and `w` is the head tensor, multiply by the K-row tensor instead, then pad and mask". It happens in one generic place, and no model file changes.
 - A separate draft model (`--spec-type draft-simple`) runs in its own context, so the same hook covers its output head. That gives two drafter kinds through one hook.
 - The target's graphs never take this branch, so C2 holds by construction. F4 still tests it.
 
-### Three levels of "lossless" (same words as op)
+### Three levels of "lossless"
 
 | Level | Meaning |
 |---|---|
@@ -61,42 +61,38 @@ Every config the framework emits states its level and how that was checked. The 
 
 ### Rules
 
-`op`'s 8 rules all apply, unchanged:
-1. predict before you measure;
-2. no code you can't explain;
-3. one change at a time;
-4. a same-session control;
-5. raw data → generated tables;
-6. a dev/test split;
-7. losslessness is checked;
-8. write down what you did not test.
-
-These are added:
-
+1. **Predict before you measure.** Each prediction states a range and is committed before the run that tests it. A check proves the order from git history.
+2. **No code you can't explain.** Every commit message says what changed and why it can't change the target's output.
+3. **One change at a time,** per experiment.
+4. **A same-session control.** Only ratios against a control from the same session are compared. Sessions are bracketed: control, A, B, …, control.
+5. **Raw data → generated tables.** No number is typed into a report by hand. Every table regenerates from raw files with a recorded command.
+6. **A dev/test split.** Tune only on dev prompts. Test prompts run once, for a config frozen in an earlier commit, and every test run is logged.
+7. **Losslessness is checked** every time. An unexplained output mismatch stops that experiment.
+8. **Write down what you did not test,** at the end of every report.
 9. **Every number belongs to a triple:** (model card hash, GPU, llama.cpp commit). A number without its triple is not a result.
 10. **Never slower than plain.** `ff tune` always includes plain decoding as a candidate. A config is chosen only if it beats plain by more than 2 × that model's noise floor on that domain. Otherwise the answer for that domain is "plain". The framework's worst case is 1.00×, not a slow-down.
 11. **A held-out model.** In F1, pick one model that is never used during development, like a test prompt set. Its sha256 is committed and the file is not downloaded until F12. The final portability claim rests on it.
-12. **Two independent reviewers from different model families at every gate**, as on op (STATE.md `second_reviewer`). The second doesn't read the first's report. A FAIL from either makes the round a FAIL.
+12. **Two independent reviewers from different model families at every gate** (STATE.md `second_reviewer` names the second). The second doesn't read the first's report. A FAIL from either makes the round a FAIL.
 
-### Relationship to branch `op`
+### Environment and operating model
 
-- `op` remains the learning track on one model. This branch doesn't wait for it, and it never edits `op`'s files.
-- **Reused from op**, copied with their commit id noted in NOTEBOOK.md:
-  - the Phase 0 environment: CUDA 12.8 in `~/opt`, the b11884 `stock` build, and the WSL2 clock decisions in op's STATE.md;
-  - `autopilot/` (the guard, the GPU lock, job.sh, check.py's prediction-order check);
-  - op's Phase 4 harness spec.
-- **Shared resources.** The GPU lock (`/tmp/flashference-gpu.lock`), `models/` (a symlink) and the `llama.cpp/` checkout. This branch's llama.cpp branches are named `fw-*`, so they never collide with op's `my-trim` or `exp-8.x`.
-- **Worktree.** Work happens in a separate git worktree, `~/code-wsl/flashference-framework`, so op's checkout is never switched.
-- **Execution.** Same operating model as op's `autoplan.md`: an executor and fresh-context reviewers, predictions committed before their runs, STATE.md as the progress board, BLOCKED.md for blocks. Bootstrap (F0) writes this branch's `autoplan.md`, adapted from op's. Where the two disagree, this plan's C1–C5 and rules 9–12 win.
+- **Environment** (set up or checked in F0):
+  - a user-space CUDA 12.8 toolkit in `~/opt` (no sudo, and never an NVIDIA driver inside WSL);
+  - a Python `.venv` made with uv;
+  - llama.cpp b11884 (63412d873) on a local branch `stock`, built with CUDA for compute capability 8.9.
+- **Timing on WSL2.** The WSL2 clocks drift and step, so F0 measures them before any benchmark. Timers use `CLOCK_MONOTONIC_RAW` or CUDA events. Durations never come from the wall clock. Only same-session ratios are compared, each averaged over a run long enough to cover many clock steps.
+- **One GPU job at a time.** Every command that loads torch or a llama.cpp binary holds `flock /tmp/flashference-gpu.lock`.
+- **llama.cpp branches** are named `fw-*`, each cut from `stock`.
+- **Execution.** An executor agent works in units, one commit each, and fresh-context reviewers check every gate. Predictions are committed before their runs. STATE.md is the progress board and BLOCKED.md lists blocks. F0 writes `autoplan.md`, the executor's operating manual. Where it and this plan disagree, this plan's C1–C5 and rules 9–12 win.
 
 ---
 
 ## Layout
 
 ```
-flashference/  (branch framework)
+flashference/
 ├── plan.md  autoplan.md  STATE.md  NOTEBOOK.md  BLOCKED.md  README.md
-├── autopilot/                 # from op: guard.sh, gpu-run.sh, job.sh, preflight.sh, check.py
+├── autopilot/                 # written in F0: guard.sh, gpu-run.sh, job.sh, preflight.sh, check.py
 ├── ff/                        # the framework (Python): one module per command
 │   ├── inspect.py  baseline.py  rank.py  tune.py  verify.py  report.py  run.py
 │   ├── costmodel.py           # predicted speed-up from coverage, head bytes and measured timings
@@ -129,14 +125,24 @@ Nothing in the kit names a model.
 
 ---
 
-## Phase F0: Bootstrap (2 units)
+## Phase F0: Bootstrap (3 units)
 
-1. Create the worktree. Copy `autopilot/` and the environment notes from op at a named commit. Link `models/` and `llama.cpp/`.
-2. Write this branch's `autoplan.md`, adapted from op's. Changes: the phase list, C1–C5 as hard rules, and `fw-*` branch names.
-3. Write `ff/check.py` with the C1, C3 and C5 checks first, before any patch exists. Test each check on a deliberately bad diff kept in `/tmp`.
-4. Commit STATE.md with `phase: F1`.
+1. **Environment.** Set up, or check, what §0 lists: CUDA 12.8 in `~/opt`, the `.venv`, and the llama.cpp `stock` build at 63412d873 (`-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=89`, Release, `-j 4`). Run one `llama-bench` smoke test, and record the tok/s and the model's sha256. `models/` and `llama.cpp/` stay git-ignored.
+2. **Clock.** Measure how far `CLOCK_MONOTONIC` and the wall clock drift from `CLOCK_MONOTONIC_RAW`, and how often they step. From that, write down the shortest run whose ratio the clock can't distort by more than 0.5 %.
+3. **`autopilot/`:**
+   - `guard.sh`: a hook that blocks commands that break a hard rule (sudo, apt, a force-push, a write under `/mnt/c`);
+   - `gpu-run.sh` and `job.sh`: run GPU commands under the lock, with long jobs detached;
+   - `preflight.sh`: checks for an idle GPU, AC power, free disk and a clean tree;
+   - `check.py`: proves each prediction was committed before its run, and that generated tables regenerate.
+4. Write `autoplan.md`: the phase list, C1–C5 and the hard rules, the executor protocol, the reviewer brief and `fw-*` branch names.
+5. Write `ff/check.py` with the C1, C3 and C5 checks first, before any patch exists. Test each check on a deliberately bad diff kept in `/tmp`.
+6. Commit STATE.md with `phase: F1`.
 
-**Gate F0:** `ff check` fails on a diff that touches `src/models/qwen35.cpp` and passes on an empty diff. op's checkout is untouched (`git -C <op worktree> status` is clean, and HEAD is unchanged).
+**Gate F0:**
+- `nvcc --version`, `torch.cuda.is_available()` and the `stock` build all work. The smoke-test number and the sha256 are committed.
+- The clock measurement and the minimum run length are committed.
+- `ff check` fails on a diff that touches `src/models/qwen35.cpp` and passes on an empty diff.
+- `autopilot/check.py` fails on a prediction committed after its run.
 
 ---
 
@@ -153,7 +159,7 @@ Nothing in the kit names a model.
    - chat template;
    - weights sha256.
 
-   Check it on Qwen3.5-0.8B against op's Phase 1.4 numbers (`git show op:results/1/gguf.json`).
+   Check it on Qwen3.5-0.8B against two independent reads: gguf-py's `gguf-dump` and the tensor list in llama-server's load log.
 2. **Hook coverage, statically.** A script reads `src/models/*.cpp` at 63412d873. For each architecture it records whether the draft head goes through `build_lora_mm` with the head tensor. Its output goes to `docs/hooks.md`. Read the two exceptions, deepseek4 and bailingmoe3, by hand and record why they differ.
 3. **The model matrix.** Requirements:
    - at least 3 development models, from at least 2 architecture families;
@@ -164,7 +170,7 @@ Nothing in the kit names a model.
    - vocabulary sizes that differ by at least 2×.
 
    Candidates to check, none verified yet:
-   - Qwen3.5-0.8B bf16 with MTP: the v1 anchor; this one is known;
+   - Qwen3.5-0.8B bf16 with MTP: the anchor model for F4; it's already on this machine;
    - a Qwen3 target at Q8_0 with Qwen3-0.6B as the draft;
    - a Llama-3.2 or Gemma-family target with a small same-tokenizer draft.
 
@@ -183,14 +189,31 @@ Nothing in the kit names a model.
 
 ## Phase F2: Multi-model harness (6 units)
 
-Build to op's Phase 4 spec: `bench.py`, `report.py`, `divergence.py`, tests, `--final`, the test ledger and the prediction gate. If op has finished its Phase 4, port that code and note the commit. Additions:
+**The harness:**
+- **`bench/bench.py`** takes a JSON list of configs. Each one names the server binary, args, env vars, prompt set, `n_predict` (256), passes (3) and warm-up (1).
+  - Before each config, check that the GPU is idle with `nvidia-smi`. Wait or abort if utilization is over 5 % or memory used is over about 500 MiB.
+  - Start a fresh `llama-server` per config (`-ngl 99 -fa on -np 1 -c 4096`, plus the config's own args), and poll `/health`.
+  - POST each prompt to `/completion` with `temperature: 0` and `cache_prompt: false`.
+  - Record `timings` (`predicted_n`, `predicted_ms`, `draft_n`, `draft_n_accepted`), the sha256 of the output, nvidia-smi readings before and after, the command line and env. Write one JSON line per request.
+  - It refuses to run without `--predict <ids>` naming predictions that are already committed. Only `--final` may run test prompts, and only for a config frozen in an earlier commit. Each test run is appended to `results/test-ledger.jsonl`.
+- **`bench/report.py`:**
+  - tok/s per pass = Σ tokens / Σ `predicted_ms`, reported as mean ± SD over passes;
+  - the ratio against a named same-session control is r = a/b, with σ_r = r·√((σ_a/a)² + (σ_b/b)²);
+  - acceptance = Σ `draft_n_accepted` / Σ `draft_n`;
+  - output equality = the fraction of hashes equal to a named reference config.
+
+  It writes markdown tables that are never edited by hand.
+- **`bench/divergence.py`** finds the first token where two outputs differ. It records the plain run's top-1/top-2 logit margin there. A near-tie points to floating-point order (L2). A wide margin is an unexplained mismatch.
+- `pytest bench/` covers all three.
+
+Additions for many models:
 
 - Every raw line carries the triple (rule 9), the card hash and the frozen-config hash.
 - **Chat formatting comes from the card**, applied by llama-server's template, never by a hand-written string.
-- **Prompts.** `prompts/dev/` has 10 prompts in each of 4 domains: prose, code, copy-heavy, and multilingual (es, de, zh, hi). They're plain text with no model-specific formatting. As on op, a fresh agent writes `prompts/test/`, and the executor never opens it.
+- **Prompts.** `prompts/dev/` has 10 prompts in each of 4 domains: prose, code, copy-heavy, and multilingual (es, de, zh, hi). They're plain text with no model-specific formatting. A fresh agent writes `prompts/test/`, and the executor never opens it.
 - **`ff baseline`** runs, for each model:
   - an A/A session, which gives that model's noise floor, with the definition written down;
-  - a numerics probe, which gives that model's `tau_numerics`: at least 20 first divergences between speculative and plain output, classified by `divergence.py`, as op's Phase 6 does. Each value goes into the card.
+  - a numerics probe, which gives that model's `tau_numerics`: at least 20 first divergences between speculative and plain output, classified by `divergence.py`. Each value goes into the card.
 - Plain tok/s for a model with K-row heads and two drafters is a different number from Qwen3.5's. Only ratios against the same session's control are compared, never absolute speeds across models.
 
 **Gate F2:** a noise floor and a `tau_numerics` exist for every matrix model, each with its evidence file. `report.py` regenerates `results/matrix.md` with the plain column filled. `pytest bench/` passes.
@@ -223,7 +246,7 @@ Build to op's Phase 4 spec: `bench.py`, `report.py`, `divergence.py`, tests, `--
 
 ## Phase F4: Generic sub-vocabulary draft head ★ (8 units)
 
-**Goal:** v1's biggest idea, the trimmed draft head, rebuilt so that it works on any model.
+**Goal:** a trimmed draft head, built so that it works on any model. The drafter computes logits for only the K most likely vocabulary rows, so each draft step moves fewer head bytes.
 
 1. **Design note first** (NOTEBOOK.md, half a page):
    - where the K-row tensor is created: the generic loader path, gathering rows of the head tensor named in the card;
@@ -232,7 +255,7 @@ Build to op's Phase 4 spec: `bench.py`, `report.py`, `divergence.py`, tests, `--
    - why padding to `n_vocab` with `-inf` keeps every downstream consumer unchanged;
    - why the target can't take this branch.
 2. **Interface.** Generic flags: `--spec-draft-vocab-file <rank.txt> --spec-draft-vocab-k <K>`. Environment variables mirror them for the bench.
-3. **Implement in 4 steps**, each a commit on `fw-subvocab` with its own test, as on op:
+3. **Implement in 4 steps**, each a commit on `fw-subvocab` with its own test:
    1. the tensor gather;
    2. the hook in `build_lora_mm`;
    3. the pad and mask;
@@ -243,8 +266,8 @@ Build to op's Phase 4 spec: `bench.py`, `report.py`, `divergence.py`, tests, `--
    - **C2, target untouched:** plain decoding with the patch built in and the feature on hash-equals stock, on every matrix model.
    - **Draft-only change:** at K = n_vocab (no trim), speculative output hash-equals the unpatched drafter's output on dev, so the hook alone changes nothing. At K < n_vocab, outputs equal plain within `tau_numerics`, classified by `divergence.py`.
    - **C4, coverage:** the hook fires, logged once per context, on the MTP model and on the target + draft pair.
-   - **Anchor:** on Qwen3.5-0.8B with v1's ranking file, the trimmed MTP ratios match op's Phase 6 reproduction table, or v1's, within about 10 %. If not, investigate in op's order: prompts, then patch, then acceptance.
-5. **Clean-room check, as on op.** A fresh agent gets only the design note and `docs/hooks.md`. It implements the hook on `fw-subvocab-cr`, and its outputs must hash-equal `fw-subvocab`'s.
+   - **Anchor:** on Qwen3.5-0.8B with a corpus token-frequency ranking (F5's first method, built here as a one-off script), the trimmed MTP gain over F3's untrimmed MTP config is positive and no larger than F1's byte ceiling. A gain above the ceiling means a measurement bug. If the anchor fails, investigate in this order: prompts, then patch, then acceptance.
+5. **Clean-room check.** A fresh agent gets only the design note and `docs/hooks.md`. It implements the hook on `fw-subvocab-cr`, and its outputs must hash-equal `fw-subvocab`'s.
 
 **Prediction:** from F1's ceilings and the F3 baselines, the trim gain per model at K = 8k, 32k and full.
 
@@ -259,9 +282,9 @@ Build to op's Phase 4 spec: `bench.py`, `report.py`, `divergence.py`, tests, `--
 
 **Goal:** a ranking file built automatically for any tokenizer, with K chosen by a cost model instead of by hand.
 
-1. **The coverage tool** (op's 8.2 idea). Log the *untrimmed* drafter's argmax at every draft step, over the dev prompts and a domain-mixed corpus (WikiText-2, standard-library code, and the copy-heavy pattern). coverage(K) is the fraction of those argmaxes inside the top K of a ranking.
+1. **The coverage tool.** Log the *untrimmed* drafter's argmax at every draft step, over the dev prompts and a domain-mixed corpus (WikiText-2, standard-library code, and the copy-heavy pattern). coverage(K) is the fraction of those argmaxes inside the top K of a ranking.
 2. **`ff rank`.** It builds candidate rankings per model:
-   1. corpus token frequency (v1's method);
+   1. corpus token frequency;
    2. the model's own drafts;
    3. a mix of the two.
 
@@ -275,7 +298,7 @@ Build to op's Phase 4 spec: `bench.py`, `report.py`, `divergence.py`, tests, `--
 
 ## Phase F6: Quantized sub-vocabulary head (5 units)
 
-op's 8.1, kept generic: after the gather, quantize the K rows with `ggml_quantize_chunk` to `--spec-draft-vocab-type bf16|q8_0|q4_0`.
+After the gather, quantize the K rows with `ggml_quantize_chunk` to `--spec-draft-vocab-type bf16|q8_0|q4_0`.
 
 - **Losslessness argument:** the drafter's numbers never reach the output. C2 is tested again.
 - **The sweep:** K ∈ {8k, 16k, 32k, 64k, n_vocab} × type ∈ {bf16, q8_0, q4_0} × domain, on each model. Successive halving, with the cost model's proposal measured first.
@@ -287,19 +310,19 @@ op's 8.1, kept generic: after the gather, quantize the K rows with `ggml_quantiz
 
 ## Phase F7: Drafter arbitration (5 units)
 
-op's 8.5, in `common/speculative.cpp` only.
+All changes are in `common/speculative.cpp`.
 - Keep a per-sequence EMA of each chained drafter's acceptance. Skip a drafter while its EMA is below τ, and retry it every M cycles.
 - τ and M are tuned per model on dev by `ff tune`. They are stored in `frozen.json`, never in code.
 
 **Done when:** on each matrix model, one config reaches at least 0.98× of the best single-drafter config on prose and at least 0.95× of the best chain on copy-heavy, on test.
 
-**Optional, in this phase's timebox:** v1's context-adaptive rows (patch 2, E4) rebuilt on the F4 hook. These are rows added to the K-row head from the prompt's own tokens. Only if the rebuild passes C1–C5.
+**Optional, in this phase's timebox:** context-adaptive rows on the F4 hook. These are rows added to the K-row head from the prompt's own tokens. Only if the rebuild passes C1–C5.
 
 ---
 
 ## Phase F8: Per-model profile (5 units)
 
-op's Phase 7, done once per matrix model: a per-token budget of the target's GEMVs, head, drafter, sampling and idle gaps, plus graph re-captures. Use nsys if the WSL2 trace has kernel rows. Otherwise use the synchronizing eval-callback method, tagged [partial].
+Done once per matrix model: a per-token budget of the target's GEMVs, head, drafter, sampling and idle gaps, plus graph re-captures. Use nsys if the WSL2 trace has kernel rows. Otherwise use the synchronizing eval-callback method, tagged [partial].
 
 **Gate F8 decisions** come from a script, per model:
 - idle gaps plus re-captures at 5 % or more of a cycle → F9 is in for that model;
@@ -311,7 +334,7 @@ Record it in STATE.md.
 
 ## Phase F9: Fewer host round-trips (conditional, 6 units)
 
-op's 8.6, limited to `common/speculative.cpp`, `tools/server/` and `src/llama-context.*`. Examples are keeping the verify batch shape fixed so CUDA graphs are replayed, not re-captured, and removing a host sync between draft steps. Fix only the largest gap, re-profile, then re-measure.
+Changes are limited to `common/speculative.cpp`, `tools/server/` and `src/llama-context.*`. Examples are keeping the verify batch shape fixed so CUDA graphs are replayed, not re-captured, and removing a host sync between draft steps. Fix only the largest gap, re-profile, then re-measure.
 
 **Level:** L2. Output hashes must equal the pre-fix reference exactly, because no maths changes.
 
@@ -319,7 +342,7 @@ op's 8.6, limited to `common/speculative.cpp`, `tools/server/` and `src/llama-co
 
 ## Phase F10: Bit-exact speculation (optional, 12 units)
 
-op's 8.7, restricted by C3: changes are allowed only in generic `ggml/` ops and backends, such as a batch-invariant matmul path, never in a model file.
+Restricted by C3: changes are allowed only in generic `ggml/` ops and backends, such as a batch-invariant matmul path, never in a model file.
 1. Build a minimal reproducer on one model.
 2. Find the first op that differs between batch sizes 1 and 3.
 3. Make that op batch-invariant.
@@ -356,7 +379,7 @@ op's 8.7, restricted by C3: changes are allowed only in generic `ggml/` ops and 
    A fail is a published finding, not something to fix and re-run.
 2. **Independent check.** A fresh agent gets only `README.md` and runs `ff run` on one matrix model. It passes if the ratio is within 2 × the noise floor of the published one.
 3. **`README.md`:** what the framework does, the generated `results/matrix.md`, which architectures the hooks cover, and the limits.
-4. **`docs/study-guide.md`,** as on op: 3 key facts per phase with evidence links, gate questions as a self-quiz, and "try it yourself" commands.
+4. **`docs/study-guide.md`:** 3 key facts per phase with evidence links, gate questions as a self-quiz, and "try it yourself" commands.
 5. **Final review** by two reviewers from different model families. Then set `status: done-all`.
 
 ---
@@ -365,7 +388,7 @@ op's 8.7, restricted by C3: changes are allowed only in generic `ggml/` ops and 
 
 | Phase | Units |
 |---|---|
-| F0 | 2 |
+| F0 | 3 |
 | F1 | 4 |
 | F2 | 6 |
 | F3 | 5 |
@@ -378,11 +401,11 @@ op's 8.7, restricted by C3: changes are allowed only in generic `ggml/` ops and 
 | F10 (optional) | 12 |
 | F11 | 6 |
 | F12 ★ | 5 |
-| **Total** | **~63 required, ~75 with F9 and F10, plus review rounds** |
+| **Total** | **~58 required, ~76 with F9 and F10, plus review rounds** |
 
-On op, Phases 0–1 ran at about 1.6× their timeboxes once review rounds were counted. Plan for about 120 units in total. A hard block comes at 160.
+Expect review rounds to push each phase to about 1.6× its timebox. Plan for about 120 units in total. A hard block comes at 160.
 
-GPU time scales with the number of models: expect about 3–4× op's per-phase GPU hours for F2–F8. Successive halving in `ff tune` exists to keep this bounded.
+GPU time scales with the number of models: F2–F8 repeat their runs on every matrix model, so expect about 3–4× the GPU hours of a single-model run. Successive halving in `ff tune` exists to keep this bounded.
 
 ---
 
@@ -397,7 +420,7 @@ GPU time scales with the number of models: expect about 3–4× op's per-phase G
 
 - GPUs other than the RTX 3050 Laptop, unless one is borrowed or rented for a ratio-only check.
 - Models over 4 GB, and multi-GPU or CPU-offload setups.
-- Batch sizes above 1 (one stream, as on op).
+- Batch sizes above 1 (one stream only).
 - Sampling (L1) beyond one prose check per model.
 - Architectures the coverage script marks as missed by the hook.
-- Out of scope by design: certified target heads (op 8.3/8.4), trained draft heads (op 8.8), weight compression (op 8.9).
+- Out of scope by design (§0): certified target heads, trained draft heads, weight compression.
