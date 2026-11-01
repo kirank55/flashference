@@ -1,9 +1,9 @@
 # STATE
-updated: 2026-11-01T06:18Z   session: 2
+updated: 2026-11-01T11:12Z   session: 2
 status: running              # running | gate-review | blocked | done-all
-phase: 1   step: 1.1–1.5 predictions (none run yet)
-phase_start_commit: (the commit that adds reviews/phase-0-r3.md; the first Phase 1 commit records its id)
-next: Phase 1 predictions (P-008 on), committed at least 15 s before any Phase 1 run; then 1.1–1.5, Gate 1 answers, Gate 1 review
+phase: 1   step: 1.1–1.5 (predictions P-008–P-013 committed; scripts next)
+phase_start_commit: 9068467
+next: finish toy/phase1_*.py, the report script and check.py's Phase 1 checks (delegated, see Deviations); review and commit them; then the 1.1–1.5 runs, reports, Gate 1 answers, Gate 1 review
 timebox: phase 0 closed at 3/3 units (0.2–0.4; 0.5–0.6 run; 0.6 report + clock investigation), review rounds 1–3 and their fixes counted separately (Deviations); phase 1 used 0/4 units
 units: 7 of the 200-unit budget (incl. the review-1, review-2 and review-3 fix units)
 running_jobs: none
@@ -28,6 +28,7 @@ second_reviewer: off
 - 2026-10-31 llama-bench screening rule (an addition to autoplan.md §7.2's validity rules): a repetition is excluded only if it is > 0.3 s shorter than its run's median AND the journal shows a clock change inside the run's window. Applied once (run 2, repetition 4); raw numbers stay in every table.
 - 2026-10-31 Phase 1 work before Gate 0 (reviews/phase-0-r1.md B1, reviews/phase-0-r2.md B1). At 09:23–09:25Z, during the Phase 0 build, the executor drafted toy/phase1_*.py; at 09:27:33Z it drafted /tmp/ff-phase1-checks.py. None was run (one was syntax-checked with ast.parse), and there is no output. The toy drafts are recorded in 05f4335. Commit 1eef389 later edited them (ms timestamps), and 44a21cf reverted that, so toy/ is byte-identical to 05f4335. The /tmp draft is moved unchanged to docs/drafts/ff-phase1-checks.py (44a21cf). Bootstrap also listed v2's file names (no contents; NOTEBOOK round 2 entry). A census of every file written since the session began is in results/0/session-files.txt (bench/session_files.sh). Phase 1 numbers already seen before its predictions (configs, weight file sizes, llama-bench's model_size and n_params) are listed in NOTEBOOK.md "Phase 0 review round 2: fixes" (the complete, time-ordered account), and Phase 1's predictions must say so. Rule from now on: nothing for phase N+1 is written before gate N passes.
 - 2026-10-31 GPU lock (rule 8) lapses: the 0.2 CUDA test program and a torch probe in the same call (~09:18:34Z), the torch probe in bench/phase0_toolchain.sh (09:32:45Z, 09:33:07Z) and `llama-bench --help` (09:33:18Z, which initializes CUDA; reviews/phase-0-r3.md N1) ran without the lock. No other GPU job existed, and no measurement was running. The toolchain script now takes the lock; preflight records gpu_lock. Whether these count as a broken hard rule is the owner's call (BLOCKED.md).
+- 2026-11-01 Delegation (owner's instruction, 2026-11-01: "use delegate task and use opencode/deepseek v4.1 flash free to offload some work", to save Claude usage). Phase 1 code-writing goes to an opencode child (model opencode/deepseek-v4.1-flash-free) in this checkout. The child makes no git changes, runs nothing into results/, and runs torch only under the GPU lock. The executor reviews every diff, runs every measurement and makes every commit. guard.sh is a Claude Code hook and doesn't run inside the child, so the child's brief repeats the hard rules.
 - 2026-11-01 Timebox reading (reviews/phase-0-r3.md N5): review rounds and their fix units are counted outside a phase's timebox, because autoplan.md §9 budgets "about 130 work units plus review rounds". Counted the other way, Phase 0 would be 5 units against 3, past the 1.5× limit (a hard block under §6).
 - 2026-11-01 check.py tie window (reviews/phase-0-r3.md N2b): a run counts as after its prediction only from 5 s after the prediction commit's second (STEP_MARGIN_S = 4 plus git's 1 s), not 1 s, because the wall clock steps back by up to 1.6 s. Predictions wait at least 15 s before their run.
 - 2026-10-31 P-006 void: its run started in the same second as its prediction commit, so the order can't be proved. It is shown but not credited (check.py lists void predictions); P-007 retested it.
