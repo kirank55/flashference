@@ -9,7 +9,7 @@
 
 Prints one PASS / FAIL / SKIP line per check. Exits 1 if any check fails.
 """
-import argparse, gzip, hashlib, json, os, re, subprocess, sys
+import argparse, gzip, hashlib, json, os, re, subprocess, sys, time
 from datetime import datetime
 from pathlib import Path
 
@@ -124,6 +124,14 @@ def check_tables(update=False):
 PRED_RE = re.compile(r"^(P-\d{3}) \| (\d{4}-\d{2}-\d{2}) \| ([^|]+?) \| (.+?) \| evidence: ([^|]+?) \| "
                      r"got (.+?) \| error (.+?) \| learned (.*)$")
 ISO_RE = re.compile(r"\b(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2}(?:\.\d+)?)(Z|[+-]\d{2}:?\d{2})?\b")
+# Git commit times and evidence stamps both come from CLOCK_REALTIME, which this machine steps back:
+# by up to 0.631 s on 2026-10-31 (results/0/clock-steps.json) and by about 1.6 s per 32 s poll after the
+# 2026-11-01 restart (timesyncd offset in results/env/timesync-2026-11-01.txt). A run stamped less than
+# 1 s (git's resolution) + STEP_MARGIN_S after its prediction commit might have started before it, so
+# its order counts as unprovable (reviews/phase-0-r3.md N2b).
+STEP_MARGIN_S = 4
+TIME_KEY_RE = re.compile(r"time|epoch|realtime|utc|stamp|(^|_)ts($|_)", re.I)
+UNIT_SUFFIX = (("_ns", 1e-9), ("_us", 1e-6), ("_ms", 1e-3), ("_s", 1.0))
 
 
 def iso_times(text):
@@ -149,9 +157,29 @@ def strings_in(obj):
         yield obj
 
 
+def epoch_times(obj, key=""):
+    """Epoch numbers under time-named JSON keys (reviews/phase-0-r3.md N2a). The unit comes from the
+    key's suffix (_ns, _us, _ms, _s); without one, s, ms, us and ns are tried in turn. A number counts
+    only if it lands between 2020-01-01 and tomorrow, so durations and boot-relative clocks drop out."""
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            yield from epoch_times(v, k)
+    elif isinstance(obj, list):
+        for v in obj:
+            yield from epoch_times(v, key)
+    elif isinstance(obj, (int, float)) and not isinstance(obj, bool) and TIME_KEY_RE.search(key):
+        lo, hi = 1577836800, time.time() + 86400
+        scales = [s for suf, s in UNIT_SUFFIX if key.lower().endswith(suf)] or [1.0, 1e-3, 1e-6, 1e-9]
+        for sc in scales:
+            if lo <= obj * sc <= hi:
+                yield obj * sc
+                break
+
+
 def evidence_times(path):
-    """Every ISO time recorded in an evidence file: in any JSON string value (JSON / JSONL, optionally
-    .gz), or anywhere in a text file. None if the file can't be read."""
+    """Every time recorded in an evidence file: ISO times in any JSON string value and epoch numbers
+    under time-named JSON keys (JSON / JSONL, optionally .gz), or ISO times anywhere in a text file.
+    None if the file can't be read."""
     p = ROOT / path
     try:
         raw = gzip.open(p, "rt").read() if p.suffix == ".gz" else p.read_text()
@@ -169,7 +197,7 @@ def evidence_times(path):
                 break
     if not docs:
         return iso_times(raw)
-    return [t for d in docs for x in strings_in(d) for t in iso_times(x)]
+    return [t for d in docs for x in strings_in(d) for t in iso_times(x)] + [t for d in docs for t in epoch_times(d)]
 
 
 def notebook_versions():
@@ -208,17 +236,36 @@ def prediction_problems(pid, pred, evid, got):
             problems.append(f"evidence {path} changed after its first commit"); continue
         times = evidence_times(path)
         if not times:
-            problems.append(f"evidence {path} records no ISO timestamp"); continue
-        # git stores whole seconds, so a run counts as later only from the next second on
+            problems.append(f"evidence {path} records no timestamp"); continue
+        # git stores whole seconds and the wall clock steps back (STEP_MARGIN_S), so a run counts as
+        # later only from 1 + STEP_MARGIN_S seconds after the prediction commit's second
         early = [t for t in times if t < pt]
-        tie = [t for t in times if pt <= t < pt + 1]
+        tie = [t for t in times if pt <= t < pt + 1 + STEP_MARGIN_S]
         if early:
             problems.append(f"{path} records {len(early)} timestamp(s) before the prediction commit")
         elif tie:
-            ties.append(f"{path} records {len(tie)} timestamp(s) in the prediction commit's own second")
+            ties.append(f"{path} records {len(tie)} timestamp(s) less than {1 + STEP_MARGIN_S} s after the prediction commit")
     if pending and got.strip() == "__":
         return "pending", problems, ties, pc
     return "checked", problems, ties, pc
+
+
+def result_rewrites(pid, versions):
+    """got and error may each be filled in once, from __, and never changed after that
+    (reviews/phase-0-r3.md N2c). Corrections go in `learned` or in the notebook entry."""
+    seen = {}
+    for c, txt in versions:
+        line = next((l for l in txt.splitlines() if l.startswith(pid + " |")), None)
+        m = PRED_RE.match(line) if line else None
+        if not m:
+            continue
+        for name, val in (("got", m.group(6).strip()), ("error", m.group(7).strip())):
+            if name in seen and val != seen[name][1]:
+                where = c if c == "the working tree" else c[:7]
+                return f"{name} changed in {where} after it was filled in at {seen[name][0][:7]}"
+            if val != "__" and name not in seen:
+                seen[name] = (c, val)
+    return None
 
 
 def check_predictions():
@@ -242,12 +289,16 @@ def check_predictions():
             bad.append(f"unparsable: {line[:50]}"); continue
         pid, pred, evid, got = m.group(1), m.group(4), m.group(5), m.group(6)
         status, problems, ties, pc = prediction_problems(pid, pred, evid, got)
+        rw = result_rewrites(pid, versions + [("the working tree", nb.read_text())])
+        if rw:
+            problems = problems + [rw]
         if status == "pending" and not problems:
             pending += 1; continue
         if got.startswith("VOID"):
-            # VOID is for a run whose order can't be proved only because it began in the prediction
-            # commit's own second. Any other problem still fails, and the mark must come in at or
-            # after the evidence commit, so a miss can't be voided ahead of time or after the fact.
+            # VOID is for a run whose order can't be proved only because it began less than
+            # 1 + STEP_MARGIN_S s after the prediction commit. Any other problem still fails, and the mark
+            # must come in at or after the evidence commit, so a miss can't be voided ahead of time or
+            # after the fact.
             first_void = next((c for c, txt in versions
                                if re.search(rf"^{pid} \|.*\| got VOID", txt, re.M)), None)
             ecs = [git("log", "--reverse", "--diff-filter=A", "--format=%H", "--", x.strip()).split()[:1]
@@ -263,7 +314,8 @@ def check_predictions():
                 void.append(pid)
             continue
         if ties:
-            bad += [f"{pid}: {x}; order unprovable at 1 s resolution (mark VOID and retest)" for x in ties]
+            bad += [f"{pid}: {x}; order unprovable (git's 1 s resolution plus clock steps; mark VOID and retest)"
+                    for x in ties]
         bad += [f"{pid}: {x}" for x in problems]
         if not problems and not ties:
             done += 1
@@ -271,7 +323,7 @@ def check_predictions():
         report("prediction order", False, b)
     report("predictions committed before their evidence", not bad,
            f"{len(lines)} predictions, {done} checked in order, {pending} pending"
-           + (f", void (not credited, same-second tie verified): {', '.join(void)}" if void else ""))
+           + (f", void (not credited, tie verified): {', '.join(void)}" if void else ""))
 
 
 def check_test_ledger():
