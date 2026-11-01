@@ -1,9 +1,9 @@
 # STATE
-updated: 2026-11-01T12:56Z   session: 2
-status: gate-review          # running | gate-review | blocked | done-all
-phase: 1   step: Gate 1 second review
-phase_start_commit: 9068467
-next: Gate 1 second review by opencode-go/glm-5.3 (reviews/phase-1-r1-second.md). Gate 1 passes only if it passes too. Then Phase 2, which is outside this session's instruction ("implement phase 0 and 1 in autoplan.md")
+updated: 2026-11-01T13:32Z   session: 2
+status: running              # running | gate-review | blocked | done-all
+phase: 2   step: not started
+phase_start_commit: (the commit that adds reviews/phase-1-r1-second.md; Phase 2's first commit records its id)
+next: Phase 2 predictions. Not started: this session's instruction covered Phases 0 and 1 ("implement phase 0 and 1 in autoplan.md")
 timebox: phase 0 closed at 3/3 units (0.2–0.4; 0.5–0.6 run; 0.6 report + clock investigation), review rounds 1–3 and their fixes counted separately (Deviations); phase 1 used 4/4 units (predictions; code; runs; reports + Gate 1 answers)
 units: 11 of the 200-unit budget (incl. the review-1, review-2 and review-3 fix units)
 running_jobs: none
@@ -16,7 +16,7 @@ second_reviewer: opencode-go/glm-5.3 at every gate (owner's rule, 2026-11-01; se
 - Phase 0.1–0.4: toolkit native, venv packages, model sha256 matches plan.md (1ec302a)
 - Phase 0.5–0.6: Release build 63412d873; llama-bench tg128 68.32 tok/s screened, 70.60 raw (b4e140f raw, report 382c369); WSL2 clock problem measured (d8bb89a)
 - Phase 1.1–1.5: predictions a2b4e25, code a6c843c, raw a7f3d6e, reports and Gate 1 answers in the next commit; P-008 missed on Hindi (2.44× vs 3–10×), P-009–P-013 inside; check.py --phase 1 passes (clean-checkout re-runs identical)
-- Gate 1, round 1, first review: PASS (reviews/phase-1-r1.md, opencode-go/deepseek-v4.1-flash; v2 replication matches exactly). Not confirmed: the executor's re-check found a wrong table in its recomputation and two overstated sentences it had graded CORRECT (now fixed). The second review must pass too.
+- Gate 1: PASS in round 1 with two independent reviews. First: reviews/phase-1-r1.md, opencode-go/deepseek-v4.1-flash; the executor's re-check found a wrong table in its recomputation and two overstated sentences it had graded CORRECT, all fixed. Second: reviews/phase-1-r1-second.md, opencode-go/glm-5.3; 213/213 recomputed numbers match, v2 82/83 identical (1 label). Both PASS with the same grades.
 - Gate 0: PASS in review round 3 (reviews/phase-0-r3.md, 2026-11-01). Rounds 1 and 2 failed (reviews/phase-0-r1.md, -r2.md); their fixes are 45b79d9 and a5764ff.
 ## Decisions
 - 2026-10-31 Timing on this WSL2 machine (NOTEBOOK Phase 0.5–0.6): the kernel tick (nominal 10000 µs) is re-set about every 8 s to 10160–10238 µs (results/0/tick-watch*.json), so CLOCK_MONOTONIC and the wall clock run +1.6 to +2.4 % fast, +1.94 % on average. timesyncd steps the wall clock back ~0.6 s every 32 s. (1) Same-session ratios are fine when each number averages over many 8 s stretches. A single few-second timing carries up to ±0.4 % clock error, and our own timers use CLOCK_MONOTONIC_RAW or CUDA events. (2) Absolute GPU timings use CUDA events (GPU clock). (3) Absolute rates from CLOCK_MONOTONIC (perf_counter, llama-server timings) are reported as measured, plus a corrected value using the rate measured in that session. (4) Durations never come from the wall clock (no time.time()). (5) llama-bench numbers always get the step-screening rule of bench/phase0_report.py, with raw numbers shown next to them. preflight.sh now records kernel_tick_us.
