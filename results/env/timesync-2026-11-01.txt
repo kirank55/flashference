@@ -1,0 +1,111 @@
+# timesync snapshot 2026-11-01T06:11:02Z
+
+## systemd-resolved clock-change events, 2026-11-01 05:32:54 .. now (journal, realtime clock)
+Nov 01 05:34:52.492815 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:35:22.855671 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:35:21.596656 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:35:32.270542 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:35:31.055011 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:35:41.724341 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:35:40.431248 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:36:11.055522 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:36:41.593285 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:37:12.324694 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:37:43.071898 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:38:13.660484 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:38:44.332143 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:39:14.943377 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:39:45.579630 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:40:16.062688 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:40:46.674507 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:41:17.378929 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:41:47.973442 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:42:18.699048 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:42:49.413682 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:43:19.982072 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:43:50.780322 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:44:21.831648 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:44:52.409253 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:45:22.741483 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:45:52.874870 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:46:23.347598 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:46:53.615368 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:47:24.149651 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:47:54.261073 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:48:24.623601 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:48:55.164285 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:49:25.414714 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:49:55.594119 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:50:25.861022 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:51:30.693644 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:52:35.158361 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:53:06.589979 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:53:37.434912 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:54:08.869271 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:54:39.530421 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:55:10.563551 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:55:41.544562 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:56:12.230260 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:56:42.954483 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:57:13.730230 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:57:44.582407 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:58:15.297537 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:58:46.024012 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 05:59:31.459225 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:00:02.087178 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:00:32.797565 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:01:03.424133 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:01:34.377347 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:02:05.211258 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:02:36.181806 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:03:07.003444 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:03:37.869210 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:04:08.708918 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:04:39.339119 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:05:10.012068 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:05:40.732913 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:06:11.317254 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:06:41.965875 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:07:12.624177 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:07:43.320449 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:08:13.974530 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:08:44.620509 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:09:29.962439 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:10:00.491365 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+Nov 01 06:10:31.151471 KIRAN systemd-resolved[251]: Clock change detected. Flushing caches.
+
+## systemd-timesyncd log
+Oct 31 06:20:59.499880 KIRAN systemd-timesyncd[243]: Initial clock synchronization to Sat 2026-10-31 06:20:59.170373 UTC.
+Oct 31 11:27:39.572726 KIRAN systemd-timesyncd[243]: Timed out waiting for reply from 185.125.190.57:123 (ntp.ubuntu.com).
+Oct 31 11:27:49.820682 KIRAN systemd-timesyncd[243]: Timed out waiting for reply from 91.189.91.157:123 (ntp.ubuntu.com).
+Oct 31 11:28:00.070657 KIRAN systemd-timesyncd[243]: Timed out waiting for reply from 185.125.190.58:123 (ntp.ubuntu.com).
+Oct 31 11:28:10.320738 KIRAN systemd-timesyncd[243]: Timed out waiting for reply from 185.125.190.56:123 (ntp.ubuntu.com).
+Oct 31 11:36:41.687747 KIRAN systemd-timesyncd[243]: Contacted time server 185.125.190.58:123 (ntp.ubuntu.com).
+Oct 31 15:51:58.458471 KIRAN systemd-timesyncd[243]: Contacted time server 185.125.190.57:123 (ntp.ubuntu.com).
+-- Boot 3bdefba5a7924ba782340d8463fe0f93 --
+Nov 01 05:34:53.580246 KIRAN systemd[1]: Starting systemd-timesyncd.service - Network Time Synchronization...
+Nov 01 05:34:53.658163 KIRAN systemd[1]: Started systemd-timesyncd.service - Network Time Synchronization.
+Nov 01 05:34:52.492867 KIRAN systemd-timesyncd[252]: Contacted time server 185.125.190.58:123 (ntp.ubuntu.com).
+Nov 01 05:34:52.492987 KIRAN systemd-timesyncd[252]: Initial clock synchronization to Sun 2026-11-01 05:34:52.492718 UTC.
+
+## timedatectl timesync-status
+       Server: 185.125.190.58 (ntp.ubuntu.com)
+Poll interval: 32s (min: 32s; max 34min 8s)
+         Leap: normal
+      Version: 4
+      Stratum: 2
+    Reference: 1D586304
+    Precision: 1us (-25)
+Root distance: 4.538ms (max: 5s)
+       Offset: -1.629476s
+        Delay: 213.871ms
+       Jitter: 209.702ms
+ Packet count: 72
+    Frequency: -0.223ppm
+
+## kernel clock adjustment (adjtimex): tick in us per 10 ms USER_HZ tick; freq in ppm
+tick=10000 (nominal 10000: clock rate +0.000 %) freq=-0.223 ppm status=0x2000
+
+## clocks since boot (CLOCK_MONOTONIC vs CLOCK_MONOTONIC_RAW; both start near 0 at boot)
+monotonic_s=2288.363 monotonic_raw_s=2176.442 ratio_minus_1_pct=+5.142
+boot_id=3bdefba5-a792-4ba7-8234-0d8463fe0f93 uptime_s=2288.36 boot_time=2026-11-01 05:32:54
