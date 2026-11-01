@@ -79,9 +79,22 @@ def show_greedy(d):
                 for m in ("nocache", "cached", "generate")]
         rc = med.get("nocache") / med["cached"] if med.get("cached") else None
         rg = med.get("generate") / med["cached"] if med.get("cached") else None
+        # per-step medians across repeats: step 1 runs the whole prompt in both loops; after that,
+        # nocache step k runs prompt + k - 1 positions while cached runs one
+        st = meas.get("step_seconds", {})
+        n_prompt = len(det["prompt_ids"])
+        med_step = {m: [sorted(x)[len(x) // 2] for x in zip(*st[m])] for m in ("nocache", "cached") if st.get(m)}
+        step_rows = []
+        if len(med_step) == 2:
+            n_steps = min(len(med_step["nocache"]), len(med_step["cached"]))
+            for k in sorted({1, 2, n_steps}):
+                step_rows.append([k, fi(n_prompt + k - 1), ff(med_step["nocache"][k - 1], 4),
+                                  fi(n_prompt if k == 1 else 1), ff(med_step["cached"][k - 1], 4)])
         blocks.append("\n\n".join([
             f"**greedy-{dev}**",
             table(["method", "median s", "min s", "max s", "ms/token"], rows, right={1, 2, 3, 4}),
+            table(["step", "positions run (nocache)", "nocache median s", "positions run (cached)", "cached median s"],
+                  step_rows, right={0, 1, 2, 3, 4}),
             table(["metric", "value"], [["prompt tokens", fi(len(det["prompt_ids"]))],
                                         ["tokens generated", fi(det["n_generated"])],
                                         ["timed repeats per method", fi(meas.get("repeats"))],

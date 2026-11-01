@@ -16,12 +16,12 @@ P-004 | 2026-10-31 | 0.6 | over 120 s, CLOCK_REALTIME − CLOCK_MONOTONIC change
 P-005 | 2026-10-31 | 0.6 | over the same 120 s the guest's CLOCK_MONOTONIC advances 1.3–2.5 % more than the Windows host clock, because steps of ~0.62 s every ~31.5 s mean the guest clock gains about 2 % and time sync pulls it back | evidence: results/0/clock-steps.json | got +1.94 % | error −0.06 points from the ~2 % I reasoned from | learned the cause is the kernel tick: 10160–10238 µs instead of the nominal 10000, re-set about every 8 s (results/0/tick-watch.json, results/0/tick-watch-2.json); CLOCK_MONOTONIC_RAW ignores the tick and keeps host time
 P-006 | 2026-10-31 | 0.6 | sampled every 0.5 s for 120 s, the kernel tick stays within 10185–10210 µs and changes value at least 3 times, because readings so far span 10188–10201 µs (only 10189 is saved) and the reviewer saw it change within 4 s | evidence: results/0/tick-watch.json | got VOID: the run started in the same second as the prediction commit (13:30:53), so the order can't be proved from the records; for what it's worth, the data showed tick 10160–10238 and 13 changes, outside the range | error n/a | learned two things. (1) Leave at least a second between a prediction commit and its run. (2) The range missed because it came from three spot readings taken minutes apart, and a value that is re-set every ~8 s over about ±40 µs can't be pinned down that way; P-007 used the corrected model and was inside its range
 P-007 | 2026-10-31 | 0.6 | sampled every 0.5 s for 120 s, the kernel tick stays within 10140–10260 µs, changes 12–16 times, and the median time between changes is 7.5–8.5 s, because P-006's (void) data showed 10160–10238 µs and a change about every 8 s | evidence: results/0/tick-watch-2.json | got tick 10170–10217 µs, 12 changes, median 8.07 s between changes | error all three inside their ranges | learned something re-sets the tick about every 8 s (not timesyncd's 32 s poll), around a mean of ~10194 µs (+1.94 %)
-P-008 | 2026-11-01 | 1.1 | the Hindi sentence takes 3–10× as many SmolLM2 tokens as Qwen3.5 tokens, the English sentence 0.8–1.25× as many, and at least one SmolLM2 token of the Hindi sentence decodes alone to a partial character (U+FFFD), because SmolLM2's 49,152-token vocabulary was trained mostly on English and spells Devanagari in byte pieces, while Qwen3.5's 248,320-token vocabulary is multilingual (vocabulary sizes from config.json, read before this prediction) | evidence: results/1/tokens.json | got __ | error __ | learned __
-P-009 | 2026-11-01 | 1.2 | on the CPU in fp32, generating 64 tokens with SmolLM2-360M from the chat-formatted prompt: (a) nocache, cached and generate give identical ids; (b) cached takes 2.5–10 s (median of 5 interleaved repeats); (c) nocache takes 2–8× as long as cached; (d) generate takes 0.8–1.5× as long as cached; because every step must read all 1.447 GB of fp32 weights [derived: 361,821,120 × 4 bytes] at an assumed 15–40 GB/s, and a nocache step also redoes about 0.72 GFLOP of matrix work [derived: 2 × 361.8 M] for each of the 40–105 positions so far, at an assumed 100–400 GFLOP/s on 6 cores | evidence: results/1/greedy-cpu.json | got __ | error __ | learned __
-P-010 | 2026-11-01 | 1.2 | on the GPU in fp32, for the same 64 tokens: (a) the three methods give identical ids; (b) cached takes 0.8–3 s (median of 5); (c) nocache takes only 1.0–2.0× as long as cached; (d) generate takes 0.8–1.5× as long as cached; because a step is dominated by reading the 1.447 GB of weights, about 14 ms at the 105.7 GB/s that Phase 0's llama-bench implies [derived: 68.32 tok/s × 1,546,700,032 bytes], plus fixed Python and kernel-launch costs, while the extra matrix work for ~100 positions adds only a few ms on this GPU | evidence: results/1/greedy-cuda.json | got __ | error __ | learned __
-P-011 | 2026-11-01 | 1.3 | named_parameters() in bf16 gives SmolLM2-360M exactly 361,821,120 parameters (723,642,240 bytes) with the embedding at 13.04 % of the bytes (range 13.0–13.1 %), and SmolLM2-135M exactly 134,515,008 (269,030,016 bytes) with the embedding at 21.05 % (21.0–21.1 %); tie_word_embeddings is True for both and lm_head adds no bytes of its own; because config.json's shapes give V×h for the embedding and, per layer, 2h² + 2h·kv attention, 3h·i MLP and 2h norm weights (toy/phase1_predict.py), and the weight files are only 32,672 and 30,536 bytes larger than these byte counts [derived: from the file sizes in results/env/hf-models.txt, seen before this prediction], about the size of a safetensors header | evidence: results/1/params.json | got __ | error __ | learned __
-P-012 | 2026-11-01 | 1.4 | in the GGUF: (a) tensor bytes total exactly 1,546,700,032 and parameters 772,845,888, the values llama-bench reported in Phase 0 (seen before, so this part is not blind); (b) token_embd is [1024, 248320] in bf16, 508,559,360 bytes, 32.88 % of the tensor bytes, and there is no separate output tensor; (c) blk.3, 7, 11, 15, 19 and 23 are attention blocks of 36,710,400 bytes each, the other 18 of blk.0–23 are recurrent (Gated DeltaNet) blocks of 43,164,288 bytes each, and blk.24 is the MTP block, 40,916,992 bytes; (d) the file's other 10,962,496 bytes are metadata and padding; because config.json's shapes give these counts (toy/phase1_predict.py) if norms, ssm_a, ssm_dt and conv1d are f32 and the rest bf16; that f32 set was inferred from the seen total, so (c)'s split per block is the real test | evidence: results/1/gguf.json | got __ | error __ | learned __
-P-013 | 2026-11-01 | 1.5 | (a) on a toy distribution, 100,000 draws from my temperature + top-p sampler match the renormalised top-p probabilities (chi-square p > 0.001) and never pick a token outside the nucleus; (b) of 5 samples of 64 tokens at T = 0.7, top-p 0.9 (seeds 0–4, CPU fp32, SmolLM2-360M, the prompt of 1.2), at least 4 differ from greedy, and each that differs does so first at position 0–20; because at T = 0.7 the top token keeps most of its probability where the model is confident, as in the opening words of a stock answer, but across 64 tokens some step has close candidates | evidence: results/1/sample.json | got __ | error __ | learned __
+P-008 | 2026-11-01 | 1.1 | the Hindi sentence takes 3–10× as many SmolLM2 tokens as Qwen3.5 tokens, the English sentence 0.8–1.25× as many, and at least one SmolLM2 token of the Hindi sentence decodes alone to a partial character (U+FFFD), because SmolLM2's 49,152-token vocabulary was trained mostly on English and spells Devanagari in byte pieces, while Qwen3.5's 248,320-token vocabulary is multilingual (vocabulary sizes from config.json, read before this prediction) | evidence: results/1/tokens.json | got Hindi 2.44× (44 SmolLM2 tokens, 18 Qwen3.5); English 1.00× (10 and 10); 28 of SmolLM2's 44 Hindi tokens decode alone to partial characters | error Hindi ratio below the 3–10× range (miss); English ratio and partial pieces inside | learned SmolLM2 isn't byte-level for Devanagari: 44 tokens for 98 UTF-8 bytes means many pieces hold more than one byte, and Qwen3.5 still needs 18 tokens for 38 characters; vocabulary size alone overstated the gap
+P-009 | 2026-11-01 | 1.2 | on the CPU in fp32, generating 64 tokens with SmolLM2-360M from the chat-formatted prompt: (a) nocache, cached and generate give identical ids; (b) cached takes 2.5–10 s (median of 5 interleaved repeats); (c) nocache takes 2–8× as long as cached; (d) generate takes 0.8–1.5× as long as cached; because every step must read all 1.447 GB of fp32 weights [derived: 361,821,120 × 4 bytes] at an assumed 15–40 GB/s, and a nocache step also redoes about 0.72 GFLOP of matrix work [derived: 2 × 361.8 M] for each of the 40–105 positions so far, at an assumed 100–400 GFLOP/s on 6 cores | evidence: results/1/greedy-cpu.json | got (a) identical; (b) cached 5.210 s; (c) nocache/cached 3.09×; (d) generate/cached 1.01× | error all four inside | learned a cached step is ~81 ms, about the time to read the 1.447 GB of fp32 weights at ~18 GB/s; a nocache step grows with the positions it runs (0.145 s at 40, 0.339 s at 103)
+P-010 | 2026-11-01 | 1.2 | on the GPU in fp32, for the same 64 tokens: (a) the three methods give identical ids; (b) cached takes 0.8–3 s (median of 5); (c) nocache takes only 1.0–2.0× as long as cached; (d) generate takes 0.8–1.5× as long as cached; because a step is dominated by reading the 1.447 GB of weights, about 14 ms at the 105.7 GB/s that Phase 0's llama-bench implies [derived: 68.32 tok/s × 1,546,700,032 bytes], plus fixed Python and kernel-launch costs, while the extra matrix work for ~100 positions adds only a few ms on this GPU | evidence: results/1/greedy-cuda.json | got (a) identical; (b) cached 1.571 s; (c) nocache/cached 1.35×; (d) generate/cached 1.09× | error all four inside | learned a cached step is ~24 ms against a ~14 ms weight-read floor, so fixed per-step overhead is a large share; a nocache step of 41 positions (23.3 ms) was no slower than a cached step of one (24.3 ms)
+P-011 | 2026-11-01 | 1.3 | named_parameters() in bf16 gives SmolLM2-360M exactly 361,821,120 parameters (723,642,240 bytes) with the embedding at 13.04 % of the bytes (range 13.0–13.1 %), and SmolLM2-135M exactly 134,515,008 (269,030,016 bytes) with the embedding at 21.05 % (21.0–21.1 %); tie_word_embeddings is True for both and lm_head adds no bytes of its own; because config.json's shapes give V×h for the embedding and, per layer, 2h² + 2h·kv attention, 3h·i MLP and 2h norm weights (toy/phase1_predict.py), and the weight files are only 32,672 and 30,536 bytes larger than these byte counts [derived: from the file sizes in results/env/hf-models.txt, seen before this prediction], about the size of a safetensors header | evidence: results/1/params.json | got 360M 361,821,120 params, 723,642,240 bytes, embedding 13.04 %; 135M 134,515,008 params, 269,030,016 bytes, embedding 21.05 %; tied and same storage for both; lm_head 0 own bytes | error exact on every count | learned the config accounting is complete (no biases or extra parameters); in SmolLM2 the MLPs, not the head, hold most of the bytes (65.2 % in the 360M)
+P-012 | 2026-11-01 | 1.4 | in the GGUF: (a) tensor bytes total exactly 1,546,700,032 and parameters 772,845,888, the values llama-bench reported in Phase 0 (seen before, so this part is not blind); (b) token_embd is [1024, 248320] in bf16, 508,559,360 bytes, 32.88 % of the tensor bytes, and there is no separate output tensor; (c) blk.3, 7, 11, 15, 19 and 23 are attention blocks of 36,710,400 bytes each, the other 18 of blk.0–23 are recurrent (Gated DeltaNet) blocks of 43,164,288 bytes each, and blk.24 is the MTP block, 40,916,992 bytes; (d) the file's other 10,962,496 bytes are metadata and padding; because config.json's shapes give these counts (toy/phase1_predict.py) if norms, ssm_a, ssm_dt and conv1d are f32 and the rest bf16; that f32 set was inferred from the seen total, so (c)'s split per block is the real test | evidence: results/1/gguf.json | got (a) 1,546,700,032 bytes, 772,845,888 params; (b) token_embd [1024, 248320] BF16, 508,559,360 bytes, 32.88 %, no output.weight; (c) attention blk.3, 7, 11, 15, 19, 23 at 36,710,400 bytes each, 18 recurrent at 43,164,288 each, MTP blk.24 at 40,916,992; (d) 10,962,496 bytes outside tensors | error exact on every part | learned 140 tensors are F32 (2,016,512 bytes), as the fitted set said; a recurrent block is 17.6 % bigger than an attention block; the GGUF's token list has 248,320 entries, the HF tokenizer 248,077
+P-013 | 2026-11-01 | 1.5 | (a) on a toy distribution, 100,000 draws from my temperature + top-p sampler match the renormalised top-p probabilities (chi-square p > 0.001) and never pick a token outside the nucleus; (b) of 5 samples of 64 tokens at T = 0.7, top-p 0.9 (seeds 0–4, CPU fp32, SmolLM2-360M, the prompt of 1.2), at least 4 differ from greedy, and each that differs does so first at position 0–20; because at T = 0.7 the top token keeps most of its probability where the model is confident, as in the opening words of a stock answer, but across 64 tokens some step has close candidates | evidence: results/1/sample.json | got (a) chi-square p = 0.958, 0 of 100,000 draws outside the 3-token nucleus; (b) all 5 samples differ from greedy, first at positions 4, 8, 15, 2 and 5 | error both inside | learned the earliest split came at position 2 (seed 3's 'appears' for greedy's 'is'), so even the third token had a close rival; all five samples gave the same explanation in different words
 
 ## Entries
 
@@ -240,3 +240,249 @@ autoplan.md's extra Phase 0 checks: `llama-server --version` reports `version: 0
 - Phase 0's llama-bench speed, which P-010 uses.
 
 Nothing from Phase 1 has been run, and there is no results/1/. The five drafts in toy/ are unchanged since 05f4335 and have never been run. Every run that tests these predictions starts at least 15 s after this commit (check.py's tie window is 5 s).
+
+## 2026-11-01 — Phase 1.1 Token round-trip
+**Plan:** plan.md 1.1. Tokenize six short texts with three tokenizers, print the ids, and decode each id on its own (`toy/phase1_tokens.py`, run 11:53:37Z → results/1/tokens.json). How Phase 1's code was made, for every entry below: an opencode child (deepseek-v4.1-flash-free, at the owner's request) finished the five drafts, the report script and check.py's Phase 1 checks. I reviewed and corrected its code (a6c843c). Dev runs, its and mine, went to `/tmp`, all after the prediction commit a2b4e25. The official runs are job phase1-runs (11:53:20–11:58:32Z, `toy/phase1_run_all.sh`, preflight code 0 three times, results/1/preflight.jsonl), and `check.py --phase 1` re-ran every script from a clean `git archive HEAD` with identical deterministic output.
+**Prediction:** P-008.
+**Result:**
+<!-- gen: python toy/phase1_report.py --tokens -->
+| text | SmolLM2 tokens | Qwen3.5 tokens | ratio S/Q | chars/token S | chars/token Q | partial S | partial Q | exact S | exact Q |
+|---|---:|---:|---:|---:|---:|---:|---:|---|---|
+| chinese | 19 | 8 | 2.38 | 0.68 | 1.62 | 13 | 0 | yes | yes |
+| code | 28 | 26 | 1.08 | 3.18 | 3.42 | 0 | 0 | yes | yes |
+| emoji | 16 | 15 | 1.07 | 2.06 | 2.20 | 11 | 9 | yes | yes |
+| english | 10 | 10 | 1.00 | 4.40 | 4.40 | 0 | 0 | yes | yes |
+| german | 17 | 12 | 1.42 | 2.94 | 4.17 | 0 | 0 | yes | yes |
+| hindi | 44 | 18 | 2.44 | 0.86 | 2.11 | 28 | 0 | yes | yes |
+
+vocabulary (len(tok)): SmolLM2-360M 49,152, SmolLM2-135M 49,152, Qwen3.5-0.8B 248,077; SmolLM2-135M ids equal SmolLM2-360M ids for every text: yes
+<!-- /gen -->
+**Prediction error:** P-008 missed on Hindi. SmolLM2 needed 2.44× Qwen3.5's tokens [meas: table above], below the 3–10× range. The English ratio, 1.00×, and the partial-character pieces, 28 of 44 [meas], were inside.
+**What I now understand:**
+- Tokenizers work on UTF-8 bytes. A Devanagari letter takes 3 bytes, so the Hindi sentence is 38 characters in 98 bytes [meas: results/1/tokens.json]. A vocabulary that had never seen Hindi would need about one token per byte. SmolLM2 needed 44 [meas], so its 49,152 entries do hold multi-byte Devanagari pieces. But 28 of those 44 pieces are fragments of a character that print as U+FFFD on their own [meas].
+- Qwen3.5 needed 18 tokens, about 2 characters each [meas: 2.11 chars/token], and none of them is a fragment.
+- Every round trip was exact for both tokenizers [meas]. Splitting a character into byte pieces loses nothing; it only costs more tokens.
+- SmolLM2-135M and -360M give identical ids for every text [meas], because they share one tokenizer, which a draft and its target must.
+- Qwen3.5's tokenizer has 248,077 entries [meas: len(tok)]. The GGUF's token list and the embedding have 248,320 [meas: results/1/gguf.json], 243 more [derived: 248,320 − 248,077].
+
+**Open questions:** none new.
+
+**What this shows:** a language model reads token ids, not letters. The same sentence costs different numbers of tokens in different vocabularies. English costs the same in both (10 tokens), but Hindi costs SmolLM2 more than twice as many tokens as Qwen3.5 (44 against 18) [meas: table]. Each token is one step of generation, so a model whose vocabulary fits a language badly is slower in that language and fills its context sooner. A token can even be part of one character: SmolLM2 splits Hindi letters into byte fragments that only make sense together. Nothing is lost, though; decoding all the ids gives back the exact sentence.
+
+**What I did not test:**
+- More than one sentence per language. One Hindi sentence is a small sample, and the 2.44× could move with more text.
+- Special tokens and chat templates (`add_special_tokens=False` here).
+- What the 243 extra GGUF token entries contain.
+- Whether llama.cpp's tokenizer gives the same ids; Phase 6.2 checks that.
+
+## 2026-11-01 — Phase 1.2 Generation by hand
+**Plan:** plan.md 1.2. `toy/phase1_greedy.py` has three greedy loops for SmolLM2-360M in fp32: nocache re-runs the whole sequence each step; cached passes `past_key_values`, so only the new token runs; and `model.generate(do_sample=False)`. Each made 64 new tokens from the chat-formatted prompt "Explain in one paragraph why the sky is blue." (40 prompt tokens [meas]), on the CPU (11:53:53Z) and the GPU (11:56:56Z). One warm-up call per method came first, then 5 repeats interleaved A B C (autoplan.md Phase 1), timed with `CLOCK_MONOTONIC_RAW` (STATE.md Decisions). The kernel tick read 10833 µs at the first preflight and 10000 at the next two [meas: results/1/preflight.jsonl], so `CLOCK_MONOTONIC` would have run fast during these runs; the raw clock doesn't follow the tick.
+**Prediction:** P-009 (CPU), P-010 (GPU).
+**Result:**
+<!-- gen: python toy/phase1_report.py --greedy -->
+**greedy-cpu**
+
+| method | median s | min s | max s | ms/token |
+|---|---:|---:|---:|---:|
+| nocache | 16.085 | 15.765 | 16.370 | 251.3 |
+| cached | 5.210 | 5.197 | 5.561 | 81.4 |
+| generate | 5.277 | 5.175 | 5.534 | 82.5 |
+
+| step | positions run (nocache) | nocache median s | positions run (cached) | cached median s |
+|---:|---:|---:|---:|---:|
+| 1 | 40 | 0.1446 | 40 | 0.1563 |
+| 2 | 41 | 0.1513 | 1 | 0.0805 |
+| 64 | 103 | 0.3390 | 1 | 0.0812 |
+
+| metric | value |
+|---|---:|
+| prompt tokens | 40 |
+| tokens generated | 64 |
+| timed repeats per method | 5 |
+| clock | CLOCK_MONOTONIC_RAW |
+| nocache/cached | 3.09 |
+| generate/cached | 1.01 |
+| all three ids equal | yes |
+
+**greedy-cuda**
+
+| method | median s | min s | max s | ms/token |
+|---|---:|---:|---:|---:|
+| nocache | 2.128 | 2.077 | 2.285 | 33.3 |
+| cached | 1.571 | 1.545 | 1.805 | 24.6 |
+| generate | 1.710 | 1.553 | 1.807 | 26.7 |
+
+| step | positions run (nocache) | nocache median s | positions run (cached) | cached median s |
+|---:|---:|---:|---:|---:|
+| 1 | 40 | 0.0299 | 40 | 0.0253 |
+| 2 | 41 | 0.0233 | 1 | 0.0243 |
+| 64 | 103 | 0.0338 | 1 | 0.0214 |
+
+| metric | value |
+|---|---:|
+| prompt tokens | 40 |
+| tokens generated | 64 |
+| timed repeats per method | 5 |
+| clock | CLOCK_MONOTONIC_RAW |
+| nocache/cached | 1.35 |
+| generate/cached | 1.09 |
+| all three ids equal | yes |
+<!-- /gen -->
+**Prediction error:** all eight parts were inside their ranges (prediction log).
+**What I now understand:**
+- **Why the cached version is faster** (plan.md 1.2, step 4). Attention needs every earlier position's key and value vectors. Without a cache, each step recomputes them for the whole sequence: step k runs 40 + k − 1 positions through all 32 layers. With the cache, each step runs only the new token and appends its keys and values. On the CPU this shows directly. A nocache step grows from 0.145 s at 40 positions to 0.339 s at 103, while a cached step stays at ~0.081 s [meas: step table]. Over the whole run nocache took 3.09× as long [meas].
+- **A cached step still reads every weight once:** 1.447 GB in fp32 [derived: 361,821,120 × 4 bytes]. At ~0.081 s per step that is ~18 GB/s [derived: 1.447 / 0.081], so on this CPU a cached step is limited by memory, not arithmetic. The long nocache steps run at about 200–220 GFLOP/s at most [est: 2 × 361.8 M × positions / step time, as if the whole step were arithmetic].
+- **On the GPU the balance changes.**
+  - A cached step takes ~24 ms [meas]. Reading the weights should take only ~14 ms at the 105.7 GB/s Phase 0's llama-bench reached [derived: 1.447 GB / 105.7 GB/s]. The other ~10 ms is per-step overhead [est]: Python, transformers' bookkeeping and many small kernel launches.
+  - Arithmetic is so fast here that a nocache step of 41 positions (23.3 ms) was no slower than a cached step of one (24.3 ms), and 103 positions took 33.8 ms against 21.4 ms [meas: steps 2 and 64].
+  - Over 64 tokens, nocache took only 1.35× as long [meas].
+- **The three methods agree.** They gave identical ids on both devices, and the CPU ids equal the GPU ids [meas: results/1/greedy-cpu.json, greedy-cuda.json]. `generate()` took 1.01× and 1.09× the hand-written cached loop [meas]: it is the same algorithm with a little more bookkeeping. SmolLM2's `generation_config.json` sets only token ids, so `generate()` adds no extra logits processing.
+
+**Open questions:** how the ~10 ms of GPU overhead per step splits between Python and kernel launches. Phase 2's and Phase 7's profiling can say.
+
+**What this shows:** generating text is a loop: run the model, take the most likely next token, append it, repeat. A token can't come before the one it follows, because it is computed from it. The KV cache makes each pass cheaper by remembering the work on earlier tokens instead of redoing it. On the CPU that saving is large: the cached loop was 3.1× faster. On the GPU it was only 1.35×, because the GPU does arithmetic so fast that a step's time is set by reading the 1.45 GB of weights and by fixed overheads, not by how many positions it processes. That last fact is the seed of speculative decoding. If checking many positions at once costs about as much as generating one, then guessing several tokens cheaply and checking them in a single pass can save time.
+
+**What I did not test:**
+- bf16, the stored dtype. fp32 was used so the three methods could be compared exactly.
+- Batches larger than one, and generations longer than 64 tokens. Nocache's extra cost grows with length, so its 3.09× would grow too.
+- `torch.compile` or CUDA graphs, which remove exactly the per-step overhead above.
+- Thread counts other than torch's default of 6 [meas: results/1/greedy-cpu.json].
+- The CPU on battery.
+
+## 2026-11-01 — Phase 1.3–1.4 Where the bytes are
+**Plan:** two steps.
+- plan.md 1.3: sum SmolLM2's parameters by group with `named_parameters()` in bf16 (`toy/phase1_params.py`, 11:53:41Z).
+- plan.md 1.4: read the Qwen3.5-0.8B GGUF with `GGUFReader` and group its tensors by prefix and by block (`toy/phase1_gguf.py`, 11:53:44Z).
+
+**Prediction:** P-011, P-012.
+**Result, 1.3:**
+<!-- gen: python toy/phase1_report.py --params -->
+| model | embedding | attention | mlp | norms | lm_head | other | total bytes | total params | embedding share | tied | same storage |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| smollm2-135m | 56,623,104 | 53,084,160 | 159,252,480 | 70,272 | 0 | 0 | 269,030,016 | 134,515,008 | 21.05% | yes | yes |
+| smollm2-360m | 94,371,840 | 157,286,400 | 471,859,200 | 124,800 | 0 | 0 | 723,642,240 | 361,821,120 | 13.04% | yes | yes |
+<!-- /gen -->
+**Result, 1.4:**
+<!-- gen: python toy/phase1_report.py --gguf -->
+**summary**
+
+| item | value |
+|---|---:|
+| file bytes | 1,557,662,528 |
+| tensor bytes | 1,546,700,032 |
+| parameters | 772,845,888 |
+| tensors | 335 |
+| token_embd bytes | 508,559,360 |
+| token_embd share | 32.88% |
+| separate output.weight | no |
+| MTP bytes | 40,916,992 |
+| bytes not in tensors | 10,962,496 |
+
+**blocks by kind**
+
+| kind | blocks | bytes per block | total bytes |
+|---|---|---|---:|
+| attention | 3, 7, 11, 15, 19, 23 | 3: 36,710,400, 7: 36,710,400, 11: 36,710,400, 15: 36,710,400, 19: 36,710,400, 23: 36,710,400 | 220,262,400 |
+| mtp | 24 | 24: 40,916,992 | 40,916,992 |
+| recurrent | 0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21, 22 | 0: 43,164,288, 1: 43,164,288, 2: 43,164,288, 4: 43,164,288, 5: 43,164,288, 6: 43,164,288, 8: 43,164,288, 9: 43,164,288, 10: 43,164,288, 12: 43,164,288, 13: 43,164,288, 14: 43,164,288, 16: 43,164,288, 17: 43,164,288, 18: 43,164,288, 20: 43,164,288, 21: 43,164,288, 22: 43,164,288 | 776,957,184 |
+
+**bytes by tensor type**
+
+| type | tensors | bytes |
+|---|---:|---:|
+| BF16 | 195 | 1,544,683,520 |
+| F32 | 140 | 2,016,512 |
+<!-- /gen -->
+**Prediction error:** none. Every count in P-011 and P-012 matched exactly. P-012(a) wasn't blind, because llama-bench had shown both totals in Phase 0. P-012(b)–(d) were derived from config.json, and the set of f32 tensors behind them was fitted to the seen total.
+**What I now understand:**
+- **Tied embeddings.** `tie_word_embeddings` is True for both SmolLM2 models, and `lm_head.weight` is the same storage as `embed_tokens.weight` [meas: "same storage"]. `named_parameters()` lists a shared tensor once, so lm_head shows 0 bytes of its own.
+- **SmolLM2:** the embedding (which is also the head) is 13.04 % of the 360M's bytes and 21.05 % of the 135M's [meas]. The smaller the model, the bigger the share of a vocabulary matrix of fixed height. The MLPs are the biggest group, 65.2 % of the 360M's bytes [derived: 471,859,200 / 723,642,240].
+- **Qwen3.5-0.8B (plan.md 1.4's questions):**
+  - **Total and head.** The tensors hold 1,546,700,032 bytes in a 1,557,662,528-byte file [meas]. token_embd, which is also the output head, has 508,559,360 of them, 32.88 % [meas], and there is no separate `output.weight`.
+  - **Vocabulary and width:** 248,320 rows of 1,024 [meas: metadata].
+  - **Attention blocks** are 3, 7, 11, 15, 19 and 23 (every 4th, `qwen35.full_attention_interval` = 4), with `attn_q`, `attn_k`, `attn_v`, `attn_output` and q/k norms.
+  - **Recurrent Gated DeltaNet blocks** are the other 18, with `attn_qkv`, `attn_gate`, `ssm_conv1d`, `ssm_a`, `ssm_alpha`, `ssm_beta`, `ssm_dt`, `ssm_norm` and `ssm_out` [meas: tensor names in results/1/gguf.json].
+  - **The MTP block**, blk.24, is 40,916,992 bytes, 2.65 % [derived: / 1,546,700,032]. It is a full attention layer plus `nextn.eh_proj` and three norms, and has no head of its own (`qwen35.nextn_predict_layers` = 1).
+- **Block sizes.** A recurrent block is 17.6 % bigger than an attention block [derived: 43,164,288 / 36,710,400 − 1].
+- **Data types.** The small tensors are F32: 140 of them, 2,016,512 bytes [meas]. The other 195 are BF16.
+
+**Open questions:** none new.
+
+**What this shows:** speed is mostly a matter of how many bytes must be read for each token. In SmolLM2, most bytes are in the MLP layers. In Qwen3.5-0.8B, a single matrix, the 248,320-row vocabulary table, holds a third of all the bytes. The model uses it twice. It looks up the input token's row, and, as the "LM head", it scores every vocabulary entry for the next token, which means reading all 508.6 MB for every token generated. The MTP block, the small add-on that guesses the token after next, is only 2.65 % of the bytes. But to turn its guess into a token it has to use the same 508.6 MB head.
+
+**What I did not test:**
+- Which tensors llama.cpp actually reads in a plain decode step. All counts here come from the file.
+- Quantised GGUFs.
+- The vision tower, which isn't in this GGUF.
+
+## 2026-11-01 — Phase 1.5 Sampling by hand
+**Plan:** plan.md 1.5. `toy/phase1_sample.py` (11:57:36Z) implements temperature and top-p sampling from a logits vector. It has two parts:
+- a toy check: 100,000 draws through the sampler itself, against probabilities computed separately in plain Python;
+- five 64-token samples at T = 0.7, top-p 0.9 (seeds 0–4, CPU fp32, the prompt of 1.2), compared with greedy.
+
+**Prediction:** P-013.
+**Result:**
+<!-- gen: python toy/phase1_report.py --sample -->
+**toy**
+
+| token id | probability | expected draws | observed draws | observed freq |
+|---:|---:|---:|---:|---:|
+| 0 | 0.578305 | 57830.45 | 57806 | 0.578060 |
+| 1 | 0.283104 | 28310.42 | 28303 | 0.283030 |
+| 2 | 0.138591 | 13859.13 | 13891 | 0.138910 |
+
+chi-square p = 0.958113; draws outside nucleus = 0; sampler's nucleus equals the reference: yes
+
+**model**
+
+greedy text: The sky is blue because of a phenomenon known as Rayleigh scattering, which occurs when sunlight enters Earth's atmosphere and encounters tiny molecules of gases such as nitrogen and oxygen. These molecules scatter the shorter wavelengths of light, such as blue and violet, in all directions, while the longer wavelengths, like red and orange, are
+
+| seed | differs from greedy | first differing position | text |
+|---:|---|---:|---|
+| 0 | yes | 4 | The sky is blue due to the scattering of sunlight by the Earth's atmosphere. The sunlight has a lot of colors and each color has a different amount of energy. Blue light has the smallest amount of energy, so it is scattered the most by the molecules of the atmosphere. This is why we see the sky as blue |
+| 1 | yes | 8 | The sky is blue because of a phenomenon called Rayleigh scattering, which occurs when sunlight enters Earth's atmosphere and encounters molecules of gases such as nitrogen and oxygen. These molecules scatter the shorter, blue wavelengths of light more than the longer, red wavelengths, resulting in the blue and violet appearing as a scattering effect. This is |
+| 2 | yes | 15 | The sky is blue because of a phenomenon known as Rayleigh scattering, which is the scattering of light by small particles such as water vapor, dust, and air molecules. When sunlight enters the Earth's atmosphere, it encounters tiny molecules of gases like nitrogen and oxygen. These molecules scatter the light in all directions, but the |
+| 3 | yes | 2 | The sky appears blue due to a phenomenon known as Rayleigh scattering, which occurs when sunlight enters the Earth's atmosphere and encounters tiny molecules of gases such as nitrogen and oxygen. These molecules scatter the shorter, blue wavelengths of light more than the longer, red wavelengths, resulting in the blue and violet light being scattered in all |
+| 4 | yes | 5 | The sky is blue because it is due to the scattering of sunlight in the Earth's atmosphere. When sunlight enters the Earth's atmosphere, it collides with molecules of gases present in the air, such as nitrogen and oxygen. These collisions cause the shorter, blue wavelengths of light to be scattered in all directions, while the |
+
+distinct samples = 5
+<!-- /gen -->
+**Prediction error:** both parts were inside.
+**What I now understand:**
+- **Temperature** divides the logits before the softmax. T < 1 sharpens the distribution toward the top token, and T > 1 flattens it. **Top-p** then keeps the smallest set of top tokens whose probabilities add up to at least p, and renormalises within it.
+- **The toy check.** In the toy, the three most likely tokens already held at least 90 % of the probability, so the nucleus was exactly those three [meas: table]. The draws fit it (p = 0.958), and none fell outside [meas].
+- **The model samples.** All five differed from greedy, first at positions 4, 8, 15, 2 and 5, and from each other [meas]. All five still give the same explanation, Rayleigh scattering, in different words: at T = 0.7 sampling changes the wording, not the content.
+- **Cross-check.** The script's own greedy ids equal 1.2's CPU cached ids [meas: the two JSON files].
+
+**What this shows:** greedy decoding always takes the top token, so it writes the same text every time. Sampling draws from the model's probabilities instead, so each run differs. Temperature sets how adventurous the draws are, and top-p cuts off the long tail of unlikely tokens, so a sample never picks something absurd. Here every sample began like the greedy answer and wandered off within 2–15 tokens. This matters later: speculative decoding with sampling must keep exactly this distribution, not just the greedy path.
+
+**What I did not test:**
+- top-k, other temperatures, and repetition penalties.
+- Whether whole sampled sentences follow the model's distribution. Only single-step toy draws were tested.
+- Sampling on the GPU.
+
+## Gate 1 answers
+plan.md's five questions, answered from the evidence (the reviewer's grade goes after each):
+1. **What is a logit? What does the LM head compute, and why does its cost grow with vocabulary size?**
+   - A logit is the model's raw score for one vocabulary entry at one position, before any normalisation. There is one per vocabulary entry. The softmax turns them into probabilities, greedy takes the largest (1.2), and sampling draws from them (1.5).
+   - The LM head computes the logits. It multiplies the final hidden vector (width 1,024 in Qwen3.5) by a matrix with one row per vocabulary entry, giving 248,320 logits [meas: results/1/gguf.json].
+   - Every row is read and used for every generated token, so the head's bytes and its multiply-adds both grow in proportion to the vocabulary. Here that is 248,320 × 1,024 × 2 bytes = 508,559,360 bytes per token in bf16 [meas: token_embd in results/1/gguf.json].
+2. **Why can't the model produce token t+1 before token t?**
+   - Because token t is part of its input. Each step's input is the sequence so far, and the next token's logits come from the last position (`logits[0, -1]` in toy/phase1_greedy.py). Until token t is chosen, there is nothing at that position to compute from.
+   - In 1.2, every loop is strictly sequential: 64 tokens took 64 forward passes [meas: n_generated in results/1/greedy-*.json].
+   - What can run in parallel is checking. One forward pass computes logits at every position at once, as the nocache loop does on every step. On the GPU, 103 positions took 33.8 ms against 21.4 ms for one [meas: step table in the 1.2 entry]. Speculative decoding uses this: a cheap draft guesses several tokens, and the target checks them all in one pass.
+3. **What does a KV cache store? What does a recurrent layer store instead? Why is "undo the last 3 tokens" easy for a KV cache and hard for a recurrent state?**
+   - **The KV cache** stores, for each attention layer and each past position, that position's key and value vectors; each new token's query is compared against them. It grows by one entry per layer per token. In Qwen3.5 only the 6 attention blocks have one [meas: block kinds in results/1/gguf.json], and they add 12,288 bytes per token in bf16 [derived: 6 layers × (K + V) × 2 heads × 256 × 2 bytes, from config.json].
+   - **A Gated DeltaNet layer** keeps a fixed-size state instead. It has a matrix per head, key width × value width, 128 × 128 here (config.json's `linear_key_head_dim` and `linear_value_head_dim` [meas]), that summarises everything seen so far. It also keeps the last few inputs of its short convolution (`ssm_conv1d`, kernel 4 [meas: config.json `linear_conv_kernel_dim`]). The state never grows, and every token updates it in place [unv: from the Gated DeltaNet design, not measured here].
+   - **Undo for a KV cache** is truncation. Dropping the last 3 positions leaves exactly the cache as it was 3 tokens ago, because earlier entries never change.
+   - **Undo for a recurrent state** isn't possible from the state alone. Each update mixes the token into the same matrix and overwrites the old values. To go back you need a saved copy from 3 tokens earlier, or a re-run from an older checkpoint. Speculative decoding rejects drafted tokens often, so with recurrent layers it has to checkpoint the state at every drafted position.
+4. **From your 1.4 output: what fraction of Qwen3.5-0.8B's bytes is the head? (flashference claims about one third. Do you agree?)**
+   - token_embd, which is also the head, is 508,559,360 of the 1,546,700,032 tensor bytes, 32.88 % [meas: results/1/gguf.json]. So yes, about one third.
+   - Against the bytes a plain decode step needs (every tensor except the MTP block), it is 33.77 % [derived: 508,559,360 / (1,546,700,032 − 40,916,992)]. That is one third too, assuming plain decoding doesn't read blk.24, which I didn't check.
+   - The two uses of the table cost very differently: the input lookup reads one 2,048-byte row per token [derived: 1,024 × 2 bytes], while the head reads all 248,320 rows.
+5. **Why did tied embeddings plus a 248k vocabulary make flashference's MTP draft expensive?**
+   - To draft a token, the MTP block runs one extra layer, 40.9 MB [meas: blk.24, 40,916,992 bytes], and then needs logits over the whole vocabulary.
+   - It has no head of its own. blk.24 holds `nextn.shared_head_norm` but no head matrix [meas: tensor names in results/1/gguf.json], and config.json has `mtp_use_dedicated_embeddings: False`. So it uses the main tied matrix of 248,320 rows, 508.6 MB.
+   - That puts 92.6 % of a drafted token's bytes in the head [derived: 508,559,360 / (508,559,360 + 40,916,992)]. A drafted token costs 36.5 % of a plain decode step's bytes [derived: 549,476,352 / 1,505,783,040], so three drafted tokens cost about as much as one target step [derived: 3 × 36.5 %].
+   - At the 105.7 GB/s Phase 0 measured, the head alone takes ~4.8 ms per drafted token [derived: 508,559,360 B / 105.7 GB/s]. v1 measured ~5.3 ms per untrimmed draft token. Cutting the draft's head to 8k rows saved ~4.0 ms per drafted token, which took MTP from 1.15× to 1.41× (1 draft) and 1.60× (2 drafts) [meas: ref/flashference/results/2026-10-26-bf16-b4-trim-draft.md:9, :59].
+   - A draft only pays off if it is much cheaper than the target. With a tied head and a large vocabulary, the draft inherits the target's single most expensive matrix.

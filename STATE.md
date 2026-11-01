@@ -1,11 +1,11 @@
 # STATE
-updated: 2026-11-01T11:12Z   session: 2
-status: running              # running | gate-review | blocked | done-all
-phase: 1   step: 1.1–1.5 (predictions P-008–P-013 committed; scripts next)
+updated: 2026-11-01T12:04Z   session: 2
+status: gate-review          # running | gate-review | blocked | done-all
+phase: 1   step: Gate 1 review
 phase_start_commit: 9068467
-next: finish toy/phase1_*.py, the report script and check.py's Phase 1 checks (delegated, see Deviations); review and commit them; then the 1.1–1.5 runs, reports, Gate 1 answers, Gate 1 review
-timebox: phase 0 closed at 3/3 units (0.2–0.4; 0.5–0.6 run; 0.6 report + clock investigation), review rounds 1–3 and their fixes counted separately (Deviations); phase 1 used 0/4 units
-units: 7 of the 200-unit budget (incl. the review-1, review-2 and review-3 fix units)
+next: Gate 1 review round 1 (reviews/phase-1-r1.md); on PASS, Phase 2
+timebox: phase 0 closed at 3/3 units (0.2–0.4; 0.5–0.6 run; 0.6 report + clock investigation), review rounds 1–3 and their fixes counted separately (Deviations); phase 1 used 4/4 units (predictions; code; runs; reports + Gate 1 answers)
+units: 11 of the 200-unit budget (incl. the review-1, review-2 and review-3 fix units)
 running_jobs: none
 toolkit: native              # ~/opt/cuda-12.8, nvcc V12.8.93
 noise_floor: (set by Gate 4, with its definition)
@@ -15,6 +15,7 @@ second_reviewer: off
 - Bootstrap B1–B6, commit 03efb2f (no review: autoplan.md gates start at Phase 0)
 - Phase 0.1–0.4: toolkit native, venv packages, model sha256 matches plan.md (1ec302a)
 - Phase 0.5–0.6: Release build 63412d873; llama-bench tg128 68.32 tok/s screened, 70.60 raw (b4e140f raw, report 382c369); WSL2 clock problem measured (d8bb89a)
+- Phase 1.1–1.5: predictions a2b4e25, code a6c843c, raw a7f3d6e, reports and Gate 1 answers in the next commit; P-008 missed on Hindi (2.44× vs 3–10×), P-009–P-013 inside; check.py --phase 1 passes (clean-checkout re-runs identical)
 - Gate 0: PASS in review round 3 (reviews/phase-0-r3.md, 2026-11-01). Rounds 1 and 2 failed (reviews/phase-0-r1.md, -r2.md); their fixes are 45b79d9 and a5764ff.
 ## Decisions
 - 2026-10-31 Timing on this WSL2 machine (NOTEBOOK Phase 0.5–0.6): the kernel tick (nominal 10000 µs) is re-set about every 8 s to 10160–10238 µs (results/0/tick-watch*.json), so CLOCK_MONOTONIC and the wall clock run +1.6 to +2.4 % fast, +1.94 % on average. timesyncd steps the wall clock back ~0.6 s every 32 s. (1) Same-session ratios are fine when each number averages over many 8 s stretches. A single few-second timing carries up to ±0.4 % clock error, and our own timers use CLOCK_MONOTONIC_RAW or CUDA events. (2) Absolute GPU timings use CUDA events (GPU clock). (3) Absolute rates from CLOCK_MONOTONIC (perf_counter, llama-server timings) are reported as measured, plus a corrected value using the rate measured in that session. (4) Durations never come from the wall clock (no time.time()). (5) llama-bench numbers always get the step-screening rule of bench/phase0_report.py, with raw numbers shown next to them. preflight.sh now records kernel_tick_us.
